@@ -35,6 +35,18 @@ var kuraWires = (function() {
 		regiterFormInputFieldValidation();
 	};
 
+	client.getDriver = function(assetPid) {
+		var _elements = graph.getElements();
+		for (var i = 0; i < _elements.length; i++) {
+			var elem = _elements[i];
+			if (!elem.isLink()) {
+				if (elem.attributes.label === assetPid) {
+					return elem.attributes.driver;
+				}
+			}
+		}
+	};
+
 	var removeCellFunc = function(cell) {
 		removeCell(cell);
 	};
@@ -60,7 +72,8 @@ var kuraWires = (function() {
 		var _elements = graph.getElements();
 		for (var i = 0; i < _elements.length; i++) {
 			var elem = _elements[i];
-			if (!elem.isLink() && hasCycle(elem, visited, level)) {
+			if ((graph.getPredecessors(elem).length > 0) && !elem.isLink()
+					&& hasCycle(elem, visited, level)) {
 				isCycleExists = true;
 				break;
 			}
@@ -244,10 +257,7 @@ var kuraWires = (function() {
 			if (visited.indexOf(c.id) > -1) {
 				return true;
 			}
-			var predecessors = graph.getPredecessors(c);
-			if (allPredecessorsVisited(predecessors, visited)) {
-				visited.push(c.id);
-			}
+			visited.push(c.id);
 			if (hasCycle(c, visited.slice(), ++level)) {
 				return true;
 			}

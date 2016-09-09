@@ -63,7 +63,6 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.SelectionCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.cell.client.TextInputCell;
-import com.google.gwt.cell.client.TextInputCell.ViewData;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -164,10 +163,9 @@ public class PropertiesUi extends Composite {
 		this.channelsDataProvider.addDataDisplay(channelTable);
 		this.channelPanel.setVisible(false);
 		this.btn_remove.setEnabled(false);
-
+		
 		this.hasDriver = m_configurableComponent.get("driver.pid") != null;
-		this.isWireAsset = m_configurableComponent.getFactoryId() != null
-				&& m_configurableComponent.getFactoryId().contains("WireAsset");
+		this.isWireAsset = m_configurableComponent.getFactoryId() != null && m_configurableComponent.getFactoryId().contains("WireAsset");
 
 		if (this.hasDriver) {
 			this.channelTitle.setText(MSGS.channelTableTitle(m_configurableComponent.get("driver.pid").toString()));
@@ -240,6 +238,7 @@ public class PropertiesUi extends Composite {
 				});
 			}
 		});
+		
 	}
 
 	//
@@ -261,8 +260,7 @@ public class PropertiesUi extends Composite {
 			if (fg.getWidget(i) instanceof FormLabel) {
 				final String id = ((FormLabel) fg.getWidget(i)).getText();
 				param = this.m_configurableComponent.getParameter(id.trim().replaceAll("\\*$", ""));
-			} else if ((fg.getWidget(i) instanceof ListBox) || (fg.getWidget(i) instanceof Input)
-					|| (fg.getWidget(i) instanceof TextBox)) {
+			} else if ((fg.getWidget(i) instanceof ListBox) || (fg.getWidget(i) instanceof Input) || (fg.getWidget(i) instanceof TextBox)) {
 
 				final String value = this.getUpdatedFieldConfiguration(param, fg.getWidget(i));
 				if (value == null) {
@@ -422,8 +420,7 @@ public class PropertiesUi extends Composite {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void renderBooleanField(final GwtConfigParameter param, final boolean isFirstInstance,
-			final FormGroup formGroup) {
+	private void renderBooleanField(final GwtConfigParameter param, final boolean isFirstInstance, final FormGroup formGroup) {
 		this.valid.put(param.getName(), true);
 
 		if (isFirstInstance) {
@@ -489,8 +486,7 @@ public class PropertiesUi extends Composite {
 		this.fields.add(formGroup);
 	}
 
-	private void renderChoiceField(final GwtConfigParameter param, final boolean isFirstInstance,
-			final FormGroup formGroup) {
+	private void renderChoiceField(final GwtConfigParameter param, final boolean isFirstInstance, final FormGroup formGroup) {
 		this.valid.put(param.getName(), true);
 
 		if (isFirstInstance) {
@@ -544,8 +540,7 @@ public class PropertiesUi extends Composite {
 
 	// passes the parameter to the corresponding method depending on the type of
 	// field to be rendered
-	private void renderConfigParameter(final GwtConfigParameter param, final boolean isFirstInstance,
-			final FormGroup formGroup, boolean isReadOnly) {
+	private void renderConfigParameter(final GwtConfigParameter param, final boolean isFirstInstance, final FormGroup formGroup, boolean isReadOnly) {
 		final Map<String, String> options = param.getOptions();
 		if ((options != null) && (options.size() > 0)) {
 			this.renderChoiceField(param, isFirstInstance, formGroup);
@@ -567,21 +562,22 @@ public class PropertiesUi extends Composite {
 		for (final GwtConfigParameter param : this.m_configurableComponent.getParameters()) {
 			String[] tokens = param.getId().split("\\.");
 			boolean isChannelData = tokens.length > 2 && tokens[1].trim().equals("CH");
-			boolean isDriverData = tokens.length > 2 && tokens[1].trim().equals("DRIVER");
 			boolean isDriverField = param.getId().equals("driver.pid");
+
 			isChannelData = isChannelData && isWireAsset;
-			if (!isChannelData) {
+			if (!isChannelData && !isDriverField) {
 				if ((param.getCardinality() == 0) || (param.getCardinality() == 1) || (param.getCardinality() == -1)) {
 					final FormGroup formGroup = new FormGroup();
-					if (!isDriverData && isDriverField)
+					if (isDriverField) {
 						this.renderConfigParameter(param, true, formGroup, true);
-					else
+					} else {
 						this.renderConfigParameter(param, true, formGroup, false);
-
+					}
 				} else {
 					this.renderMultiFieldConfigParameter(param);
 				}
 			}
+
 		}
 
 		if (this.isWireAsset && this.hasDriver) {
@@ -589,6 +585,7 @@ public class PropertiesUi extends Composite {
 
 				@Override
 				public void onFailure(Throwable caught) {
+
 					FailureHandler.handle(caught);
 				}
 
@@ -607,8 +604,7 @@ public class PropertiesUi extends Composite {
 									m_driverDescriptor = result;
 									addDefaultColumns();
 									for (GwtConfigParameter param : result.getParameters()) {
-										channelTable.addColumn(getColumnFromParam(param),
-												new TextHeader(param.getName()));
+										channelTable.addColumn(getColumnFromParam(param), new TextHeader(param.getName()));
 									}
 
 									gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
@@ -620,8 +616,8 @@ public class PropertiesUi extends Composite {
 
 										@Override
 										public void onSuccess(GwtXSRFToken result) {
-											gwtWireService.getGwtChannels(result, m_driverDescriptor,
-													m_configurableComponent, new AsyncCallback<List<GwtChannelInfo>>() {
+											gwtWireService.getGwtChannels(result, m_driverDescriptor, m_configurableComponent,
+													new AsyncCallback<List<GwtChannelInfo>>() {
 
 														@Override
 														public void onFailure(Throwable caught) {
@@ -635,6 +631,7 @@ public class PropertiesUi extends Composite {
 															channelsDataProvider.refresh();
 
 															channelPanel.setVisible(true);
+
 														}
 													});
 										}
@@ -644,6 +641,7 @@ public class PropertiesUi extends Composite {
 				}
 			});
 		}
+
 
 	}
 
@@ -701,8 +699,7 @@ public class PropertiesUi extends Composite {
 		});
 		channelTable.addColumn(c2, new TextHeader("type"));
 
-		List<String> valueTypeOptions = Arrays.asList("BOOLEAN", "BYTE", "BYTE_ARRAY", "DOUBLE", "INTEGER", "LONG",
-				"SHORT", "STRING");
+		List<String> valueTypeOptions = Arrays.asList("BOOLEAN", "BYTE", "BYTE_ARRAY", "DOUBLE", "INTEGER", "LONG", "SHORT", "STRING");
 
 		Column<GwtChannelInfo, String> c3 = new Column<GwtChannelInfo, String>(new SelectionCell(valueTypeOptions)) {
 
@@ -753,8 +750,7 @@ public class PropertiesUi extends Composite {
 			@Override
 			public void update(int index, GwtChannelInfo object, String value) {
 				ValidationData viewData = null;
-				if ((!invalidateType(type, value)) || (max != null && invalidateMax(value, max))
-						|| (min != null && invalidateMin(value, min))) {
+				if ((!invalidateType(type, value)) || (max != null && invalidateMax(value, max)) || (min != null && invalidateMin(value, min))) {
 					viewData = cell.getViewData(object);
 					viewData.setInvalid(true);
 					// We only modified the cell, so do a local redraw.
@@ -922,8 +918,7 @@ public class PropertiesUi extends Composite {
 		mParam.setValue(null);
 	}
 
-	private void renderPasswordField(final GwtConfigParameter param, final boolean isFirstInstance,
-			final FormGroup formGroup) {
+	private void renderPasswordField(final GwtConfigParameter param, final boolean isFirstInstance, final FormGroup formGroup) {
 		this.valid.put(param.getName(), true);
 
 		if (isFirstInstance) {
@@ -982,8 +977,7 @@ public class PropertiesUi extends Composite {
 	}
 
 	// Field Render based on Type
-	private void renderTextField(final GwtConfigParameter param, final boolean isFirstInstance,
-			final FormGroup formGroup, boolean isReadOnly) {
+	private void renderTextField(final GwtConfigParameter param, final boolean isFirstInstance, final FormGroup formGroup, boolean isReadOnly) {
 
 		this.valid.put(param.getName(), true);
 
@@ -1079,22 +1073,17 @@ public class PropertiesUi extends Composite {
 		this.dirty = flag;
 		if (flag) {
 			if (!this.m_configurableComponent.getComponentName().equalsIgnoreCase(this.pid)) {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(this.m_configurableComponent.getComponentName() + " - " + this.pid + "*");
+				WiresPanelUi.propertiesPanelHeader.setText(this.m_configurableComponent.getComponentName() + " - " + this.pid + "*");
 			} else {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId())
-								+ " - " + this.pid + "*");
+				WiresPanelUi.propertiesPanelHeader.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId()) + " - " + this.pid
+						+ "*");
 			}
 			WiresPanelUi.btnSave.setText("Save*");
 		} else {
 			if (!this.m_configurableComponent.getComponentName().equalsIgnoreCase(this.pid)) {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(this.m_configurableComponent.getComponentName() + " - " + this.pid);
+				WiresPanelUi.propertiesPanelHeader.setText(this.m_configurableComponent.getComponentName() + " - " + this.pid);
 			} else {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId())
-								+ " - " + this.pid);
+				WiresPanelUi.propertiesPanelHeader.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId()) + " - " + this.pid);
 			}
 			WiresPanelUi.btnSave.setText("Save");
 		}
@@ -1121,28 +1110,23 @@ public class PropertiesUi extends Composite {
 				if (box.getText().trim().length() > 1) {
 					group.setValidationState(ValidationState.ERROR);
 					this.valid.put(param.getName(), false);
-					box.setPlaceholder(
-							MessageUtils.get(Integer.toString(box.getText().trim().length()), box.getText()));
+					box.setPlaceholder(MessageUtils.get(Integer.toString(box.getText().trim().length()), box.getText()));
 					return false;
 				}
 				// TODO: why this character boxing?
 				if (param.getMin() != null) {
-					if (Character.valueOf(param.getMin().charAt(0)).charValue() > Character
-							.valueOf(box.getText().trim().charAt(0)).charValue()) {
+					if (Character.valueOf(param.getMin().charAt(0)).charValue() > Character.valueOf(box.getText().trim().charAt(0)).charValue()) {
 						group.setValidationState(ValidationState.ERROR);
 						this.valid.put(param.getName(), false);
-						box.setPlaceholder(MessageUtils.get(CONFIG_MIN_VALUE,
-								Character.valueOf(param.getMin().charAt(0)).charValue()));
+						box.setPlaceholder(MessageUtils.get(CONFIG_MIN_VALUE, Character.valueOf(param.getMin().charAt(0)).charValue()));
 						return false;
 					}
 				}
 				if (param.getMax() != null) {
-					if (Character.valueOf(param.getMax().charAt(0)).charValue() < Character
-							.valueOf(box.getText().trim().charAt(0)).charValue()) {
+					if (Character.valueOf(param.getMax().charAt(0)).charValue() < Character.valueOf(box.getText().trim().charAt(0)).charValue()) {
 						group.setValidationState(ValidationState.ERROR);
 						this.valid.put(param.getName(), false);
-						box.setPlaceholder(MessageUtils.get(CONFIG_MAX_VALUE,
-								Character.valueOf(param.getMax().charAt(0)).charValue()));
+						box.setPlaceholder(MessageUtils.get(CONFIG_MAX_VALUE, Character.valueOf(param.getMax().charAt(0)).charValue()));
 						return false;
 					}
 				}
@@ -1177,8 +1161,7 @@ public class PropertiesUi extends Composite {
 					// numeric value
 					if (param.getType().equals(GwtConfigParameterType.FLOAT)) {
 						if (param.getMin() != null) {
-							if (Float.valueOf(param.getMin()).floatValue() > Float.valueOf(box.getText().trim())
-									.floatValue()) {
+							if (Float.valueOf(param.getMin()).floatValue() > Float.valueOf(box.getText().trim()).floatValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MIN_VALUE, param.getMin()));
@@ -1186,8 +1169,7 @@ public class PropertiesUi extends Composite {
 							}
 						}
 						if (param.getMax() != null) {
-							if (Float.valueOf(param.getMax()).floatValue() < Float.valueOf(box.getText().trim())
-									.floatValue()) {
+							if (Float.valueOf(param.getMax()).floatValue() < Float.valueOf(box.getText().trim()).floatValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MAX_VALUE, param.getMax()));
@@ -1196,8 +1178,7 @@ public class PropertiesUi extends Composite {
 						}
 					} else if (param.getType().equals(GwtConfigParameterType.INTEGER)) {
 						if (param.getMin() != null) {
-							if (Integer.valueOf(param.getMin()).intValue() > Integer.valueOf(box.getText().trim())
-									.intValue()) {
+							if (Integer.valueOf(param.getMin()).intValue() > Integer.valueOf(box.getText().trim()).intValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MIN_VALUE, param.getMin()));
@@ -1205,8 +1186,7 @@ public class PropertiesUi extends Composite {
 							}
 						}
 						if (param.getMax() != null) {
-							if (Integer.valueOf(param.getMax()).intValue() < Integer.valueOf(box.getText().trim())
-									.intValue()) {
+							if (Integer.valueOf(param.getMax()).intValue() < Integer.valueOf(box.getText().trim()).intValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MAX_VALUE, param.getMax()));
@@ -1215,8 +1195,7 @@ public class PropertiesUi extends Composite {
 						}
 					} else if (param.getType().equals(GwtConfigParameterType.SHORT)) {
 						if (param.getMin() != null) {
-							if (Short.valueOf(param.getMin()).shortValue() > Short.valueOf(box.getText().trim())
-									.shortValue()) {
+							if (Short.valueOf(param.getMin()).shortValue() > Short.valueOf(box.getText().trim()).shortValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MIN_VALUE, param.getMin()));
@@ -1224,8 +1203,7 @@ public class PropertiesUi extends Composite {
 							}
 						}
 						if (param.getMax() != null) {
-							if (Short.valueOf(param.getMax()).shortValue() < Short.valueOf(box.getText().trim())
-									.shortValue()) {
+							if (Short.valueOf(param.getMax()).shortValue() < Short.valueOf(box.getText().trim()).shortValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MAX_VALUE, param.getMax()));
@@ -1234,8 +1212,7 @@ public class PropertiesUi extends Composite {
 						}
 					} else if (param.getType().equals(GwtConfigParameterType.BYTE)) {
 						if (param.getMin() != null) {
-							if (Byte.valueOf(param.getMin()).byteValue() > Byte.valueOf(box.getText().trim())
-									.byteValue()) {
+							if (Byte.valueOf(param.getMin()).byteValue() > Byte.valueOf(box.getText().trim()).byteValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MIN_VALUE, param.getMin()));
@@ -1243,8 +1220,7 @@ public class PropertiesUi extends Composite {
 							}
 						}
 						if (param.getMax() != null) {
-							if (Byte.valueOf(param.getMax()).byteValue() < Byte.valueOf(box.getText().trim())
-									.byteValue()) {
+							if (Byte.valueOf(param.getMax()).byteValue() < Byte.valueOf(box.getText().trim()).byteValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MAX_VALUE, param.getMax()));
@@ -1253,8 +1229,7 @@ public class PropertiesUi extends Composite {
 						}
 					} else if (param.getType().equals(GwtConfigParameterType.LONG)) {
 						if (param.getMin() != null) {
-							if (Long.valueOf(param.getMin()).longValue() > Long.valueOf(box.getText().trim())
-									.longValue()) {
+							if (Long.valueOf(param.getMin()).longValue() > Long.valueOf(box.getText().trim()).longValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MIN_VALUE, param.getMin()));
@@ -1262,8 +1237,7 @@ public class PropertiesUi extends Composite {
 							}
 						}
 						if (param.getMax() != null) {
-							if (Long.valueOf(param.getMax()).longValue() < Long.valueOf(box.getText().trim())
-									.longValue()) {
+							if (Long.valueOf(param.getMax()).longValue() < Long.valueOf(box.getText().trim()).longValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MAX_VALUE, param.getMax()));
@@ -1272,8 +1246,7 @@ public class PropertiesUi extends Composite {
 						}
 					} else if (param.getType().equals(GwtConfigParameterType.DOUBLE)) {
 						if (param.getMin() != null) {
-							if (Double.valueOf(param.getMin()).doubleValue() > Double.valueOf(box.getText().trim())
-									.doubleValue()) {
+							if (Double.valueOf(param.getMin()).doubleValue() > Double.valueOf(box.getText().trim()).doubleValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MIN_VALUE, param.getMin()));
@@ -1281,8 +1254,7 @@ public class PropertiesUi extends Composite {
 							}
 						}
 						if (param.getMax() != null) {
-							if (Double.valueOf(param.getMax()).doubleValue() < Double.valueOf(box.getText().trim())
-									.doubleValue()) {
+							if (Double.valueOf(param.getMax()).doubleValue() < Double.valueOf(box.getText().trim()).doubleValue()) {
 								group.setValidationState(ValidationState.ERROR);
 								this.valid.put(param.getName(), false);
 								box.setPlaceholder(MessageUtils.get(CONFIG_MAX_VALUE, param.getMax()));
