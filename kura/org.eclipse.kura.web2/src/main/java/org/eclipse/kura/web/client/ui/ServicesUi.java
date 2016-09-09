@@ -112,18 +112,22 @@ public class ServicesUi extends Composite {
     Modal          modal;
 
     @UiField
-    Button   apply, reset;
+    Button   apply, reset, delete;
     @UiField
     FieldSet fields;
     @UiField
     Form     form;
+    @UiField
+    Button deleteButton;
 
     @UiField
-    Modal incompleteFieldsModal;
+    Modal incompleteFieldsModal, deleteModal;
     @UiField
     Alert incompleteFields;
     @UiField
     Text  incompleteFieldsText;
+    @UiField
+    Alert deleteMessage;
 
     //
     // Public methods
@@ -151,12 +155,30 @@ public class ServicesUi extends Composite {
                 reset();
             }
         });
+        
+        delete.setText(MSGS.delete());
+		delete.addClickHandler(new ClickHandler(){
+
+			@Override
+			public void onClick(ClickEvent event) {
+				deleteModal.show();
+			}});
+		
+		deleteButton.addClickHandler(new ClickHandler(){
+
+			@Override
+			public void onClick(ClickEvent event) {
+				delete();
+			}});
+		deleteMessage.setText(MSGS.deleteWarning());
+        
         renderForm();
         initInvalidDataModal();
 
         setDirty(false);
         apply.setEnabled(false);
         reset.setEnabled(false);
+        delete.setEnabled(m_configurableComponent.isFactoryComponent());
     }
 
     public void setDirty(boolean flag) {
@@ -214,6 +236,43 @@ public class ServicesUi extends Composite {
             modal.show();
         }                // end is dirty
     }
+    
+    public void delete(){
+		if(m_configurableComponent.isFactoryComponent()){
+			EntryClassUi.showWaitModal();
+			gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+
+				@Override
+				public void onFailure(Throwable ex) {
+					EntryClassUi.hideWaitModal();
+					FailureHandler.handle(ex);
+				}
+
+				@Override
+				public void onSuccess(GwtXSRFToken token) {
+					gwtComponentService.deleteFactoryConfiguration(token, m_configurableComponent.getComponentId(), new AsyncCallback<Void>() {
+
+						@Override
+						public void onFailure(Throwable caught) {
+							EntryClassUi.hideWaitModal();
+							errorLogger.log(Level.SEVERE, caught.getLocalizedMessage());
+						}
+
+						@Override
+						public void onSuccess(Void result) {
+							modal.hide();	
+							logger.info(MSGS.info()+": " + MSGS.deviceConfigDeleted());
+							apply.setEnabled(false);
+							reset.setEnabled(false);
+							setDirty(false);
+							entryClass.initServicesTree();
+							EntryClassUi.hideWaitModal();
+						}
+					});
+				}
+			});
+		}
+	}
 
     // TODO: Separate render methods for each type (ex: Boolean, String,
     // Password, etc.). See latest org.eclipse.kura.web code.
@@ -352,7 +411,6 @@ public class ServicesUi extends Composite {
             } else if (fg.getWidget(i) instanceof ListBox || fg.getWidget(i) instanceof Input || fg.getWidget(i) instanceof TextBoxBase) {
 
                 if (param == null) {
-                    System.out.println("Missing parameter");
                     continue;
                 }
                 String value = getUpdatedFieldConfiguration(param, fg.getWidget(i));

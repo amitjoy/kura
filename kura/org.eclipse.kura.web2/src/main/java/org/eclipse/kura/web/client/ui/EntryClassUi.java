@@ -9,6 +9,7 @@
  * Contributors:
  *     Eurotech
  *     Red Hat Inc - Fix build warnings
+ *     Amit Kumar Mondal (admin@amitinside.com)
  *******************************************************************************/
 package org.eclipse.kura.web.client.ui;
 
@@ -25,6 +26,7 @@ import org.eclipse.kura.web.client.ui.Packages.PackagesPanelUi;
 import org.eclipse.kura.web.client.ui.Settings.SettingsPanelUi;
 import org.eclipse.kura.web.client.ui.Status.StatusPanelUi;
 import org.eclipse.kura.web.client.ui.resources.Resources;
+import org.eclipse.kura.web.client.ui.wires.WiresPanelUi;
 import org.eclipse.kura.web.client.util.FailureHandler;
 import org.eclipse.kura.web.shared.model.GwtConfigComponent;
 import org.eclipse.kura.web.shared.model.GwtSession;
@@ -40,6 +42,7 @@ import org.gwtbootstrap3.client.shared.event.ModalHideHandler;
 import org.gwtbootstrap3.client.ui.AnchorListItem;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Icon;
+import org.gwtbootstrap3.client.ui.ListBox;
 import org.gwtbootstrap3.client.ui.Modal;
 import org.gwtbootstrap3.client.ui.ModalBody;
 import org.gwtbootstrap3.client.ui.ModalFooter;
@@ -49,13 +52,17 @@ import org.gwtbootstrap3.client.ui.Panel;
 import org.gwtbootstrap3.client.ui.PanelBody;
 import org.gwtbootstrap3.client.ui.PanelHeader;
 import org.gwtbootstrap3.client.ui.TabListItem;
+import org.gwtbootstrap3.client.ui.TextBox;
 import org.gwtbootstrap3.client.ui.constants.IconSize;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.client.ui.html.Span;
+import org.gwtbootstrap3.client.ui.html.Strong;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
@@ -76,6 +83,9 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class EntryClassUi extends Composite {
+	
+	private static final String WIRE_SERVICE = "org.eclipse.kura.wire.WireService";
+	private static final String SELECT_COMPONENT = "--- Select Component ---";
 
 	interface EntryClassUIUiBinder extends UiBinder<Widget, EntryClassUi> {
 	}
@@ -91,7 +101,7 @@ public class EntryClassUi extends Composite {
 	private final SettingsPanelUi settingsBinder = GWT.create(SettingsPanelUi.class);
 	private final FirewallPanelUi firewallBinder = GWT.create(FirewallPanelUi.class);
 	private final NetworkPanelUi networkBinder   = GWT.create(NetworkPanelUi.class);
-	//private final WiresPanelUi   wiresBinder     = GWT.create(WiresPanelUi.class);
+	private final WiresPanelUi   wiresBinder     = GWT.create(WiresPanelUi.class);
 
 	private final GwtPackageServiceAsync gwtPackageService = GWT.create(GwtPackageService.class);
 	private final GwtComponentServiceAsync gwtComponentService = GWT.create(GwtComponentService.class);
@@ -120,21 +130,35 @@ public class EntryClassUi extends Composite {
 	@UiField
 	Panel contentPanel;
 	@UiField
+	public Strong errorAlertText;
+	@UiField
+	public static Modal errorModal;
+	@UiField
 	PanelHeader contentPanelHeader;
 	@UiField
 	PanelBody contentPanelBody;
 	@UiField
 	TabListItem status;
 	@UiField
-	AnchorListItem device, network, firewall, packages, settings;
+	AnchorListItem device, network, firewall, packages, settings, wires;
 	@UiField
 	ScrollPanel servicesPanel;
+	@UiField
+	TextBox textSearch;
 	@UiField
 	NavPills servicesMenu;
 	@UiField
 	VerticalPanel errorLogArea;
 	@UiField
 	Modal errorPopup;
+	@UiField
+	Button buttonNewComponent;
+	@UiField
+	ListBox factoriesList;
+	@UiField
+	Button factoriesButton;
+	@UiField
+	TextBox componentName;
 
 
 	public EntryClassUi() {
@@ -225,6 +249,9 @@ public class EntryClassUi extends Composite {
 						if (modal != null ) {
 							modal.hide();
 						}
+						if (servicesUi != null) {
+							servicesUi.renderForm();
+						}
 						contentPanel.setVisible(true);
 						contentPanelHeader.setText(MSGS.device());
 						contentPanelBody.clear();
@@ -248,6 +275,9 @@ public class EntryClassUi extends Composite {
 							forceTabsCleaning();
 							if (modal != null ) {
 								modal.hide();
+							}
+							if (servicesUi != null) {
+								servicesUi.renderForm();
 							}
 							contentPanel.setVisible(true);
 							contentPanelHeader.setText(MSGS.network());
@@ -274,6 +304,9 @@ public class EntryClassUi extends Composite {
 							if (modal != null ) {
 								modal.hide();
 							}
+							if (servicesUi != null) {
+								servicesUi.renderForm();
+							}
 							contentPanel.setVisible(true);
 							contentPanelHeader.setText(MSGS.firewall());
 							contentPanelBody.clear();
@@ -296,6 +329,9 @@ public class EntryClassUi extends Composite {
 						forceTabsCleaning();
 						if (modal != null ) {
 							modal.hide();
+						}
+						if (servicesUi != null) {
+							servicesUi.renderForm();
 						}
 						contentPanel.setVisible(true);
 						contentPanelHeader.setText(MSGS.packages());
@@ -321,12 +357,41 @@ public class EntryClassUi extends Composite {
 						if (modal != null ) {
 							modal.hide();
 						}
+						if (servicesUi != null) {
+							servicesUi.renderForm();
+						}
 						contentPanel.setVisible(true);
 						contentPanelHeader.setText(MSGS.settings());
 						contentPanelBody.clear();
 						contentPanelBody.add(settingsBinder);
 						settingsBinder.setSession(currentSession);
 						settingsBinder.load();
+					}
+				});
+				renderDirtyConfigModal(b);
+			}
+		});
+		
+		// Wires Panel
+		wires.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				Button b = new Button(MSGS.yesButton(), new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						forceTabsCleaning();
+						if (modal != null ) {
+							modal.hide();
+						}
+						if (servicesUi != null) {
+							servicesUi.renderForm();
+						}
+						contentPanel.setVisible(true);
+						contentPanelHeader.setText("Wire Graph");
+						contentPanelBody.clear();
+						contentPanelBody.add(wiresBinder);
+						wiresBinder.load();
+
 					}
 				});
 				renderDirtyConfigModal(b);
@@ -356,14 +421,131 @@ public class EntryClassUi extends Composite {
 					public void onSuccess(List<GwtConfigComponent> result) {
 						servicesMenu.clear();
 						for (GwtConfigComponent pair : result) {
-							servicesMenu.add(new ServicesAnchorListItem(pair, ui));
+							if (!pair.isWireComponent() && !pair.getComponentId().equalsIgnoreCase(WIRE_SERVICE)) {
+								servicesMenu.add(new ServicesAnchorListItem(pair, ui));
+							}
 						}
 					}
 				});
 			}
 		});
+		
+		// Keypress handler
+		textSearch.addValueChangeHandler(changeHandler);
+		
+		// New factory configuration handler
+		buttonNewComponent.addClickHandler(new ClickHandler(){
 
+			@Override
+			public void onClick(ClickEvent event) {
+				gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+
+					@Override
+					public void onFailure(Throwable ex) {
+						FailureHandler.handle(ex, EntryClassUi.class.getName());
+					}
+
+					@Override
+					public void onSuccess(GwtXSRFToken token) {
+						String factoryPid = factoriesList.getSelectedValue();
+						String pid = componentName.getValue();
+						if (SELECT_COMPONENT.equalsIgnoreCase(factoryPid) || "".equals(pid)){
+							errorAlertText.setText("Component must be selected and the name must be non-empty");
+							errorModal.show();
+							return;
+						}
+						gwtComponentService.createFactoryComponent(token, factoryPid, pid, new AsyncCallback<Void>() {
+
+							@Override
+							public void onFailure(Throwable ex) {
+								logger.log(Level.SEVERE, ex.getMessage(), ex);
+								FailureHandler.handle(ex, EntryClassUi.class.getName());
+							}
+
+							@Override
+							public void onSuccess(Void result) {
+								ValueChangeEvent event = new SelectValueChangeEvent(textSearch.getValue());
+								changeHandler.onValueChange(event);
+							}
+						});
+					}
+				});
+			}
+		});
+		
+		factoriesButton.addClickHandler(new ClickHandler(){
+
+			@Override
+			public void onClick(ClickEvent event) {
+				gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+
+					@Override
+					public void onFailure(Throwable ex) {
+						FailureHandler.handle(ex, EntryClassUi.class.getName());
+					}
+
+					@Override
+					public void onSuccess(GwtXSRFToken token) {
+						gwtComponentService.getFactoryComponents(token, new AsyncCallback<List<String>>() {
+
+							@Override
+							public void onFailure(Throwable ex) {
+								logger.log(Level.SEVERE, ex.getMessage(), ex);
+								FailureHandler.handle(ex, EntryClassUi.class.getName());
+							}
+
+							@Override
+							public void onSuccess(List<String> result) {
+								factoriesList.clear();
+								factoriesList.addItem(SELECT_COMPONENT);
+								for(String s : result){
+									factoriesList.addItem(s);
+								}
+							}
+						});
+					}
+				});
+			}
+		});
 	}
+	
+	private ValueChangeHandler changeHandler = new ValueChangeHandler(){
+		@Override
+		public void onValueChange(final ValueChangeEvent event) {
+			
+			gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+
+				@Override
+				public void onFailure(Throwable ex) {
+					FailureHandler.handle(ex, EntryClassUi.class.getName());
+				}
+
+				@Override
+				public void onSuccess(GwtXSRFToken token) {
+					gwtComponentService.findComponentConfigurations(token, new AsyncCallback<List<GwtConfigComponent>>() {
+						@Override
+						public void onFailure(Throwable ex) {
+							logger.log(Level.SEVERE, ex.getMessage(), ex);
+							FailureHandler.handle(ex, EntryClassUi.class.getName());
+						}
+
+						@Override
+						public void onSuccess(List<GwtConfigComponent> result) {
+							servicesMenu.clear();
+							for (GwtConfigComponent pair : result) {
+								String filter = event.getValue().toString(); 
+								String compName = pair.getComponentName();
+								if(compName.toLowerCase().contains(filter)){
+									servicesMenu.add(new ServicesAnchorListItem(pair, ui));
+									//servicesMenu.add(new ServicesCompositeListItem(pair, ui));
+								}
+							}
+						}
+					});
+				}
+			});
+		}
+	};
 
 	public void render(GwtConfigComponent item) {
 		// Do everything Content Panel related in ServicesUi
@@ -618,6 +800,34 @@ public class EntryClassUi extends Composite {
 		});
 	}
 	
+	public void deleteFactoryConfiguration(final GwtConfigComponent component){
+		gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+
+			@Override
+			public void onFailure(Throwable ex) {
+				FailureHandler.handle(ex, EntryClassUi.class.getName());
+			}
+
+			@Override
+			public void onSuccess(GwtXSRFToken token) {
+				String pid = component.getComponentId();
+				gwtComponentService.deleteFactoryConfiguration(token, pid, new AsyncCallback<Void>() {
+
+							@Override
+							public void onFailure(Throwable ex) {
+								logger.log(Level.SEVERE, ex.getMessage(), ex);
+								FailureHandler.handle(ex, EntryClassUi.class.getName());
+							}
+
+							@Override
+							public void onSuccess(Void result) {
+								changeHandler.onValueChange(new SelectValueChangeEvent(textSearch.getValue()));								
+							}
+				});
+			}
+		});	
+	}
+	
 	public static native void dragDropInit(EntryClassUi ecu) /*-{
 		$wnd.$("html").on("dragover", function(event) {
 		    event.preventDefault();  
@@ -638,4 +848,12 @@ public class EntryClassUi extends Composite {
 		    }
 		});
 	}-*/;
+	
+	private class SelectValueChangeEvent extends ValueChangeEvent<String>{
+
+		protected SelectValueChangeEvent(String value) {
+			super(value);
+		}
+		
+	}
 }
