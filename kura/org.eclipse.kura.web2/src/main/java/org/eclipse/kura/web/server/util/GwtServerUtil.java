@@ -276,10 +276,10 @@ public final class GwtServerUtil {
 	}
 
 	/**
-	 * Strip pid prefix.
+	 * Strip PID prefix.
 	 *
 	 * @param pid
-	 *            the pid
+	 *            the PID
 	 * @return the string
 	 */
 	public static String stripPidPrefix(final String pid) {

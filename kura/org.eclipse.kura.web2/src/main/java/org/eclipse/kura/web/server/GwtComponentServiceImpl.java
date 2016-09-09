@@ -304,7 +304,7 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
 		result.removeAll(allWireComponents);
 		return result;
 	}
-    
+
 	@Override
 	public void createFactoryComponent(GwtXSRFToken xsrfToken, String factoryPid, String pid) throws GwtKuraException {
 		checkXSRFToken(xsrfToken);

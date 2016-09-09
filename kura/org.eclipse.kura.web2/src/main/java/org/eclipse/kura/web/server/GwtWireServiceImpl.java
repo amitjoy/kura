@@ -551,15 +551,20 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 						} else {
 							configService.updateConfiguration(pid, props, false);
 						}
+						final HashMap<String, Object> mergedProps = new HashMap<String, Object>();
+						if (props != null) {
+							mergedProps.putAll(props);
+							configService.updateConfiguration(pid, mergedProps, false);
+						}
 					}
 				}
-			}
 
-			final Map<String, Object> props = configService.getComponentConfiguration(WIRE_SERVICE_PID)
-					.getConfigurationProperties();
-			props.put(GRAPH, jGraph.toString());
-			configService.updateConfiguration(WIRE_SERVICE_PID, props, true);
-			configurations.clear();
+				final Map<String, Object> props = configService.getComponentConfiguration(WIRE_SERVICE_PID)
+						.getConfigurationProperties();
+				props.put(GRAPH, jGraph.toString());
+				configService.updateConfiguration(WIRE_SERVICE_PID, props, true);
+				configurations.clear();
+			}
 		} catch (final JSONException exception) {
 			throw new GwtKuraException(GwtKuraErrorCode.INTERNAL_ERROR, exception);
 		} catch (final KuraException exception) {
@@ -570,6 +575,6 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 			throw new GwtKuraException(GwtKuraErrorCode.INTERNAL_ERROR, exception);
 		}
 		return this.getWiresConfigurationInternal();
-	}
 
+	}
 }
