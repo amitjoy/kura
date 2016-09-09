@@ -27,6 +27,8 @@
 	<modules>
 		<module>target-definition</module>
 		<module>org.eclipse.kura.api</module>
+		<module>org.eclipse.kura.asset.cloudlet.provider</module>
+		<module>org.eclipse.kura.asset.provider</module>
 		<module>org.eclipse.kura.test</module>
 		<module>org.eclipse.kura.camel</module>
 		<module>org.eclipse.kura.camel.xml</module>
@@ -44,6 +46,9 @@
 		<module>org.eclipse.kura.deployment.customizer</module>
 		<module>org.eclipse.kura.deployment.customizer.upgrade</module>
 		<module>org.eclipse.kura.deployment.update</module>
+		<module>org.eclipse.kura.driver.modbus.provider</module>
+		<!--<module>org.eclipse.kura.driver.opcua.provider</module>-->
+		<module>org.eclipse.kura.driver.s7plc.provider</module>
 		<module>org.eclipse.kura.linux.bluetooth</module>
 		<module>org.eclipse.kura.linux.clock</module>
 		<module>org.eclipse.kura.linux.command</module>
@@ -53,10 +58,15 @@
 		<module>org.eclipse.kura.linux.position</module>
 		<module>org.eclipse.kura.linux.usb</module>
 		<module>org.eclipse.kura.linux.watchdog</module>
+		<module>org.eclipse.kura.localization</module>
+		<module>org.eclipse.kura.localization.resources</module>
 		<module>org.eclipse.kura.net.admin</module>
 		<module>org.eclipse.kura.protocol.modbus</module>
 		<module>org.eclipse.kura.protocol.modbus.test</module>
 		<module>org.eclipse.kura.stress</module>
+		<module>org.eclipse.kura.util</module>
+		<module>org.eclipse.kura.wire.provider</module>
+		<module>org.eclipse.kura.wire.component.provider</module>
 		<module>emulator</module>
 		<!--<module>org.eclipse.kura.emulator</module>-->
 		<!--<module>org.eclipse.kura.emulator.gpio</module>-->
