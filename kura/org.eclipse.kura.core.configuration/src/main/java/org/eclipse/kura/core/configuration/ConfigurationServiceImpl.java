@@ -483,9 +483,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     synchronized void registerComponentOCD(String metatypePid, Tocd ocd, boolean isFactory) throws KuraException {
         // metatypePid is either the 'pid' or 'factoryPid' attribute of the MetaType Designate element
         // 'pid' matches a service.pid, not a kura.service.pid
-        s_logger.info("Registering metatype pid: {} with ocd: {} ...", metatypePid, ocd);
-        m_ocds.put(metatypePid, ocd);
-            
+    	if (!m_ocds.containsKey(metatypePid)) {
+            s_logger.info("Registering metatype pid: {} with ocd: {} ...", metatypePid, ocd);
+            m_ocds.put(metatypePid, ocd);
+        }   
         if (isFactory) {
             registerFactoryComponentOCD(metatypePid, ocd);
         } else {
@@ -523,17 +524,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         }
     }
 
-    synchronized void registerSelfConfiguringComponent(String pid) {
-        if (pid == null) {
-            s_logger.warn("pid is null");
-            return;
-        }
-        if (!m_allActivatedPids.contains(pid)) {
-            s_logger.info("Registration of SelfConfiguringComponent {} by {}...", pid, this);
-            m_allActivatedPids.add(pid);
-            m_servicePidByPid.put(pid, pid);
-            m_activatedSelfConfigComponents.add(pid);
-        }
+    synchronized void registerSelfConfiguringComponent(String pid, String servicePid, String factoryPid) {
+		registerComponentConfiguration(pid, servicePid, factoryPid);
+		m_activatedSelfConfigComponents.add(pid);
     }
 
     synchronized void unregisterComponentConfiguration(String pid) {
@@ -882,17 +875,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
 
     private ComponentConfiguration getConfigurableComponentConfiguration(String pid) {
-        ComponentConfiguration cc = null;
+    	ComponentConfiguration cc = null;
         try {
 
             Tocd ocd = getOCDForPid(pid);
 
-            Configuration cfg = m_configurationAdmin.getConfiguration(m_servicePidByPid.get(pid), null);
+            String servicePid = m_servicePidByPid.get(pid);
+            if (servicePid == null) {
+            	 throw new KuraException(KuraErrorCode.INVALID_PARAMETER, "pid " + pid + " is not a factory component instance");
+            }
+            Configuration cfg = m_configurationAdmin.getConfiguration(servicePid, null);
             Map<String, Object> props = CollectionsUtil.dictionaryToMap(cfg.getProperties(), ocd);
 
             cc = new ComponentConfigurationImpl(pid, ocd, props);
         } catch (Exception e) {
-            s_logger.error("Error getting Configuration for component: " + pid + ". Ignoring it.", e);
+            s_logger.error("Error getting Configuration for component: " + pid + ". Ignoring it.");
         }
         return cc;
     }
@@ -903,7 +900,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             ServiceReference<?>[] refs = m_ctx.getBundleContext().getServiceReferences((String) null, null);
             if (refs != null) {
                 for (ServiceReference<?> ref : refs) {
-                    String ppid = (String) ref.getProperty(Constants.SERVICE_PID);
+                    String ppid = (String) ref.getProperty(ConfigurationService.KURA_SERVICE_PID);
                     if (pid.equals(ppid)) {
                         Object obj = m_ctx.getBundleContext().getService(ref);
                         try {
@@ -913,7 +910,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                                 try {
 
                                     cc = selfConfigComp.getConfiguration();
-                                    if (cc.getPid() == null || !cc.getPid().equals(pid)) {
+                                    String pidInConfiguration = (String)cc.getConfigurationProperties().get(ConfigurationService.KURA_SERVICE_PID);
+                                    if (pidInConfiguration == null || !pidInConfiguration.equals(pid)) {
                                         s_logger.error("Invalid pid for returned Configuration of SelfConfiguringComponent with pid: " + pid + ". Ignoring it.");
                                         return null;
                                     }
@@ -976,13 +974,13 @@ public class ConfigurationServiceImpl implements ConfigurationService {
                         } finally {
                             m_ctx.getBundleContext().ungetService(ref);
                         }
+                        break;
                     }
                 }
             }
         } catch (InvalidSyntaxException e) {
             s_logger.error("Error getting Configuration for component: " + pid + ". Ignoring it.", e);
         }
-
         return cc;
     }
 

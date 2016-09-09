@@ -461,7 +461,7 @@ public final class ModbusDriver implements Driver {
 		}
 		try {
 			this.m_modbusTransport.close();
-		} catch (final IOException e) {
+		} catch (final Exception e) {
 			s_logger.error(ThrowableUtil.stackTraceAsString(e));
 		}
 		return records;

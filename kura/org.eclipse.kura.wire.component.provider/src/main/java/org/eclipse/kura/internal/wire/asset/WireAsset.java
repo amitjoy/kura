@@ -163,7 +163,7 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 					TypedValues.newStringValue(assetFlag.name()), level);
 			final WireField timestampWireField = new WireField(s_message.timestamp(),
 					TypedValues.newLongValue(assetRecord.getTimestamp()), level);
-			final WireField valueWireField = new WireField(s_message.value(), assetRecord.getValue(), level);
+			final WireField valueWireField = new WireField(s_message.value(), assetRecord.getValue() != null ? assetRecord.getValue() : TypedValues.newStringValue(""), level);
 			WireRecord wireRecord;
 			WireField errorField;
 			if (level == ERROR) {

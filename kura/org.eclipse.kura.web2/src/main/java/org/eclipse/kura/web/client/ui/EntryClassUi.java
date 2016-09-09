@@ -535,9 +535,8 @@ public class EntryClassUi extends Composite {
 							for (GwtConfigComponent pair : result) {
 								String filter = event.getValue().toString(); 
 								String compName = pair.getComponentName();
-								if(compName.toLowerCase().contains(filter)){
+								if(!pair.isWireComponent() && compName.toLowerCase().contains(filter) ){
 									servicesMenu.add(new ServicesAnchorListItem(pair, ui));
-									//servicesMenu.add(new ServicesCompositeListItem(pair, ui));
 								}
 							}
 						}
