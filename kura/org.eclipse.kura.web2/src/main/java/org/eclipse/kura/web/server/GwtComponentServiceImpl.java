@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,9 @@ import org.eclipse.kura.web.shared.model.GwtConfigParameter;
 import org.eclipse.kura.web.shared.model.GwtXSRFToken;
 import org.eclipse.kura.web.shared.model.GwtConfigParameter.GwtConfigParameterType;
 import org.eclipse.kura.web.shared.service.GwtComponentService;
+import org.eclipse.kura.wire.WireEmitter;
 import org.eclipse.kura.wire.WireHelperService;
+import org.eclipse.kura.wire.WireReceiver;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -278,11 +281,30 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
 	public List<String> getFactoryComponents(GwtXSRFToken xsrfToken) throws GwtKuraException {
 		checkXSRFToken(xsrfToken);
 		ConfigurationService cs = ServiceLocator.getInstance().getService(ConfigurationService.class);
-		ArrayList<String> result =new ArrayList<String>();
+		//finding all wire components to remove from any list as these factory instances 
+		// are only shown in Kura Wires UI
+		List<String> wireEmitterFpids = new ArrayList<String>();
+		List<String> wireReceiverFpids = new ArrayList<String>();
+		GwtServerUtil.fillFactoriesLists(wireEmitterFpids, wireReceiverFpids);
+		final List<String> onlyProducers = new ArrayList<String>(wireEmitterFpids);
+		final List<String> onlyConsumers = new ArrayList<String>(wireReceiverFpids);
+		final List<String> both = new LinkedList<String>();
+		for (final String dto : wireEmitterFpids) {
+			if (wireReceiverFpids.contains(dto)) {
+				both.add(dto);
+			}
+		}
+		onlyProducers.removeAll(both);
+		onlyConsumers.removeAll(both);
+		List<String> allWireComponents = new ArrayList<String>(onlyProducers);
+		allWireComponents.addAll(onlyConsumers);
+		allWireComponents.addAll(both);
+		List<String> result = new ArrayList<String>();
 		result.addAll(cs.getFactoryComponentPids());
+		result.removeAll(allWireComponents);
 		return result;
 	}
-
+    
 	@Override
 	public void createFactoryComponent(GwtXSRFToken xsrfToken, String factoryPid, String pid) throws GwtKuraException {
 		checkXSRFToken(xsrfToken);
