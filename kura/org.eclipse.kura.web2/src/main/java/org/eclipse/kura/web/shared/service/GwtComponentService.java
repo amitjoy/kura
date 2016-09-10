@@ -12,6 +12,7 @@
 package org.eclipse.kura.web.shared.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.kura.web.shared.GwtKuraException;
 import org.eclipse.kura.web.shared.model.GwtConfigComponent;
@@ -32,7 +33,7 @@ public interface GwtComponentService extends RemoteService
 	
 	public List<GwtConfigComponent> findComponentConfiguration(GwtXSRFToken xsrfToken) throws GwtKuraException;
 	
-	public GwtConfigComponent findComponentConfigurationFromPid(GwtXSRFToken xsrfToken, String pid, String factoryPid) throws GwtKuraException;
+	public GwtConfigComponent findComponentConfigurationFromPid(GwtXSRFToken xsrfToken, String pid, String factoryPid, Map<String, Object> extraProps) throws GwtKuraException;
 	
 	public List<String> getFactoryComponents(GwtXSRFToken xsrfToken) throws GwtKuraException;
 	

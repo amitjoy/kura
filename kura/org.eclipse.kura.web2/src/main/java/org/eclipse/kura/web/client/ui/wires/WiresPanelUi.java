@@ -126,22 +126,6 @@ public class WiresPanelUi extends Composite {
 	static NavPills wireComponentsMenu;
 	private static WiresPanelUi wiresPanelUi;
 
-	@UiField
-	public Modal assetModal;
-
-	@UiField
-	public TextBox componentName;
-
-	public WiresPanelUi() {
-		this.initWidget(uiBinder.createAndBindUi(this));
-		m_emitters = new ArrayList<String>();
-		m_receivers = new ArrayList<String>();
-		m_components = new ArrayList<String>();
-		m_drivers = new ArrayList<String>();
-		m_propertiesUis = new HashMap<String, PropertiesUi>();
-		wiresPanelUi = this;
-	}
-
 	private static JSONArray createComponentsJson() {
 
 		final JSONArray components = new JSONArray();
@@ -190,7 +174,6 @@ public class WiresPanelUi extends Composite {
 	}-*/;
 
 	private static void fillProperties(final GwtConfigComponent config, final String pid) {
-		logger.info(config.getFactoryId());
 		if ((config.getFactoryId() != null) && config.getFactoryId().contains("WireAsset")) {
 			config.getProperties().put("driver.pid", getDriver(pid));
 		}
@@ -383,11 +366,11 @@ public class WiresPanelUi extends Composite {
 		// If it is already present in the map, it means the component has
 		// already been
 		// accessed by the graph, and its configuration has already been
-		// gathered from the
-		// ConfigurationService.
+		// gathered from the ConfigurationService.
 		if (m_configs.get(pid) != null) {
 			fillProperties(m_configs.get(pid), pid);
 		} else {
+			EntryClassUi.showWaitModal();
 			// else we get the GwtComponentConfiguration from the
 			// ConfigurationService
 			gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
@@ -400,24 +383,48 @@ public class WiresPanelUi extends Composite {
 
 				@Override
 				public void onSuccess(final GwtXSRFToken token) {
-					gwtComponentService.findComponentConfigurationFromPid(token, pid, factoryPid,
-							new AsyncCallback<GwtConfigComponent>() {
+					if ("org.eclipse.kura.wire.WireAsset".equalsIgnoreCase(factoryPid)) {
+						final Map<String, Object> temporaryMap = new HashMap<String, Object>();
+						temporaryMap.put("asset.desc", "Sample Asset");
+						temporaryMap.put("driver.pid", getDriver(pid));
+						gwtComponentService.findComponentConfigurationFromPid(token, pid, factoryPid, temporaryMap,
+								new AsyncCallback<GwtConfigComponent>() {
 
-								@Override
-								public void onFailure(final Throwable caught) {
-									EntryClassUi.hideWaitModal();
-									FailureHandler.handle(caught);
-								}
+									@Override
+									public void onFailure(final Throwable caught) {
+										EntryClassUi.hideWaitModal();
+										FailureHandler.handle(caught);
+									}
 
-								@Override
-								public void onSuccess(final GwtConfigComponent result) {
-									// Component configuration retrieved from
-									// the Configuration Service
-									m_configs.put(pid, result);
-									fillProperties(result, pid);
-									EntryClassUi.hideWaitModal();
-								}
-							});
+									@Override
+									public void onSuccess(final GwtConfigComponent result) {
+										// Component configuration retrieved
+										// from the Configuration Service
+										m_configs.put(pid, result);
+										fillProperties(result, pid);
+										EntryClassUi.hideWaitModal();
+									}
+								});
+					} else {
+						gwtComponentService.findComponentConfigurationFromPid(token, pid, factoryPid, null,
+								new AsyncCallback<GwtConfigComponent>() {
+
+									@Override
+									public void onFailure(final Throwable caught) {
+										EntryClassUi.hideWaitModal();
+										FailureHandler.handle(caught);
+									}
+
+									@Override
+									public void onSuccess(final GwtConfigComponent result) {
+										// Component configuration retrieved
+										// from the Configuration Service
+										m_configs.put(pid, result);
+										fillProperties(result, pid);
+										EntryClassUi.hideWaitModal();
+									}
+								});
+					}
 				}
 			});
 		}
@@ -615,5 +622,21 @@ public class WiresPanelUi extends Composite {
 	/*-{
 		$wnd.kuraWires.render(obj);
 	}-*/;
+
+	@UiField
+	public Modal assetModal;
+
+	@UiField
+	public TextBox componentName;
+
+	public WiresPanelUi() {
+		this.initWidget(uiBinder.createAndBindUi(this));
+		m_emitters = new ArrayList<String>();
+		m_receivers = new ArrayList<String>();
+		m_components = new ArrayList<String>();
+		m_drivers = new ArrayList<String>();
+		m_propertiesUis = new HashMap<String, PropertiesUi>();
+		wiresPanelUi = this;
+	}
 
 }
