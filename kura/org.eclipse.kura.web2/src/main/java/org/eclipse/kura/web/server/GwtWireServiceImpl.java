@@ -553,7 +553,6 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 						}
 					}
 				}
-
 				final Map<String, Object> props = configService.getComponentConfiguration(WIRE_SERVICE_PID)
 						.getConfigurationProperties();
 				props.put(GRAPH, jGraph.toString());
