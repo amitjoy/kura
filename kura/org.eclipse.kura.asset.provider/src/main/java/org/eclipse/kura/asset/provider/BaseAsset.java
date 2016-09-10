@@ -298,7 +298,7 @@ public class BaseAsset implements Asset, SelfConfiguringComponent {
 		assetDescriptionAd.setCardinality(0);
 		assetDescriptionAd.setType(Tscalar.STRING);
 		assetDescriptionAd.setDescription(s_message.description());
-		assetDescriptionAd.setRequired(true);
+		assetDescriptionAd.setRequired(false);
 
 		final Tad driverNameAd = new Tad();
 		driverNameAd.setId(ASSET_DRIVER_PROP.value());

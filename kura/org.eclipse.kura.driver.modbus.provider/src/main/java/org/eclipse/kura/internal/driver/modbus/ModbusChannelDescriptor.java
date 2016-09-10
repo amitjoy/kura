@@ -64,9 +64,9 @@ public final class ModbusChannelDescriptor implements ChannelDescriptor {
 		primaryTable.setName(s_message.primaryTable());
 		primaryTable.setId(s_message.primaryTable());
 		primaryTable.setDescription(s_message.primaryTableDesc());
+		primaryTable.setDefault(s_message.holdingRegs());
 		primaryTable.setType(Tscalar.STRING);
 		primaryTable.setRequired(true);
-		primaryTable.setDefault("");
 
 		final Toption coil = new Toption();
 		coil.setValue(s_message.coils());

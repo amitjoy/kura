@@ -27,6 +27,9 @@ public enum AssetConstants {
 	/** Asset Identifier */
 	ASSET_PID("kura.service.pid"),
 
+	/** Asset Severity Level to be used in the configuration. */
+	ASSET_SEVERITY_LEVEL("severity.level"),
+
 	/** String denoting a postfix for channel configuration property. */
 	CHANNEL_PROPERTY_POSTFIX("."),
 

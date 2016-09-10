@@ -254,7 +254,7 @@ public class PropertiesUi extends Composite {
 
 		};
 
-		this.channelTable.addColumn(c0, new TextHeader("Id"));
+		this.channelTable.addColumn(c0, new TextHeader("ID"));
 
 		final Column<GwtChannelInfo, String> c = new Column<GwtChannelInfo, String>(new TextInputCell()) {
 

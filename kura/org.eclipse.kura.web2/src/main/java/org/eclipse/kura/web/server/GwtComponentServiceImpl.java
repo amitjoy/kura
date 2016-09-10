@@ -414,6 +414,7 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
 				gwtParam.setType(GwtConfigParameterType.valueOf(ad.getType().name()));
 				gwtParam.setRequired(ad.isRequired());
 				gwtParam.setCardinality(ad.getCardinality());
+				gwtParam.setDefault(ad.getDefault());
 				if (ad.getOption() != null && !ad.getOption().isEmpty()) {
 					Map<String, String> options = new HashMap<String, String>();
 					for (Option option : ad.getOption()) {
