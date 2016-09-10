@@ -263,8 +263,9 @@ public class WiresPanelUi extends Composite {
 				final List<String> pids = new ArrayList<String>();
 				for (final Map.Entry<String, PropertiesUi> entry : m_propertiesUis.entrySet()) {
 					final PropertiesUi ui = entry.getValue();
-					if (ui.isDirty()) {
-						pids.add(getFormattedFactoryPid(ui.getConfiguration().getComponentId()));
+					final String componentId = ui.getConfiguration().getComponentId();
+					if (ui.isDirty() && !ui.isNonValidated()) {
+						pids.add(getFormattedFactoryPid(componentId));
 					}
 				}
 				if (!pids.isEmpty()) {
@@ -429,7 +430,7 @@ public class WiresPanelUi extends Composite {
 			@Override
 			public void onSuccess(final GwtXSRFToken token) {
 				if ((currentSelection != null) && (propertiesUi != null)) {
-					final GwtConfigComponent component = propertiesUi.getUpdatedConfiguration();
+					propertiesUi.getUpdatedConfiguration();
 				}
 				gwtWireService.updateWireConfiguration(token, obj, m_configs,
 						new AsyncCallback<GwtWiresConfiguration>() {

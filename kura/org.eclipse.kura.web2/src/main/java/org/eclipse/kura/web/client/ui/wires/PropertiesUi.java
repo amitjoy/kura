@@ -21,9 +21,11 @@ package org.eclipse.kura.web.client.ui.wires;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -112,7 +114,6 @@ public class PropertiesUi extends Composite {
 	@UiField
 	Strong channelTitle;
 	private boolean dirty;
-
 	@UiField
 	FieldSet fields;
 
@@ -136,9 +137,11 @@ public class PropertiesUi extends Composite {
 	GwtConfigComponent m_baseDriverDescriptor;
 
 	GwtConfigComponent m_configurableComponent;
+
 	GwtConfigComponent m_driverDescriptor;
 	Modal modal;
-
+	private boolean nonValidated;
+	Set<String> nonValidatedCells;
 	String pid;
 
 	final SingleSelectionModel<GwtChannelInfo> selectionModel = new SingleSelectionModel<GwtChannelInfo>();
@@ -146,6 +149,7 @@ public class PropertiesUi extends Composite {
 	AnchorListItem service;
 
 	HashMap<String, Boolean> valid = new HashMap<String, Boolean>();
+
 	TextBox validated;
 
 	public PropertiesUi(final GwtConfigComponent addedItem, final String pid) {
@@ -161,6 +165,7 @@ public class PropertiesUi extends Composite {
 		this.channelPanel.setVisible(false);
 		this.btn_remove.setEnabled(false);
 
+		this.nonValidatedCells = new HashSet<String>();
 		this.hasDriver = this.m_configurableComponent.get("driver.pid") != null;
 		this.isWireAsset = (this.m_configurableComponent.getFactoryId() != null)
 				&& this.m_configurableComponent.getFactoryId().contains("WireAsset");
@@ -458,10 +463,14 @@ public class PropertiesUi extends Composite {
 						|| ((min != null) && PropertiesUi.this.invalidateMin(value, min))) {
 					viewData = cell.getViewData(object);
 					viewData.setInvalid(true);
+					PropertiesUi.this.nonValidatedCells.add(object.getId());
+					PropertiesUi.this.setNonValidated(true);
 					// We only modified the cell, so do a local redraw.
 					PropertiesUi.this.channelTable.redraw();
 					return;
 				}
+				PropertiesUi.this.nonValidatedCells.remove(object.getId());
+				PropertiesUi.this.setNonValidated(false);
 				viewData.setValue(value);
 				PropertiesUi.this.channelTable.redraw();
 				object.set(param.getId(), value);
@@ -674,6 +683,10 @@ public class PropertiesUi extends Composite {
 
 	public boolean isDirty() {
 		return this.dirty;
+	}
+
+	public boolean isNonValidated() {
+		return this.nonValidated;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -1083,9 +1096,7 @@ public class PropertiesUi extends Composite {
 				PropertiesUi.this.validate(param, box, group);
 			}
 		});
-
 		this.fields.add(formGroup);
-
 	}
 
 	public void setDirty(final boolean flag) {
@@ -1110,6 +1121,31 @@ public class PropertiesUi extends Composite {
 								+ " - " + this.pid);
 			}
 			WiresPanelUi.btnSave.setText("Save");
+		}
+	}
+
+	public void setNonValidated(final boolean flag) {
+		this.nonValidated = flag;
+		if (flag) {
+			if (!this.m_configurableComponent.getComponentName().equalsIgnoreCase(this.pid)) {
+				WiresPanelUi.propertiesPanelHeader
+						.setText(this.m_configurableComponent.getComponentName() + " - " + this.pid + "*");
+			} else {
+				WiresPanelUi.propertiesPanelHeader
+						.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId())
+								+ " - " + this.pid + "*");
+			}
+			WiresPanelUi.btnSave.setEnabled(false);
+		} else if (this.nonValidatedCells.isEmpty()) {
+			if (!this.m_configurableComponent.getComponentName().equalsIgnoreCase(this.pid)) {
+				WiresPanelUi.propertiesPanelHeader
+						.setText(this.m_configurableComponent.getComponentName() + " - " + this.pid);
+			} else {
+				WiresPanelUi.propertiesPanelHeader
+						.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId())
+								+ " - " + this.pid);
+			}
+			WiresPanelUi.btnSave.setEnabled(true);
 		}
 	}
 

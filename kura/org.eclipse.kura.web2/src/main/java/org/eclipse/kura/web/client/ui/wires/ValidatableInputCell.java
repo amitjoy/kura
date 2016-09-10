@@ -12,6 +12,8 @@
  */
 package org.eclipse.kura.web.client.ui.wires;
 
+import java.util.logging.Logger;
+
 import com.google.gwt.cell.client.AbstractInputCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
@@ -33,8 +35,8 @@ public class ValidatableInputCell extends AbstractInputCell<String, ValidationDa
 		SafeHtml input(String value, SafeStyles color, String cssClassName);
 	}
 
+	private static final Logger logger = Logger.getLogger(ValidatableInputCell.class.getSimpleName());
 	private final SafeHtml errorMessage;
-
 	private Template template;
 
 	public ValidatableInputCell(final String errorMessage) {
@@ -116,6 +118,7 @@ public class ValidatableInputCell extends AbstractInputCell<String, ValidationDa
 		final SafeStyles safeColor = SafeStylesUtils.fromTrustedString("color: " + color + ";");
 		sb.append(this.template.input(pendingValue != null ? pendingValue : value, safeColor,
 				invalid ? "error-text-box" : "noerror-text-box"));
+
 		/**
 		 * if (invalid) {
 		 * sb.appendHtmlConstant("&nbsp;<span class='tooltiptext'>");
