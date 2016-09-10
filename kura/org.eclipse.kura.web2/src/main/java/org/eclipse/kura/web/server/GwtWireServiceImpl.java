@@ -537,20 +537,15 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 				}
 			}
 
-			// Update the configuration for all the changes tracked in WiresUi
+			// Update the configuration for all the changes tracked in Wires
+			// Composer
 			for (final String pid : configurations.keySet()) {
 				final GwtConfigComponent config = configurations.get(pid);
 				if (config != null) {
 					final ComponentConfiguration currentConf = configService.getComponentConfiguration(pid);
 					final Map<String, Object> props = fillPropertiesFromConfiguration(config, currentConf);
 					if (props != null) {
-						if (config.getFactoryId().endsWith("WireAsset")) {
-							configService.deleteFactoryConfiguration(pid, false);
-							String fPid = config.getFactoryId();
-							configService.createFactoryConfiguration(fPid, pid, props, false);
-						} else {
-							configService.updateConfiguration(pid, props, false);
-						}
+						configService.updateConfiguration(pid, props, false);
 					}
 				}
 			}
