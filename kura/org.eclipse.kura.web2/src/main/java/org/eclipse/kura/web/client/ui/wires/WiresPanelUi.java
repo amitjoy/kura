@@ -370,7 +370,7 @@ public class WiresPanelUi extends Composite {
 		if (m_configs.get(pid) != null) {
 			fillProperties(m_configs.get(pid), pid);
 		} else {
-			EntryClassUi.showWaitModal();
+			// EntryClassUi.showWaitModal();
 			// else we get the GwtComponentConfiguration from the
 			// ConfigurationService
 			gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
@@ -383,48 +383,30 @@ public class WiresPanelUi extends Composite {
 
 				@Override
 				public void onSuccess(final GwtXSRFToken token) {
+					Map<String, Object> temporaryMap = null;
 					if ("org.eclipse.kura.wire.WireAsset".equalsIgnoreCase(factoryPid)) {
-						final Map<String, Object> temporaryMap = new HashMap<String, Object>();
+						temporaryMap = new HashMap<String, Object>();
 						temporaryMap.put("asset.desc", "Sample Asset");
 						temporaryMap.put("driver.pid", getDriver(pid));
-						gwtComponentService.findComponentConfigurationFromPid(token, pid, factoryPid, temporaryMap,
-								new AsyncCallback<GwtConfigComponent>() {
-
-									@Override
-									public void onFailure(final Throwable caught) {
-										EntryClassUi.hideWaitModal();
-										FailureHandler.handle(caught);
-									}
-
-									@Override
-									public void onSuccess(final GwtConfigComponent result) {
-										// Component configuration retrieved
-										// from the Configuration Service
-										m_configs.put(pid, result);
-										fillProperties(result, pid);
-										EntryClassUi.hideWaitModal();
-									}
-								});
-					} else {
-						gwtComponentService.findComponentConfigurationFromPid(token, pid, factoryPid, null,
-								new AsyncCallback<GwtConfigComponent>() {
-
-									@Override
-									public void onFailure(final Throwable caught) {
-										EntryClassUi.hideWaitModal();
-										FailureHandler.handle(caught);
-									}
-
-									@Override
-									public void onSuccess(final GwtConfigComponent result) {
-										// Component configuration retrieved
-										// from the Configuration Service
-										m_configs.put(pid, result);
-										fillProperties(result, pid);
-										EntryClassUi.hideWaitModal();
-									}
-								});
 					}
+					gwtComponentService.findComponentConfigurationFromPid(token, pid, factoryPid, temporaryMap,
+							new AsyncCallback<GwtConfigComponent>() {
+
+								@Override
+								public void onFailure(final Throwable caught) {
+									EntryClassUi.hideWaitModal();
+									FailureHandler.handle(caught);
+								}
+
+								@Override
+								public void onSuccess(final GwtConfigComponent result) {
+									// Component configuration retrieved
+									// from the Configuration Service
+									m_configs.put(pid, result);
+									fillProperties(result, pid);
+									EntryClassUi.hideWaitModal();
+								}
+							});
 				}
 			});
 		}
@@ -447,7 +429,7 @@ public class WiresPanelUi extends Composite {
 			@Override
 			public void onSuccess(final GwtXSRFToken token) {
 				if ((currentSelection != null) && (propertiesUi != null)) {
-					propertiesUi.getUpdatedConfiguration();
+					final GwtConfigComponent component = propertiesUi.getUpdatedConfiguration();
 				}
 				gwtWireService.updateWireConfiguration(token, obj, m_configs,
 						new AsyncCallback<GwtWiresConfiguration>() {

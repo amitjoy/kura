@@ -545,6 +545,11 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 					final ComponentConfiguration currentConf = configService.getComponentConfiguration(pid);
 					final Map<String, Object> props = fillPropertiesFromConfiguration(config, currentConf);
 					if (props != null) {
+						final String factoryPid = config.getFactoryId();
+						if ("org.eclipse.kura.wire.WireAsset".equalsIgnoreCase(factoryPid)) {
+							configService.deleteFactoryConfiguration(pid, false);
+							configService.createFactoryConfiguration(factoryPid, pid, props, false);
+						}
 						configService.updateConfiguration(pid, props, false);
 					}
 				}

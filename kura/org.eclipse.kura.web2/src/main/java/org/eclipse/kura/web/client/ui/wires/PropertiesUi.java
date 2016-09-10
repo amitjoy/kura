@@ -325,7 +325,7 @@ public class PropertiesUi extends Composite {
 			final GwtConfigParameter p = it.next();
 			if (p.getName().contains(".CH.")) {
 				final String[] tokens = p.getName().split("\\.");
-				if ((tokens.length > 2) && tokens[2].trim().equals("CH")) {
+				if ((tokens.length > 2) && tokens[1].trim().equals("CH")) {
 					it.remove();
 				}
 			}
