@@ -12,12 +12,29 @@
  */
 package org.eclipse.kura.web.server.util;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.eclipse.kura.configuration.Password;
+import org.eclipse.kura.web.shared.GwtKuraException;
 import org.eclipse.kura.web.shared.model.GwtConfigParameter;
 import org.eclipse.kura.web.shared.model.GwtConfigParameter.GwtConfigParameterType;
+import org.eclipse.kura.web.shared.service.GwtWireService;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * The Class GwtServerUtil is an utility class required for Kura Server
@@ -25,11 +42,87 @@ import org.eclipse.kura.web.shared.model.GwtConfigParameter.GwtConfigParameterTy
  */
 public final class GwtServerUtil {
 
+	private static final String PATTERN_CONFIGURATION_REQUIRE = "configuration-policy=\"require\"";
+	private static final String PATTERN_SERVICE_PROVIDE_CONFIGURABLE_COMP = "provide interface=\"org.eclipse.kura.configuration.ConfigurableComponent\"";
+	private static final String PATTERN_SERVICE_PROVIDE_EMITTER = "provide interface=\"org.eclipse.kura.wire.WireEmitter\"";
+	private static final String PATTERN_SERVICE_PROVIDE_RECEIVER = "provide interface=\"org.eclipse.kura.wire.WireReceiver\"";
+	private static final String PATTERN_SERVICE_PROVIDE_SELF_CONFIGURING_COMP = "provide interface=\"org.eclipse.kura.configuration.SelfConfiguringComponent\"";
+
+	/** The Logger instance. */
+	private static final Logger s_logger = LoggerFactory.getLogger(GwtServerUtil.class);
+
 	/**
 	 * Instantiates a new gwt server util.
 	 */
 	private GwtServerUtil() {
 		// No need to instantiate
+	}
+
+	/**
+	 * Fills the provided lists with the proper factory IDs of the available
+	 * configurable or self configuring components
+	 *
+	 * @param emitters
+	 *            the emitters factory PID list
+	 * @param receivers
+	 *            the receivers factory PID list
+	 * @throws GwtKuraException
+	 *             if any exception is encountered
+	 */
+	public static void fillFactoriesLists(final List<String> emitters, final List<String> receivers)
+			throws GwtKuraException {
+		final Bundle[] bundles = FrameworkUtil.getBundle(GwtWireService.class).getBundleContext().getBundles();
+		for (final Bundle bundle : bundles) {
+			final Enumeration<URL> enumeration = bundle.findEntries("OSGI-INF", "*.xml", false);
+			if (enumeration != null) {
+				while (enumeration.hasMoreElements()) {
+					final URL entry = enumeration.nextElement();
+					BufferedReader reader = null;
+					try {
+						reader = new BufferedReader(new InputStreamReader(entry.openConnection().getInputStream()));
+						final StringBuilder contents = new StringBuilder();
+						String line;
+						while ((line = reader.readLine()) != null) {
+							contents.append(line);
+						}
+						// Configruation Policy=Require and
+						// SelfConfiguringComponent or ConfigurableComponent
+						if ((contents.toString().contains(PATTERN_SERVICE_PROVIDE_SELF_CONFIGURING_COMP)
+								|| contents.toString().contains(PATTERN_SERVICE_PROVIDE_CONFIGURABLE_COMP))
+								&& contents.toString().contains(PATTERN_CONFIGURATION_REQUIRE)) {
+							final Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+									.parse(entry.openConnection().getInputStream());
+							final NodeList nl = dom.getElementsByTagName("property");
+							for (int i = 0; i < nl.getLength(); i++) {
+								final Node n = nl.item(i);
+								if (n instanceof Element) {
+									final String name = ((Element) n).getAttribute("name");
+									if ("service.pid".equals(name)) {
+										final String factoryPid = ((Element) n).getAttribute("value");
+										if (contents.toString().contains(PATTERN_SERVICE_PROVIDE_EMITTER)) {
+											emitters.add(factoryPid);
+										}
+										if (contents.toString().contains(PATTERN_SERVICE_PROVIDE_RECEIVER)) {
+											receivers.add(factoryPid);
+										}
+									}
+								}
+							}
+						}
+					} catch (final Exception ex) {
+						s_logger.error("Error while reading Component Definition file {}", entry.getPath());
+					} finally {
+						try {
+							if (reader != null) {
+								reader.close();
+							}
+						} catch (final IOException e) {
+							s_logger.error("Error closing File Reader!" + e);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/**
