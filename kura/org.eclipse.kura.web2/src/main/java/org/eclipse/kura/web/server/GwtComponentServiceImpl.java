@@ -38,7 +38,9 @@ import org.eclipse.kura.web.shared.model.GwtConfigParameter;
 import org.eclipse.kura.web.shared.model.GwtXSRFToken;
 import org.eclipse.kura.web.shared.model.GwtConfigParameter.GwtConfigParameterType;
 import org.eclipse.kura.web.shared.service.GwtComponentService;
+import org.eclipse.kura.wire.WireEmitter;
 import org.eclipse.kura.wire.WireHelperService;
+import org.eclipse.kura.wire.WireReceiver;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -302,7 +304,7 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
 		result.removeAll(allWireComponents);
 		return result;
 	}
-
+    
 	@Override
 	public void createFactoryComponent(GwtXSRFToken xsrfToken, String factoryPid, String pid) throws GwtKuraException {
 		checkXSRFToken(xsrfToken);
