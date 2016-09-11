@@ -88,7 +88,7 @@ final class CloudPublisherOptions {
 	private static final String CONF_QOS = "publish.qos";
 
 	/** The Constant denoting quiesce timeout. */
-	private static final String CONF_QUIECE_TIMEOUT = "autoconnect.timeout";
+	private static final String CONF_QUIESCE_TIMEOUT = "quiesce.timeout";
 
 	/** The Constant denoting MQTT retain */
 	private static final String CONF_RETAIN = "publish.retain";
@@ -137,7 +137,7 @@ final class CloudPublisherOptions {
 	}
 
 	/**
-	 * Returns the retain to be used for message publishing.
+	 * Returns the auto connect mode.
 	 *
 	 * @return the auto connect mode
 	 */
@@ -154,21 +154,6 @@ final class CloudPublisherOptions {
 			}
 		}
 		return autoConnectMode;
-	}
-
-	/**
-	 * Returns the QoS to be used for message publishing.
-	 *
-	 * @return the auto connect quiesce timeout
-	 */
-	int getAutoConnectQuiesceTimeout() {
-		int quieceTimeout = DEFAULT_QUIECE_TIMEOUT;
-		final Object timeout = this.m_properties.get(CONF_QUIECE_TIMEOUT);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_QUIECE_TIMEOUT) && (timeout != null)
-				&& (timeout instanceof Integer)) {
-			quieceTimeout = (Integer) timeout;
-		}
-		return quieceTimeout;
 	}
 
 	/**
@@ -189,7 +174,7 @@ final class CloudPublisherOptions {
 	/**
 	 * Returns the topic to be used for message publishing.
 	 *
-	 * @return the publishing application
+	 * @return the publishing application topic
 	 */
 	String getPublishingApplication() {
 		String publishingApp = DEFAULT_APPLICATION;
@@ -259,6 +244,21 @@ final class CloudPublisherOptions {
 			publishingTopic = String.valueOf(topic);
 		}
 		return publishingTopic;
+	}
+
+	/**
+	 * Returns the Quiesce Timeout.
+	 *
+	 * @return the connect quiesce timeout
+	 */
+	int getQuiesceTimeout() {
+		int quieceTimeout = DEFAULT_QUIECE_TIMEOUT;
+		final Object timeout = this.m_properties.get(CONF_QUIESCE_TIMEOUT);
+		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_QUIESCE_TIMEOUT) && (timeout != null)
+				&& (timeout instanceof Integer)) {
+			quieceTimeout = (Integer) timeout;
+		}
+		return quieceTimeout;
 	}
 
 	/**

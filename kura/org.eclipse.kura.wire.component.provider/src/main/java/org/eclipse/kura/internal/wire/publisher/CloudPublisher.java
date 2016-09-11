@@ -113,7 +113,7 @@ public final class CloudPublisher implements WireReceiver, DataServiceListener, 
 		// create the singleton disconnect manager
 		if (s_disconnectManager == null) {
 			s_disconnectManager = new CloudPublisherDisconnectManager(this.m_dataService,
-					this.m_options.getAutoConnectQuiesceTimeout());
+					this.m_options.getQuiesceTimeout());
 		}
 		// recreate the CloudClient
 		try {
@@ -497,7 +497,7 @@ public final class CloudPublisher implements WireReceiver, DataServiceListener, 
 		this.m_monitor.lock();
 		try {
 			if (s_disconnectManager != null) {
-				s_disconnectManager.setQuiesceTimeout(this.m_options.getAutoConnectQuiesceTimeout());
+				s_disconnectManager.setQuiesceTimeout(this.m_options.getQuiesceTimeout());
 				final int minDelay = this.m_options.getAutoConnectMode().getDisconnectDelay();
 				if (minDelay > 0) {
 					s_disconnectManager.disconnectInMinutes(minDelay, true);
