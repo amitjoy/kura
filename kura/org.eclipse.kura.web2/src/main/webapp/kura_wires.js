@@ -48,6 +48,7 @@ var kuraWires = (function() {
 	};
 
 	var removeCellFunc = function(cell) {
+		top.jsniMakeUiDirty();
 		removeCell(cell);
 	};
 
@@ -136,7 +137,7 @@ var kuraWires = (function() {
 				}
 			});
 		}
-
+		
 		graph.off('remove', removeCellFunc);
 		// Load a graph if it exists
 		if (!$.isEmptyObject(clientConfig.pGraph)) {
@@ -147,7 +148,25 @@ var kuraWires = (function() {
 				console.log(err.stack);
 			}
 		}
-
+		
+		//for any position change of the element, make the UI dirty
+		var _elements = graph.getElements();
+		for (var i = 0; i < _elements.length; i++) {
+			var elem = _elements[i];
+			elem.on('change:position', function() { 
+				top.jsniMakeUiDirty();
+			})
+		}
+		
+		//for any position change of the link, make the UI dirty
+		var _links = graph.getLinks();
+		for (var i = 0; i < _links.length; i++) {
+			var link = _links[i];
+			elem.on('change', function() { 
+				top.jsniMakeUiDirty();
+			})
+		}
+		
 		// If components exist in the framework but not the graph, create UI
 		// elements
 		if (typeof clientConfig.components != 'undefined') {
@@ -165,6 +184,7 @@ var kuraWires = (function() {
 		}
 		graph.on('change:source change:target', function(link) {
 			createWire(link);
+			top.jsniMakeUiDirty();
 		});
 		graph.on('remove', removeCellFunc);
 
@@ -244,25 +264,19 @@ var kuraWires = (function() {
 				.inverse());
 		return pointTransformed;
 	}
-
+	
 	function hasCycle(comp, visited, level) {
-		var successors = graph.getSuccessors(comp);
-		visited.push(comp.id);
-		for (var i = 0; i < successors.length; i++) {
-			var c = successors[i];
-			var _successors = graph.getSuccessors(c);
-			if (_successors.length == 0) {
-				continue;
-			}
-			if (visited.indexOf(c.id) > -1) {
-				return true;
-			}
-			visited.push(c.id);
-			if (hasCycle(c, visited.slice(), ++level)) {
-				return true;
-			}
-		}
-		return false;
+	    var successors = graph.getSuccessors(comp);
+
+	    if (visited.indexOf(comp.id) > -1)
+	        return true;
+	    visited.push(comp.id);
+
+	    for (i = 0; i < successors.length; i++)
+	        if (hasCycle(successors[i], visited.slice(), ++level))
+	            return true;
+
+	    return false;
 	}
 
 	function allPredecessorsVisited(needle, haystack) {
@@ -416,7 +430,7 @@ var kuraWires = (function() {
 			cType : comp.type,
 			driver : comp.driver
 		});
-
+		
 		graph.addCells([ rect ]);
 
 		/* rounded corners */
@@ -426,6 +440,10 @@ var kuraWires = (function() {
 				'ry' : 6
 			}
 		});
+		
+		rect.on('change:position', function() { 
+			top.jsniMakeUiDirty();
+		})
 
 		/* custom highlighting for ports */
 		/*

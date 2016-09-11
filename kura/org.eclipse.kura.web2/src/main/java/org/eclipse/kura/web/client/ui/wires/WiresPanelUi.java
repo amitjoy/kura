@@ -145,6 +145,13 @@ public class WiresPanelUi extends Composite {
 		return components;
 	}
 
+	public static native void exportJSNImakeUiDirty()
+	/*-{
+	$wnd.jsniMakeUiDirty = $entry(
+	@org.eclipse.kura.web.client.ui.wires.WiresPanelUi::jsniMakeUiDirty()
+	);
+	}-*/;
+
 	public static native void exportJSNIshowCycleExistenceError()
 	/*-{
 	$wnd.jsniShowCycleExistenceError = $entry(
@@ -255,6 +262,7 @@ public class WiresPanelUi extends Composite {
 
 			@Override
 			public void onClick(final ClickEvent event) {
+				WiresPanelUi.setDirty(true);
 				deleteGraphModal.hide();
 			}
 		});
@@ -285,6 +293,7 @@ public class WiresPanelUi extends Composite {
 
 			@Override
 			public void onClick(final ClickEvent event) {
+				WiresPanelUi.setDirty(true);
 				deleteModal.hide();
 			}
 		});
@@ -307,6 +316,7 @@ public class WiresPanelUi extends Composite {
 		exportJSNIUpdateSelection();
 		exportJSNIShowDuplicatePidModal();
 		exportJSNIshowCycleExistenceError();
+		exportJSNImakeUiDirty();
 	}
 
 	private static List<String> intersect(final List<String> firstArray, final List<String> secondArray) {
@@ -341,6 +351,10 @@ public class WiresPanelUi extends Composite {
 			}
 		}
 		return sb.toString();
+	}
+
+	public static void jsniMakeUiDirty() {
+		WiresPanelUi.setDirty(true);
 	}
 
 	// ----------------------------------------------------------------
