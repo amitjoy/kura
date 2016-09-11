@@ -105,15 +105,17 @@
 												<b:Form type="INLINE">
 													<b:FieldSet>
 														<b:FormGroup>
-															<b:TextBox placeholder="Search by name or factory..."
+															<b:InputGroup>
+																<b:TextBox placeholder="Search"
 																ui:field="textSearch" />
-														</b:FormGroup>
-														<b:FormGroup>
-															<b:Tooltip title="Create a new factory component"
-																placement="RIGHT">
-																<b:Button icon="PLUS" size="SMALL" dataTarget="#myModal"
-																	dataToggle="MODAL" ui:field="factoriesButton" />
-															</b:Tooltip>
+																<b:InputGroupButton>
+																	<b:Tooltip title="Create a new factory component"
+																		placement="RIGHT">
+																	    <b:Button icon="PLUS" size="SMALL" dataTarget="#myModal"
+																	    	dataToggle="MODAL" ui:field="factoriesButton"/>
+																	</b:Tooltip>
+																</b:InputGroupButton>
+															</b:InputGroup>
 														</b:FormGroup>
 													</b:FieldSet>
 												</b:Form>
@@ -192,7 +194,7 @@
 			</b:ModalBody>
 			<b:ModalFooter>
 				<b:Button type="PRIMARY" dataDismiss="MODAL" ui:field="buttonNewComponent">Create</b:Button>
-				<b:Button type="DANGER" dataDismiss="MODAL">Close</b:Button>
+				<b:Button icon="REMOVE" type="PRIMARY" dataDismiss="MODAL">Cancel</b:Button>
 			</b:ModalFooter>
 		</b:Modal>
 		<b:Modal closable="true" fade="true" dataBackdrop="STATIC"
