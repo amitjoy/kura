@@ -94,30 +94,30 @@ public class WiresPanelUi extends Composite {
 	private static final GwtComponentServiceAsync gwtComponentService = GWT.create(GwtComponentService.class);
 	private static final GwtWireServiceAsync gwtWireService = GWT.create(GwtWireService.class);
 	private static final GwtSecurityTokenServiceAsync gwtXSRFService = GWT.create(GwtSecurityTokenService.class);
+	private static boolean isDirty;
 	private static final Logger logger = Logger.getLogger(WiresPanelUi.class.getSimpleName());
 	private static List<String> m_components;
-	private static Map<String, GwtConfigComponent> m_configs = new HashMap<String, GwtConfigComponent>();
 
+	private static Map<String, GwtConfigComponent> m_configs = new HashMap<String, GwtConfigComponent>();
 	private static List<String> m_drivers;
 	private static List<String> m_emitters;
 	private static String m_graph;
-	private static Map<String, PropertiesUi> m_propertiesUis;
 
+	private static Map<String, PropertiesUi> m_propertiesUis;
 	private static List<String> m_receivers;
 	private static String m_wires;
 	@UiField
 	public static Panel propertiesPanel;
 	@UiField
 	public static PanelBody propertiesPanelBody;
+
 	@UiField
 	public static PanelHeader propertiesPanelHeader;
-
 	private static PropertiesUi propertiesUi;
 	@UiField
 	public static Alert saveGraphAlert;
 	@UiField
 	public static Strong saveGraphAlertText;
-
 	@UiField
 	public static Modal saveModal;
 
@@ -319,6 +319,10 @@ public class WiresPanelUi extends Composite {
 		return rtnList;
 	}
 
+	public static boolean isDirty() {
+		return isDirty;
+	}
+
 	/**
 	 * Returns a string containing the tokens joined by delimiters.
 	 *
@@ -449,6 +453,9 @@ public class WiresPanelUi extends Composite {
 							public void onSuccess(final GwtWiresConfiguration result) {
 								internalLoad(result);
 								EntryClassUi.hideWaitModal();
+								btnSave.setEnabled(false);
+								btnSave.setText("Save");
+								isDirty = false;
 							}
 						});
 			}
@@ -516,6 +523,7 @@ public class WiresPanelUi extends Composite {
 		obj.put("pGraph", JSONParser.parseStrict(m_graph));
 
 		wiresOpen(obj.toString());
+		btnSave.setEnabled(false);
 	}
 
 	private static void populateComponentsPanel() {
@@ -604,6 +612,16 @@ public class WiresPanelUi extends Composite {
 				});
 			}
 		});
+	}
+
+	public static void setDirty(final boolean flag) {
+		// if WiresPanelUI is already dirty, there is no need to make it dirty
+		// again and again
+		if (!isDirty) {
+			btnSave.setEnabled(true);
+			btnSave.setText("Save*");
+			isDirty = flag;
+		}
 	}
 
 	public static native void wiresOpen(String obj)

@@ -191,6 +191,7 @@ public class PropertiesUi extends Composite {
 				PropertiesUi.this.channelsDataProvider.getList().add(ci);
 				PropertiesUi.this.channelsDataProvider.refresh();
 				PropertiesUi.this.channelPager.lastPage();
+				PropertiesUi.this.setDirty(true);
 			}
 		});
 
@@ -202,6 +203,7 @@ public class PropertiesUi extends Composite {
 				PropertiesUi.this.channelsDataProvider.getList().remove(ci);
 				PropertiesUi.this.channelsDataProvider.refresh();
 				PropertiesUi.this.btn_remove.setEnabled(false);
+				PropertiesUi.this.setDirty(true);
 			}
 		});
 
@@ -471,6 +473,7 @@ public class PropertiesUi extends Composite {
 				}
 				PropertiesUi.this.nonValidatedCells.remove(object.getId());
 				PropertiesUi.this.setNonValidated(false);
+				PropertiesUi.this.setDirty(true);
 				viewData.setValue(value);
 				PropertiesUi.this.channelTable.redraw();
 				object.set(param.getId(), value);
@@ -484,7 +487,8 @@ public class PropertiesUi extends Composite {
 		final String id = param.getId();
 		final Map<String, String> options = param.getOptions();
 		final ArrayList<String> opts = new ArrayList<String>(options.keySet());
-		final Column<GwtChannelInfo, String> result = new Column<GwtChannelInfo, String>(new SelectionCell(opts)) {
+		final SelectionCell cell = new SelectionCell(opts);
+		final Column<GwtChannelInfo, String> result = new Column<GwtChannelInfo, String>(cell) {
 
 			@Override
 			public String getValue(final GwtChannelInfo object) {
@@ -497,6 +501,7 @@ public class PropertiesUi extends Composite {
 
 			@Override
 			public void update(final int index, final GwtChannelInfo object, final String value) {
+				PropertiesUi.this.setDirty(true);
 				object.set(param.getId(), value);
 			}
 		});
@@ -1110,7 +1115,7 @@ public class PropertiesUi extends Composite {
 						.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId())
 								+ " - " + this.pid + "*");
 			}
-			WiresPanelUi.btnSave.setText("Save*");
+			WiresPanelUi.setDirty(true);
 		} else {
 			if (!this.m_configurableComponent.getComponentName().equalsIgnoreCase(this.pid)) {
 				WiresPanelUi.propertiesPanelHeader
@@ -1120,7 +1125,6 @@ public class PropertiesUi extends Composite {
 						.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId())
 								+ " - " + this.pid);
 			}
-			WiresPanelUi.btnSave.setText("Save");
 		}
 	}
 
