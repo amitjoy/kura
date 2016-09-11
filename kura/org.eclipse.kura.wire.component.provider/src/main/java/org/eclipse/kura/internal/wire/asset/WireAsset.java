@@ -67,10 +67,23 @@ import org.slf4j.LoggerFactory;
  * <li>channel_name</li>
  * <li>asset_flag</li>
  * <li>timestamp</li>
- * <li>value</li>
+ * <li>typed_value</li>
  * <li>exception</li> (This Wire Field is present if and only if asset_flag is
  * set to FAILURE)
  * </ul>
+ *
+ * <br/>
+ * Also note that, if the channel name is equal to the received value of the
+ * channel wire field name, then it would be considered as a WRITE wire field
+ * value to the specific channel. <br/>
+ * <br/>
+ * For instance, {@code A} asset sends a Wire Record to {@code B} asset and the
+ * received Wire Record contains list of Wire Fields. If there exists a Wire
+ * Field which signifies the channel name and if this channel name also exists
+ * in {@code B}'s list of configured channels, then the Wire Field which
+ * contains the typed value of this channel in the received Wire Record will be
+ * considered as a WRITE Value in that specific channel in B and this value will
+ * be written to {@code B}'s channel
  *
  * @see Asset
  */
@@ -157,13 +170,17 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 			final AssetStatus assetStatus = assetRecord.getAssetStatus();
 			final AssetFlag assetFlag = assetStatus.getAssetFlag();
 			final SeverityLevel level = (assetFlag == AssetFlag.FAILURE) ? ERROR : INFO;
+			long channelId = assetRecord.getChannelId();
 			final WireField channelIdWireField = new WireField(s_message.channelId(),
-					TypedValues.newLongValue(assetRecord.getChannelId()), level);
+					TypedValues.newLongValue(channelId), level);
+			String channelName = m_assetConfiguration.getAssetChannels().get(channelId).getName();
+			final WireField channelNameWireField = new WireField(s_message.channelName(),
+					TypedValues.newStringValue(channelName), level);
 			final WireField assetFlagWireField = new WireField(s_message.assetFlag(),
 					TypedValues.newStringValue(assetFlag.name()), level);
 			final WireField timestampWireField = new WireField(s_message.timestamp(),
 					TypedValues.newLongValue(assetRecord.getTimestamp()), level);
-			final WireField valueWireField = new WireField(s_message.value(),
+			final WireField valueWireField = new WireField(s_message.typedValue(),
 					assetRecord.getValue() != null ? assetRecord.getValue() : TypedValues.newStringValue(""), level);
 			WireRecord wireRecord;
 			WireField errorField;
@@ -179,11 +196,11 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 					errorMessage = ThrowableUtil.stackTraceAsString(exception);
 				}
 				errorField = new WireField(s_message.error(), TypedValues.newStringValue(errorMessage), level);
-				wireRecord = new WireRecord(new Timestamp(new Date().getTime()), Arrays.asList(channelIdWireField,
-						assetFlagWireField, timestampWireField, valueWireField, errorField));
+				wireRecord = new WireRecord(new Timestamp(new Date().getTime()), Arrays.asList(channelIdWireField, channelNameWireField,
+						assetFlagWireField, valueWireField, timestampWireField, errorField));
 			} else {
 				wireRecord = new WireRecord(new Timestamp(new Date().getTime()),
-						Arrays.asList(channelIdWireField, assetFlagWireField, timestampWireField, valueWireField));
+						Arrays.asList(channelIdWireField, channelNameWireField, assetFlagWireField, valueWireField, timestampWireField));
 			}
 			wireRecords.add(wireRecord);
 		}
@@ -243,15 +260,17 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 		}
 		// determining channels to write
 		for (final WireRecord wireRecord : records) {
+			String channelNameWireField = null;
 			for (final WireField wireField : wireRecord.getFields()) {
 				for (final Map.Entry<Long, Channel> channelEntry : channels.entrySet()) {
 					final Channel channel = channelEntry.getValue();
 					if ((channel.getType() == WRITE) || (channel.getType() == READ_WRITE)) {
 						final String wireFieldName = wireField.getName();
-						// if the channel name is equal to the received wire
-						// field name, then write the wire field value to the
-						// specific channel
-						if (channel.getName().equalsIgnoreCase(wireFieldName)
+						if (s_message.channelName().equalsIgnoreCase(wireFieldName)) {
+							channelNameWireField = String.valueOf(wireField.getValue().getValue());
+						}
+						if ((channelNameWireField != null) && channel.getName().equalsIgnoreCase(channelNameWireField)
+								&& s_message.typedValue().equalsIgnoreCase(wireFieldName)
 								&& (wireField.getSeverityLevel() == INFO)) {
 							assetRecordsToWriteChannels.add(this.prepareAssetRecord(channel, wireField.getValue()));
 						}

@@ -14,7 +14,6 @@ package org.eclipse.kura.web.client.ui.wires;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -125,6 +124,22 @@ public class WiresPanelUi extends Composite {
 	@UiField
 	static NavPills wireComponentsMenu;
 	private static WiresPanelUi wiresPanelUi;
+
+	@UiField
+	public Modal assetModal;
+
+	@UiField
+	public TextBox componentName;
+
+	public WiresPanelUi() {
+		this.initWidget(uiBinder.createAndBindUi(this));
+		m_emitters = new ArrayList<String>();
+		m_receivers = new ArrayList<String>();
+		m_components = new ArrayList<String>();
+		m_drivers = new ArrayList<String>();
+		m_propertiesUis = new HashMap<String, PropertiesUi>();
+		wiresPanelUi = this;
+	}
 
 	private static JSONArray createComponentsJson() {
 
@@ -280,8 +295,8 @@ public class WiresPanelUi extends Composite {
 				}
 				if (!pids.isEmpty()) {
 					saveGraphAlert.setType(AlertType.DANGER);
-					saveGraphAlertText.setText("These Wire Component instances' configurations are dirty: "
-							+ join(", ", pids) + ". Do you still want to save the Wire Graph?");
+					saveGraphAlertText.setText(
+							"Some Wire Component instances' configurations are dirty. Do you still want to save the Wire Graph?");
 				} else {
 					saveGraphAlert.setType(AlertType.INFO);
 					saveGraphAlertText.setText("Are you sure you want to save the Wire Graph?");
@@ -331,26 +346,6 @@ public class WiresPanelUi extends Composite {
 
 	public static boolean isDirty() {
 		return isDirty;
-	}
-
-	/**
-	 * Returns a string containing the tokens joined by delimiters.
-	 *
-	 * @param tokens
-	 *            an array objects to be joined. Strings will be formed from the
-	 *            objects by calling object.toString().
-	 */
-	public static String join(final CharSequence delimiter, final Iterable<?> tokens) {
-		final StringBuilder sb = new StringBuilder();
-		final Iterator<?> it = tokens.iterator();
-		if (it.hasNext()) {
-			sb.append(it.next());
-			while (it.hasNext()) {
-				sb.append(delimiter);
-				sb.append(it.next());
-			}
-		}
-		return sb.toString();
 	}
 
 	public static void jsniMakeUiDirty() {
@@ -642,21 +637,5 @@ public class WiresPanelUi extends Composite {
 	/*-{
 		$wnd.kuraWires.render(obj);
 	}-*/;
-
-	@UiField
-	public Modal assetModal;
-
-	@UiField
-	public TextBox componentName;
-
-	public WiresPanelUi() {
-		this.initWidget(uiBinder.createAndBindUi(this));
-		m_emitters = new ArrayList<String>();
-		m_receivers = new ArrayList<String>();
-		m_components = new ArrayList<String>();
-		m_drivers = new ArrayList<String>();
-		m_propertiesUis = new HashMap<String, PropertiesUi>();
-		wiresPanelUi = this;
-	}
 
 }

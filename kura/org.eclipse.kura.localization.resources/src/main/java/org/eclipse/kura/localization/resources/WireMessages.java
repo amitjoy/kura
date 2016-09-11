@@ -561,8 +561,8 @@ public interface WireMessages {
 	@En("Updating Wire Service Component...Done")
 	public String updatingWireServiceDone();
 
-	@En("value")
-	public String value();
+	@En("typed_value")
+	public String typedValue();
 
 	@En("Value cannot be null")
 	public String valueNonNull();

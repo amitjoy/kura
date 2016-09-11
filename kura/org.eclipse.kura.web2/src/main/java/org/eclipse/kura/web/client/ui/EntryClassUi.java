@@ -435,9 +435,10 @@ public class EntryClassUi extends Composite {
 		
 		// New factory configuration handler
 		buttonNewComponent.addClickHandler(new ClickHandler(){
-
+			
 			@Override
 			public void onClick(ClickEvent event) {
+				
 				gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
 
 					@Override
@@ -477,6 +478,8 @@ public class EntryClassUi extends Composite {
 
 			@Override
 			public void onClick(ClickEvent event) {
+				//always empty the PID input field
+				componentName.setValue("");
 				gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
 
 					@Override

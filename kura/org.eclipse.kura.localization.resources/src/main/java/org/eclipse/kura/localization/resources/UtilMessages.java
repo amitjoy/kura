@@ -27,11 +27,17 @@ public interface UtilMessages {
 	@En("Class intance name cannot be null")
 	public String clazzNonNull();
 
+	@En("Delimiter cannot be null")
+	public String delimiterNonNull();
+
 	@En("Dictionary cannot be null")
 	public String dictionaryNonNull();
 
 	@En("Initial Array size must not be less than 0")
 	public String initialArraySize();
+
+	@En("Iterable elements cannot be null")
+	public String iterableNonNull();
 
 	@En("Map cannot be null")
 	public String mapNonNull();
