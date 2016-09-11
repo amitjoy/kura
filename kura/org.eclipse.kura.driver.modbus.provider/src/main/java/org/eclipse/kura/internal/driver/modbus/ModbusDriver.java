@@ -421,7 +421,7 @@ public final class ModbusDriver implements Driver {
 				record.setTimestamp(System.currentTimeMillis());
 				continue;
 			}
-			// check if the mempry address is correct
+			// check if the memory address is correct
 			if ((memoryAddr < 0) || (memoryAddr > 65535)) {
 				record.setDriverStatus(
 						new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE, s_message.wrongRegister(), null));
