@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.eclipse.kura.KuraRuntimeException;
 import org.eclipse.kura.asset.Asset;
+import org.eclipse.kura.asset.AssetConstants;
 import org.eclipse.kura.asset.AssetService;
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.AssetCloudletMessages;
@@ -115,8 +116,8 @@ final class AssetTrackerCustomizer implements ServiceTrackerCustomizer<Asset, As
 	/** {@inheritDoc} */
 	@Override
 	public void removedService(final ServiceReference<Asset> reference, final Asset service) {
+		final String assetPid = String.valueOf(reference.getProperty(AssetConstants.ASSET_PID.value()));
 		this.m_context.ungetService(reference);
-		final String assetPid = this.m_assetService.getAssetPid(service);
 		if ((assetPid != null) && this.m_assets.containsKey(assetPid)) {
 			this.m_assets.remove(assetPid);
 		}

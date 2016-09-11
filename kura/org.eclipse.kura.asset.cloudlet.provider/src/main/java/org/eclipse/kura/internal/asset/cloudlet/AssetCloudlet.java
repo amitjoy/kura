@@ -181,8 +181,9 @@ public final class AssetCloudlet extends Cloudlet {
 			// perform a search operation at the beginning
 			this.findAssets();
 			if (reqTopic.getResources().length == 1) {
+				int i = 0;
 				for (final Map.Entry<String, Asset> assetEntry : this.m_assets.entrySet()) {
-					respPayload.addMetric("pid", assetEntry.getKey());
+					respPayload.addMetric("PID " + (++i), assetEntry.getKey());
 				}
 			}
 			// Checks if the name of the asset is provided
