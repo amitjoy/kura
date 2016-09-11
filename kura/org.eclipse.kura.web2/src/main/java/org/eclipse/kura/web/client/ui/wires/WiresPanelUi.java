@@ -177,7 +177,6 @@ public class WiresPanelUi extends Composite {
 		if ((config.getFactoryId() != null) && config.getFactoryId().contains("WireAsset")) {
 			config.getProperties().put("driver.pid", getDriver(pid));
 		}
-
 		render(config, pid);
 	}
 
@@ -216,6 +215,9 @@ public class WiresPanelUi extends Composite {
 		}
 		if (m_components != null) {
 			m_components.clear();
+		}
+		if (m_configs != null) {
+			m_configs.clear();
 		}
 
 		for (final String emitter : config.getWireEmitterFactoryPids()) {
@@ -404,6 +406,9 @@ public class WiresPanelUi extends Composite {
 									// Component configuration retrieved
 									// from the Configuration Service
 									m_configs.put(pid, result);
+									if (m_propertiesUis.containsKey(pid)) {
+										m_propertiesUis.remove(pid);
+									}
 									fillProperties(result, pid);
 									EntryClassUi.hideWaitModal();
 								}
