@@ -430,8 +430,6 @@ public class BaseAsset implements Asset, SelfConfiguringComponent {
 	/** {@inheritDoc} */
 	@Override
 	public List<AssetRecord> read(final List<Long> channelIds) throws KuraException {
-		checkNull(channelIds, s_message.channelsNonNull());
-		checkCondition(channelIds.isEmpty(), s_message.channelsNonEmpty());
 		checkNull(this.m_driver, s_message.driverNonNull());
 
 		s_logger.debug(s_message.readingChannels());
@@ -645,8 +643,6 @@ public class BaseAsset implements Asset, SelfConfiguringComponent {
 	/** {@inheritDoc} */
 	@Override
 	public List<AssetRecord> write(final List<AssetRecord> assetRecords) throws KuraException {
-		checkNull(assetRecords, s_message.assetRecordsNonNull());
-		checkCondition(assetRecords.isEmpty(), s_message.assetRecordsNonEmpty());
 		checkNull(this.m_driver, s_message.driverNonNull());
 
 		s_logger.debug(s_message.writing());

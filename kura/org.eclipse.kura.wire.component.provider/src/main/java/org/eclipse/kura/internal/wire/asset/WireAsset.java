@@ -170,10 +170,17 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 			final AssetStatus assetStatus = assetRecord.getAssetStatus();
 			final AssetFlag assetFlag = assetStatus.getAssetFlag();
 			final SeverityLevel level = (assetFlag == AssetFlag.FAILURE) ? ERROR : INFO;
-			long channelId = assetRecord.getChannelId();
+			final long channelId = assetRecord.getChannelId();
+			WireField assetPidWireField = new WireField(s_message.assetName(), TypedValues.newStringValue(""), level);
+			try {
+				assetPidWireField = new WireField(s_message.assetName(),
+						TypedValues.newStringValue(this.getConfiguration().getPid()), level);
+			} catch (final KuraException e) {
+				s_logger.error(ThrowableUtil.stackTraceAsString(e));
+			}
 			final WireField channelIdWireField = new WireField(s_message.channelId(),
 					TypedValues.newLongValue(channelId), level);
-			String channelName = m_assetConfiguration.getAssetChannels().get(channelId).getName();
+			final String channelName = this.m_assetConfiguration.getAssetChannels().get(channelId).getName();
 			final WireField channelNameWireField = new WireField(s_message.channelName(),
 					TypedValues.newStringValue(channelName), level);
 			final WireField assetFlagWireField = new WireField(s_message.assetFlag(),
@@ -196,11 +203,13 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 					errorMessage = ThrowableUtil.stackTraceAsString(exception);
 				}
 				errorField = new WireField(s_message.error(), TypedValues.newStringValue(errorMessage), level);
-				wireRecord = new WireRecord(new Timestamp(new Date().getTime()), Arrays.asList(channelIdWireField, channelNameWireField,
-						assetFlagWireField, valueWireField, timestampWireField, errorField));
+				wireRecord = new WireRecord(new Timestamp(new Date().getTime()),
+						Arrays.asList(assetPidWireField, channelIdWireField, channelNameWireField, assetFlagWireField,
+								valueWireField, timestampWireField, errorField));
 			} else {
 				wireRecord = new WireRecord(new Timestamp(new Date().getTime()),
-						Arrays.asList(channelIdWireField, channelNameWireField, assetFlagWireField, valueWireField, timestampWireField));
+						Arrays.asList(assetPidWireField, channelIdWireField, channelNameWireField, assetFlagWireField,
+								valueWireField, timestampWireField));
 			}
 			wireRecords.add(wireRecord);
 		}
@@ -252,8 +261,13 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 		if (field instanceof TimerWireField) {
 			// perform the read operation on timer event receive
 			try {
-				final List<AssetRecord> recentlyReadRecords = this.read(channelsToRead);
-				this.emitAssetRecords(recentlyReadRecords);
+				List<AssetRecord> recentlyReadRecords = null;
+				if ((channelsToRead != null) && !channelsToRead.isEmpty()) {
+					recentlyReadRecords = this.read(channelsToRead);
+				}
+				if (recentlyReadRecords != null) {
+					this.emitAssetRecords(recentlyReadRecords);
+				}
 			} catch (final KuraException e) {
 				s_logger.error(s_message.errorPerformingRead() + ThrowableUtil.stackTraceAsString(e));
 			}
@@ -280,7 +294,9 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 		}
 		// perform the write operation
 		try {
-			this.write(assetRecordsToWriteChannels);
+			if ((assetRecordsToWriteChannels != null) && !assetRecordsToWriteChannels.isEmpty()) {
+				this.write(assetRecordsToWriteChannels);
+			}
 		} catch (final KuraException e) {
 			s_logger.error(s_message.errorPerformingWrite() + ThrowableUtil.stackTraceAsString(e));
 		}

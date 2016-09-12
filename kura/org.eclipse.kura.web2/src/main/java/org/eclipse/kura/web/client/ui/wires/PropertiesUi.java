@@ -277,6 +277,7 @@ public class PropertiesUi extends Composite {
 			@Override
 			public void update(final int index, final GwtChannelInfo object, final String value) {
 				object.setName(value);
+				PropertiesUi.this.setDirty(true);
 			}
 		});
 
@@ -298,6 +299,7 @@ public class PropertiesUi extends Composite {
 			@Override
 			public void update(final int index, final GwtChannelInfo object, final String value) {
 				object.setType(value);
+				PropertiesUi.this.setDirty(true);
 			}
 		});
 		this.channelTable.addColumn(c2, new TextHeader("type"));
@@ -319,6 +321,7 @@ public class PropertiesUi extends Composite {
 			@Override
 			public void update(final int index, final GwtChannelInfo object, final String value) {
 				object.setValueType(value);
+				PropertiesUi.this.setDirty(true);
 			}
 		});
 		this.channelTable.addColumn(c3, new TextHeader("value type"));

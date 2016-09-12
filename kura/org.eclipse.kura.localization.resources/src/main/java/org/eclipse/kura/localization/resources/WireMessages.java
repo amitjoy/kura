@@ -75,6 +75,9 @@ public interface WireMessages {
 	@En("asset_flag")
 	public String assetFlag();
 
+	@En("asset_name")
+	public String assetName();
+
 	@En("Asset Records cannot be empty")
 	public String assetRecordsNonEmpty();
 
@@ -516,6 +519,9 @@ public interface WireMessages {
 	@En("Type of the channel")
 	public String type();
 
+	@En("typed_value")
+	public String typedValue();
+
 	@En("Value type of the channel")
 	public String typePoint();
 
@@ -560,9 +566,6 @@ public interface WireMessages {
 
 	@En("Updating Wire Service Component...Done")
 	public String updatingWireServiceDone();
-
-	@En("typed_value")
-	public String typedValue();
 
 	@En("Value cannot be null")
 	public String valueNonNull();
