@@ -43,7 +43,7 @@ public final class EventHandlerServlet extends HttpServlet {
 
 	/**
 	 * Tracks all the changes associating a flag which signifies if the item has
-	 * been read by Javascript
+	 * been read by JavaScript
 	 */
 	private final Queue<String> m_sharedCache;
 
@@ -90,7 +90,7 @@ public final class EventHandlerServlet extends HttpServlet {
 		response.setHeader("Connection", "keep-alive");
 
 		final PrintWriter writer = response.getWriter();
-		while (!m_sharedCache.isEmpty()) {
+		while (!this.m_sharedCache.isEmpty()) {
 			writer.write("data: " + this.m_sharedCache.poll() + "\n\n");
 		}
 		writer.flush();

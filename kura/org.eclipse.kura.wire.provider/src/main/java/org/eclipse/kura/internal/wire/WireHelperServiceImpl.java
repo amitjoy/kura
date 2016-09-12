@@ -45,8 +45,8 @@ public final class WireHelperServiceImpl implements WireHelperService {
 	/**
 	 * Binds the Event Admin Service.
 	 *
-	 * @param wireHelperService
-	 *            the new Wire Helper Service
+	 * @param eventAdmin
+	 *            the new Event Admin Service
 	 */
 	public synchronized void bindEventAdmin(final EventAdmin eventAdmin) {
 		if (this.m_eventAdmin == null) {
@@ -135,8 +135,8 @@ public final class WireHelperServiceImpl implements WireHelperService {
 	/**
 	 * Unbinds the Event Admin Service.
 	 *
-	 * @param wireHelperService
-	 *            the new Wire Helper Service
+	 * @param eventAdmin
+	 *            the new Event Admin Service
 	 */
 	public synchronized void unbindEventAdmin(final EventAdmin eventAdmin) {
 		if (this.m_eventAdmin == eventAdmin) {
