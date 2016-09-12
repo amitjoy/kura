@@ -16,22 +16,22 @@
 	xmlns:g="urn:import:com.google.gwt.user.client.ui" xmlns:gwt="urn:import:org.gwtbootstrap3.client.ui.gwt">
 
 	<ui:style>
-	.wire-components-list {
+		.wire-components-list {
 		padding-left: 10px;
 		padding-right: 0px;
-	}
-	
-	.asset-comp-modal-header {
+		}
+
+		.asset-comp-modal-header {
 		display: none;
-	}
-	
-	.asset-comp-modal-body {
+		}
+
+		.asset-comp-modal-body {
 		padding-bottom: 40px;
-	}
-	
-	.drivers-list {
+		}
+
+		.drivers-list {
 		padding-bottom: 30px;
-	}
+		}
 	</ui:style>
 
 	<b:Container fluid="true">

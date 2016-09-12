@@ -50,6 +50,12 @@ var kuraWires = (function() {
 	var removeCellFunc = function(cell) {
 		top.jsniMakeUiDirty();
 		removeCell(cell);
+		var _elements = graph.getElements();
+		if (_elements.length == 0) {
+			toggleDeleteGraphButton(true);
+		}else {
+			toggleDeleteGraphButton(false);
+		}
 	};
 
 	/**
@@ -64,6 +70,10 @@ var kuraWires = (function() {
 				}
 			});
 		};
+	}
+	
+	function toggleDeleteGraphButton(flag) {
+		$('#btn-delete-graph').prop('disabled', flag);
 	}
 
 	function checkForCycleExistence() {
@@ -174,6 +184,13 @@ var kuraWires = (function() {
 				top.jsniMakeUiDirty();
 			})
 		}
+		
+		//check if there exists any elements. If not, disable delete graph button
+		if (_elements.length == 0) {
+			toggleDeleteGraphButton(true);
+		} else {
+			toggleDeleteGraphButton(false);
+		}
 
 		// for any position change of the link, make the UI dirty
 		var _links = graph.getLinks();
@@ -204,6 +221,9 @@ var kuraWires = (function() {
 			top.jsniMakeUiDirty();
 		});
 		graph.on('remove', removeCellFunc);
+		graph.on('add', function(){
+			toggleDeleteGraphButton(false);
+		});
 
 		paper.on('cell:pointerdown', function(cellView, evt, x, y) {
 			var pid = cellView.model.attributes.label;
@@ -387,7 +407,7 @@ var kuraWires = (function() {
 		// PID with the new element then it would show an error modal
 		var isFoundExistingElementWithSamePid;
 		_.each(elementsContainerTemp, function(c) {
-			if (c.name === comp.name) {
+			if (c === comp.name) {
 				isFoundExistingElementWithSamePid = true;
 			}
 		});
@@ -397,7 +417,7 @@ var kuraWires = (function() {
 			return;
 		}
 
-		elementsContainerTemp.push(comp);
+		elementsContainerTemp.push(comp.name);
 
 		// Setup allowed ports based on type
 		if (comp.type === 'both') {
@@ -524,6 +544,10 @@ var kuraWires = (function() {
 		if (selectedElement !== ""
 				&& selectedElement.attributes.type === 'devs.Atomic') {
 			selectedElement.remove();
+			var i = elementsContainerTemp.indexOf(selectedElement.attributes.label);
+			if(i != -1) {
+				elementsContainerTemp.splice(i, 1);
+			}
 			top.jsniUpdateSelection("", "");
 		}
 	}
