@@ -73,7 +73,7 @@ var kuraWires = (function() {
 		var _elements = graph.getElements();
 		for (var i = 0; i < _elements.length; i++) {
 			var elem = _elements[i];
-			if ((graph.getPredecessors(elem).length > 0) && !elem.isLink()
+			if ((graph.getPredecessors(elem).length == 0)
 					&& hasCycle(elem, visited, level)) {
 				isCycleExists = true;
 				break;
@@ -92,6 +92,7 @@ var kuraWires = (function() {
 
 		if (visited.indexOf(comp.id) > -1)
 			return true;
+
 		visited.push(comp.id);
 
 		for (i = 0; i < neighbors.length; i++)
