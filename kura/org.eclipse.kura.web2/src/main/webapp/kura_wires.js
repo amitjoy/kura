@@ -82,11 +82,23 @@ var kuraWires = (function() {
 		if (isCycleExists) {
 			top.jsniShowCycleExistenceError();
 		}
-		// release the variable resources as it gets cached in JS which is very
-		// highly unlikely but it still occurs
-		visited = [];
-		level = 0;
 		return isCycleExists;
+	}
+
+	function hasCycle(comp, visited, level) {
+		var neighbors = graph.getNeighbors(comp, {
+			outbound : true
+		}), i;
+
+		if (visited.indexOf(comp.id) > -1)
+			return true;
+		visited.push(comp.id);
+
+		for (i = 0; i < neighbors.length; i++)
+			if (hasCycle(neighbors[i], visited.slice(), ++level))
+				return true;
+
+		return false;
 	}
 
 	/*
@@ -267,20 +279,6 @@ var kuraWires = (function() {
 		var pointTransformed = svgPoint.matrixTransform(paper.viewport.getCTM()
 				.inverse());
 		return pointTransformed;
-	}
-
-	function hasCycle(comp, visited, level) {
-		var neighbors = graph.getNeighbors(comp, { outbound : true }), i;
-
-		if (visited.indexOf(comp.id) > -1)
-			return true;
-		visited.push(comp.id);
-
-		for (i = 0; i < neighbors.length; i++)
-			if (hasCycle(neighbors[i], visited.slice(), ++level))
-				return true;
-
-		return false;
 	}
 
 	function allPredecessorsVisited(needle, haystack) {
