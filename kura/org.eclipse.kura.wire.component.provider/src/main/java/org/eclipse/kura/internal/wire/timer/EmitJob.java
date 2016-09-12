@@ -14,7 +14,9 @@ package org.eclipse.kura.internal.wire.timer;
 
 import java.util.Arrays;
 
-import org.eclipse.kura.wire.TimerWireField;
+import org.eclipse.kura.type.TypedValues;
+import org.eclipse.kura.wire.SeverityLevel;
+import org.eclipse.kura.wire.WireField;
 import org.eclipse.kura.wire.WireRecord;
 import org.eclipse.kura.wire.WireSupport;
 import org.quartz.DisallowConcurrentExecution;
@@ -29,6 +31,9 @@ import org.quartz.JobExecutionException;
 @DisallowConcurrentExecution
 public final class EmitJob implements Job {
 
+	/** Timer Field Constant */
+	private static final String PROP = "TIMER";
+
 	/**
 	 * Emits a Wire Record every specified interval.
 	 *
@@ -41,7 +46,8 @@ public final class EmitJob implements Job {
 	public void execute(final JobExecutionContext context) throws JobExecutionException {
 		final TimerJobDataMap dataMap = (TimerJobDataMap) context.getJobDetail().getJobDataMap();
 		final WireSupport wireSupport = dataMap.getWireSupport();
-		wireSupport.emit(Arrays.asList(new WireRecord(new TimerWireField())));
+		wireSupport.emit(Arrays
+				.asList(new WireRecord(new WireField(PROP, TypedValues.newStringValue(PROP), SeverityLevel.CONFIG))));
 	}
 
 }

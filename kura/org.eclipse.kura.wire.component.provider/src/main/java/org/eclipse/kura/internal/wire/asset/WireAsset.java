@@ -41,7 +41,6 @@ import org.eclipse.kura.type.TypedValues;
 import org.eclipse.kura.util.base.ThrowableUtil;
 import org.eclipse.kura.util.collection.CollectionUtil;
 import org.eclipse.kura.wire.SeverityLevel;
-import org.eclipse.kura.wire.TimerWireField;
 import org.eclipse.kura.wire.WireEmitter;
 import org.eclipse.kura.wire.WireEnvelope;
 import org.eclipse.kura.wire.WireField;
@@ -249,6 +248,7 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 		final List<AssetRecord> assetRecordsToWriteChannels = CollectionUtil.newArrayList();
 		final List<Long> channelsToRead = CollectionUtil.newArrayList();
 		final Map<Long, Channel> channels = this.m_assetConfiguration.getAssetChannels();
+
 		// determining channels to read
 		for (final Map.Entry<Long, Channel> channelEntry : channels.entrySet()) {
 			final Channel channel = channelEntry.getValue();
@@ -257,20 +257,16 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 			}
 		}
 		checkCondition(records.isEmpty(), s_message.wireRecordsNonEmpty());
-		final Object field = records.get(0).getFields().get(0);
-		if (field instanceof TimerWireField) {
-			// perform the read operation on timer event receive
-			try {
-				List<AssetRecord> recentlyReadRecords = null;
-				if ((channelsToRead != null) && !channelsToRead.isEmpty()) {
-					recentlyReadRecords = this.read(channelsToRead);
-				}
-				if (recentlyReadRecords != null) {
-					this.emitAssetRecords(recentlyReadRecords);
-				}
-			} catch (final KuraException e) {
-				s_logger.error(s_message.errorPerformingRead() + ThrowableUtil.stackTraceAsString(e));
+		try {
+			List<AssetRecord> recentlyReadRecords = null;
+			if ((channelsToRead != null) && !channelsToRead.isEmpty()) {
+				recentlyReadRecords = this.read(channelsToRead);
 			}
+			if (recentlyReadRecords != null) {
+				this.emitAssetRecords(recentlyReadRecords);
+			}
+		} catch (final KuraException e) {
+			s_logger.error(s_message.errorPerformingRead() + ThrowableUtil.stackTraceAsString(e));
 		}
 		// determining channels to write
 		for (final WireRecord wireRecord : records) {

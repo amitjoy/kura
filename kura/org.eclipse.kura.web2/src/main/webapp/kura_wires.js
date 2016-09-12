@@ -6,7 +6,9 @@
  * accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
- * Contributors: Eurotech Amit Kumar Mondal (admin@amitinside.com)
+ * Contributors: 
+ * 		Eurotech 
+ * 		Amit Kumar Mondal (admin@amitinside.com)
  */
 var kuraWires = (function() {
 	var client = {}; // Holds accessible elements of JS library
@@ -53,7 +55,7 @@ var kuraWires = (function() {
 		var _elements = graph.getElements();
 		if (_elements.length == 0) {
 			toggleDeleteGraphButton(true);
-		}else {
+		} else {
 			toggleDeleteGraphButton(false);
 		}
 	};
@@ -71,7 +73,7 @@ var kuraWires = (function() {
 			});
 		};
 	}
-	
+
 	function toggleDeleteGraphButton(flag) {
 		$('#btn-delete-graph').prop('disabled', flag);
 	}
@@ -184,8 +186,9 @@ var kuraWires = (function() {
 				top.jsniMakeUiDirty();
 			})
 		}
-		
-		//check if there exists any elements. If not, disable delete graph button
+
+		// check if there exists any elements. If not, disable delete graph
+		// button
 		if (_elements.length == 0) {
 			toggleDeleteGraphButton(true);
 		} else {
@@ -221,7 +224,7 @@ var kuraWires = (function() {
 			top.jsniMakeUiDirty();
 		});
 		graph.on('remove', removeCellFunc);
-		graph.on('add', function(){
+		graph.on('add', function() {
 			toggleDeleteGraphButton(false);
 		});
 
@@ -544,8 +547,9 @@ var kuraWires = (function() {
 		if (selectedElement !== ""
 				&& selectedElement.attributes.type === 'devs.Atomic') {
 			selectedElement.remove();
-			var i = elementsContainerTemp.indexOf(selectedElement.attributes.label);
-			if(i != -1) {
+			var i = elementsContainerTemp
+					.indexOf(selectedElement.attributes.label);
+			if (i != -1) {
 				elementsContainerTemp.splice(i, 1);
 			}
 			top.jsniUpdateSelection("", "");

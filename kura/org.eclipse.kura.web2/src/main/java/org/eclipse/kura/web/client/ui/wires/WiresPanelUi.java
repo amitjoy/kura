@@ -348,15 +348,15 @@ public class WiresPanelUi extends Composite {
 		return isDirty;
 	}
 
-	public static void jsniMakeUiDirty() {
-		WiresPanelUi.setDirty(true);
-	}
-
 	// ----------------------------------------------------------------
 	//
 	// JSNI
 	//
 	// ----------------------------------------------------------------
+	public static void jsniMakeUiDirty() {
+		WiresPanelUi.setDirty(true);
+	}
+
 	public static void jsniShowCycleExistenceError() {
 		errorAlertText
 				.setText("There exists cycle(s) in the created Wire Graph. Please remove the cycle(s) to continue.");

@@ -25,7 +25,7 @@ import org.eclipse.kura.type.TypedValue;
  */
 @Immutable
 @ThreadSafe
-public class WireField {
+public final class WireField {
 
 	/** The severity level of the field */
 	private final SeverityLevel level;
