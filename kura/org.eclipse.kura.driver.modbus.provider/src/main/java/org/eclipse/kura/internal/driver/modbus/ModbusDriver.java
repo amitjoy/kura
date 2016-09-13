@@ -484,8 +484,7 @@ public final class ModbusDriver implements Driver {
 	 * @throws ModbusException
 	 *             the Modbus exception
 	 * @throws KuraRuntimeException
-	 *             if the transport is null or the function code, unit ID or
-	 *             register address are wrongly set
+	 *             if the transport is null
 	 */
 	private synchronized ModbusResponse readRequest(final int unitId, final AbstractModbusTransport modbusTransport,
 			final int functionCode, final int register, final int count) throws ModbusException {
@@ -666,8 +665,7 @@ public final class ModbusDriver implements Driver {
 	 *            Values to apply
 	 * @return Response object
 	 * @throws KuraRuntimeException
-	 *             if the transport is null or the function code, unit ID or
-	 *             register address are wrongly set
+	 *             if the transport is null
 	 */
 	private synchronized ModbusResponse writeRequest(final int unitId, final AbstractModbusTransport modbusTransport,
 			final int functionCode, final int register, final int... values) throws ModbusException {

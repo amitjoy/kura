@@ -205,34 +205,39 @@ public final class OpcUaDriver implements Driver {
 		checkNull(record, s_message.recordNonNull());
 
 		final DataType expectedValueType = (DataType) record.getChannelConfig().get(CHANNEL_VALUE_TYPE.value());
-		switch (expectedValueType) {
-		case LONG:
-			return TypedValues.newLongValue(Long.valueOf(value.toString()));
-		case SHORT:
-			return TypedValues.newShortValue(Short.valueOf(value.toString()));
-		case DOUBLE:
-			return TypedValues.newDoubleValue(Double.valueOf(value.toString()));
-		case INTEGER:
-			return TypedValues.newIntegerValue(Integer.valueOf(value.toString()));
-		case BYTE:
-			return TypedValues.newByteValue(Byte.valueOf(value.toString()));
-		case BOOLEAN:
-			return TypedValues.newBooleanValue(Boolean.valueOf(value.toString()));
-		case STRING:
-			return TypedValues.newStringValue(value.toString());
-		case BYTE_ARRAY:
-			try {
-				return TypedValues.newByteArrayValue(TypeUtil.objectToByteArray(value));
-			} catch (final IOException e) {
+
+		try {
+			switch (expectedValueType) {
+			case LONG:
+				return TypedValues.newLongValue(Long.parseLong(value.toString()));
+			case SHORT:
+				return TypedValues.newShortValue(Short.parseShort(value.toString()));
+			case DOUBLE:
+				return TypedValues.newDoubleValue(Double.parseDouble(value.toString()));
+			case INTEGER:
+				return TypedValues.newIntegerValue(Integer.parseInt(value.toString()));
+			case BYTE:
+				return TypedValues.newByteValue(Byte.parseByte(value.toString()));
+			case BOOLEAN:
+				return TypedValues.newBooleanValue(Boolean.parseBoolean(value.toString()));
+			case STRING:
+				return TypedValues.newStringValue(value.toString());
+			case BYTE_ARRAY:
+				try {
+					return TypedValues.newByteArrayValue(TypeUtil.objectToByteArray(value));
+				} catch (final IOException e) {
+					return null;
+				}
+			default:
 				return null;
 			}
-		default:
+		} catch (final NumberFormatException nfe) {
 			return null;
 		}
 	}
 
 	/**
-	 * Initialize the Milo OPC-UA stack with this bundle claassloader
+	 * Initialize Eclipse Milo OPC-UA stack with this bundle claassloader
 	 */
 	private void initializeStackClassLoader() {
 		try {
