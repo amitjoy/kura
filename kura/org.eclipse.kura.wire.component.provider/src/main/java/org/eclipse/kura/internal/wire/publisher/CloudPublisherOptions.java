@@ -88,7 +88,7 @@ final class CloudPublisherOptions {
 	private static final String CONF_QOS = "publish.qos";
 
 	/** The Constant denoting quiesce timeout. */
-	private static final String CONF_QUIESCE_TIMEOUT = "quiesce.timeout";
+	private static final String CONF_QUIESCE_TIMEOUT = "disconnect.quiesce.timeout";
 
 	/** The Constant denoting MQTT retain */
 	private static final String CONF_RETAIN = "publish.retain";

@@ -36,14 +36,14 @@
             <Option label="Connect on event and stay connected indefinitely." value="AUTOCONNECT_MODE_ON_AND_STAY" />
         </AD>
 
-        <AD id="quiesce.timeout"
-            name="quiesce.timeout"
+        <AD id="disconnect.quiesce.timeout"
+            name="disconnect.quiesce.timeout"
             type="Integer"
             cardinality="0"
             required="true"
             default="0"
             min="0"
-            description="Timeout to be used when closing a Cloud Connection.">
+            description="Timeout used to try to complete the delivery of stored messages before forcing a disconnect of the Cloud Publisher.">
         </AD>
 
         <AD id="publish.application"
