@@ -109,9 +109,9 @@ final class ModbusOptions {
 	 */
 	int getBaudrate() {
 		int baudRate = 0;
-		if ((this.m_properties != null) && this.m_properties.containsKey(BAUD_RATE)
-				&& (this.m_properties.get(BAUD_RATE) != null)) {
-			baudRate = Integer.valueOf(this.m_properties.get(BAUD_RATE).toString());
+		final Object rate = this.m_properties.get(BAUD_RATE);
+		if ((this.m_properties != null) && this.m_properties.containsKey(BAUD_RATE) && (rate != null)) {
+			baudRate = Integer.valueOf(rate.toString());
 		}
 		return baudRate;
 	}
@@ -123,9 +123,9 @@ final class ModbusOptions {
 	 */
 	int getDatabits() {
 		int databits = 0;
-		if ((this.m_properties != null) && this.m_properties.containsKey(DATABITS)
-				&& (this.m_properties.get(DATABITS) != null)) {
-			databits = Integer.valueOf(this.m_properties.get(DATABITS).toString());
+		final Object bits = this.m_properties.get(DATABITS);
+		if ((this.m_properties != null) && this.m_properties.containsKey(DATABITS) && (bits != null)) {
+			databits = Integer.valueOf(bits.toString());
 		}
 		return databits;
 	}
@@ -137,9 +137,9 @@ final class ModbusOptions {
 	 */
 	String getEncoding() {
 		String encoding = null;
-		if ((this.m_properties != null) && this.m_properties.containsKey(ENCODING)
-				&& (this.m_properties.get(ENCODING) != null)) {
-			encoding = this.m_properties.get(ENCODING).toString();
+		final Object enc = this.m_properties.get(ENCODING);
+		if ((this.m_properties != null) && this.m_properties.containsKey(ENCODING) && (enc != null)) {
+			encoding = enc.toString();
 		}
 		if (encoding != null) {
 			if ("SERIAL_ENCODING_ASCII".equalsIgnoreCase(encoding)) {
@@ -162,9 +162,9 @@ final class ModbusOptions {
 	 */
 	int getFlowControlIn() {
 		String flowControlIn = null;
-		if ((this.m_properties != null) && this.m_properties.containsKey(FLOW_CONTROL_IN)
-				&& (this.m_properties.get(FLOW_CONTROL_IN) != null)) {
-			flowControlIn = this.m_properties.get(FLOW_CONTROL_IN).toString();
+		final Object controlIn = this.m_properties.get(FLOW_CONTROL_IN);
+		if ((this.m_properties != null) && this.m_properties.containsKey(FLOW_CONTROL_IN) && (controlIn != null)) {
+			flowControlIn = controlIn.toString();
 		}
 		if (flowControlIn != null) {
 			if ("FLOW_CONTROL_DISABLED".equalsIgnoreCase(flowControlIn)) {
@@ -196,9 +196,9 @@ final class ModbusOptions {
 	 */
 	int getFlowControlOut() {
 		String flowControlOut = null;
-		if ((this.m_properties != null) && this.m_properties.containsKey(FLOW_CONTROL_OUT)
-				&& (this.m_properties.get(FLOW_CONTROL_OUT) != null)) {
-			flowControlOut = this.m_properties.get(FLOW_CONTROL_OUT).toString();
+		final Object controlOut = this.m_properties.get(FLOW_CONTROL_OUT);
+		if ((this.m_properties != null) && this.m_properties.containsKey(FLOW_CONTROL_OUT) && (controlOut != null)) {
+			flowControlOut = controlOut.toString();
 		}
 		if (flowControlOut != null) {
 			if ("FLOW_CONTROL_DISABLED".equalsIgnoreCase(flowControlOut)) {
@@ -230,8 +230,9 @@ final class ModbusOptions {
 	 */
 	String getIp() {
 		String ipAddress = null;
-		if ((this.m_properties != null) && this.m_properties.containsKey(IP) && (this.m_properties.get(IP) != null)) {
-			ipAddress = this.m_properties.get(IP).toString();
+		final Object ip = this.m_properties.get(IP);
+		if ((this.m_properties != null) && this.m_properties.containsKey(IP) && (ip != null)) {
+			ipAddress = ip.toString();
 		}
 		return ipAddress;
 	}
@@ -243,9 +244,9 @@ final class ModbusOptions {
 	 */
 	int getParity() {
 		String parity = null;
-		if ((this.m_properties != null) && this.m_properties.containsKey(PARITY)
-				&& (this.m_properties.get(PARITY) != null)) {
-			parity = this.m_properties.get(PARITY).toString();
+		final Object parityCheck = this.m_properties.get(PARITY);
+		if ((this.m_properties != null) && this.m_properties.containsKey(PARITY) && (parityCheck != null)) {
+			parity = parityCheck.toString();
 		}
 		if (parity != null) {
 			if ("NO_PARITY".equalsIgnoreCase(parity)) {
@@ -274,9 +275,9 @@ final class ModbusOptions {
 	 */
 	int getPort() {
 		int port = 0;
-		if ((this.m_properties != null) && this.m_properties.containsKey(PORT)
-				&& (this.m_properties.get(PORT) != null)) {
-			port = Integer.valueOf(this.m_properties.get(PORT).toString());
+		final Object endpointPort = this.m_properties.get(PORT);
+		if ((this.m_properties != null) && this.m_properties.containsKey(PORT) && (endpointPort != null)) {
+			port = Integer.valueOf(endpointPort.toString());
 		}
 		return port;
 
@@ -289,9 +290,9 @@ final class ModbusOptions {
 	 */
 	String getRtuPortName() {
 		String port = null;
-		if ((this.m_properties != null) && this.m_properties.containsKey(SERIAL_PORT)
-				&& (this.m_properties.get(SERIAL_PORT) != null)) {
-			port = this.m_properties.get(SERIAL_PORT).toString();
+		final Object endpointPort = this.m_properties.get(SERIAL_PORT);
+		if ((this.m_properties != null) && this.m_properties.containsKey(SERIAL_PORT) && (endpointPort != null)) {
+			port = endpointPort.toString();
 		}
 		return port;
 	}
@@ -303,9 +304,9 @@ final class ModbusOptions {
 	 */
 	int getStopbits() {
 		String stopbits = null;
-		if ((this.m_properties != null) && this.m_properties.containsKey(STOPBITS)
-				&& (this.m_properties.get(STOPBITS) != null)) {
-			stopbits = this.m_properties.get(STOPBITS).toString();
+		final Object stopbit = this.m_properties.get(STOPBITS);
+		if ((this.m_properties != null) && this.m_properties.containsKey(STOPBITS) && (stopbit != null)) {
+			stopbits = stopbit.toString();
 		}
 		if (stopbits != null) {
 			if ("ONE_STOP_BIT".equalsIgnoreCase(stopbits)) {
@@ -328,9 +329,9 @@ final class ModbusOptions {
 	 */
 	ModbusType getType() {
 		String messageType = null;
-		if ((this.m_properties != null) && this.m_properties.containsKey(TYPE)
-				&& (this.m_properties.get(TYPE) != null)) {
-			messageType = (String) this.m_properties.get(TYPE);
+		final Object type = this.m_properties.get(TYPE);
+		if ((this.m_properties != null) && this.m_properties.containsKey(TYPE) && (type != null)) {
+			messageType = (String) type;
 		}
 		if (messageType != null) {
 			if ("TCP".equalsIgnoreCase(messageType)) {

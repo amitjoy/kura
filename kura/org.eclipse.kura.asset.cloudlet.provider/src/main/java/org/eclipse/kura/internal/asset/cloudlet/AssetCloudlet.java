@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The Class AssetCloudlet is used to provide MQTT read/write operations on the
- * asset. The application id is configured as {@code AssetCloudlet}.
+ * asset. The application id is configured as {@code ASSET-CLOUDLET}.
  *
  * The available {@code GET} commands are as follows
  * <ul>
@@ -95,7 +95,7 @@ import org.slf4j.LoggerFactory;
 public final class AssetCloudlet extends Cloudlet {
 
 	/** Application Identifier for Cloudlet. */
-	private static final String APP_ID = "AssetCloudlet";
+	private static final String APP_ID = "ASSET-CLOUDLET";
 
 	/** The Logger instance. */
 	private static final Logger s_logger = LoggerFactory.getLogger(AssetCloudlet.class);

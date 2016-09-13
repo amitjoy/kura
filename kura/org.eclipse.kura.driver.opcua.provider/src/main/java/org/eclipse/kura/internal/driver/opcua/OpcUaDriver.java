@@ -22,13 +22,10 @@ import static org.eclipse.kura.driver.DriverFlag.WRITE_FAILURE;
 import static org.eclipse.kura.driver.DriverFlag.WRITE_SUCCESSFUL;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraRuntimeException;
 import org.eclipse.kura.driver.ChannelDescriptor;
@@ -48,15 +45,12 @@ import org.eclipse.milo.opcua.sdk.client.OpcUaClient;
 import org.eclipse.milo.opcua.sdk.client.api.config.OpcUaClientConfig;
 import org.eclipse.milo.opcua.sdk.client.api.nodes.attached.UaVariableNode;
 import org.eclipse.milo.opcua.stack.client.UaTcpStackClient;
-import org.eclipse.milo.opcua.stack.core.Stack;
 import org.eclipse.milo.opcua.stack.core.types.builtin.DataValue;
 import org.eclipse.milo.opcua.stack.core.types.builtin.LocalizedText;
 import org.eclipse.milo.opcua.stack.core.types.builtin.NodeId;
 import org.eclipse.milo.opcua.stack.core.types.builtin.Variant;
 import org.eclipse.milo.opcua.stack.core.types.builtin.unsigned.UInteger;
 import org.eclipse.milo.opcua.stack.core.types.structured.EndpointDescription;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +108,6 @@ public final class OpcUaDriver implements Driver {
 			final Map<String, Object> properties) {
 		s_logger.debug(s_message.activating());
 		this.extractProperties(properties);
-		this.initializeStackClassLoader();
 		s_logger.debug(s_message.activatingDone());
 	}
 
@@ -233,22 +226,6 @@ public final class OpcUaDriver implements Driver {
 			}
 		} catch (final NumberFormatException nfe) {
 			return null;
-		}
-	}
-
-	/**
-	 * Initialize Eclipse Milo OPC-UA stack with this bundle claassloader
-	 */
-	private void initializeStackClassLoader() {
-		try {
-			final Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-			final URL url = bundle.getEntry("/lib/stack-core-0.1.0-SNAPSHOT.jar");
-			final URL fileUrl = FileLocator.toFileURL(url);
-			final ClassLoader classLoader = new URLClassLoader(new URL[] { fileUrl },
-					OpcUaDriver.class.getClassLoader());
-			Stack.setCustomClassLoader(classLoader);
-		} catch (final IOException e) {
-			s_logger.error(ThrowableUtil.stackTraceAsString(e));
 		}
 	}
 
