@@ -22,7 +22,7 @@
    <property name="service.pid" value="org.eclipse.kura.wire.CloudSubscriber"/>
    <service>
       <provide interface="org.eclipse.kura.configuration.ConfigurableComponent"/>
-      <provide interface="org.eclipse.kura.data.listener.DataServiceListener"/>
+      <provide interface="org.eclipse.kura.cloud.CloudClientListener"/>
       <provide interface="org.eclipse.kura.wire.WireComponent"/>
       <provide interface="org.eclipse.kura.wire.WireEmitter"/>
       <provide interface="org.osgi.service.wireadmin.Producer"/>

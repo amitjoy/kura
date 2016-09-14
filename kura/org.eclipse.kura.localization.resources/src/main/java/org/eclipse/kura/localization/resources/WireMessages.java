@@ -618,6 +618,9 @@ public interface WireMessages {
 	@En("Wire cannot be null")
 	public String wireNonNull();
 
+	@En("Payload cannot be null")
+	public String payloadNonNull();
+	
 	@En("Wire Record cannot be null")
 	public String wireRecordNonNull();
 

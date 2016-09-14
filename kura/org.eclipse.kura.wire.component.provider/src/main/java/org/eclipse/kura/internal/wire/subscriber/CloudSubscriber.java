@@ -21,9 +21,9 @@ import java.util.Map;
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.KuraRuntimeException;
 import org.eclipse.kura.cloud.CloudClient;
+import org.eclipse.kura.cloud.CloudClientListener;
 import org.eclipse.kura.cloud.CloudService;
 import org.eclipse.kura.configuration.ConfigurableComponent;
-import org.eclipse.kura.data.listener.DataServiceListener;
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.WireMessages;
 import org.eclipse.kura.message.KuraPayload;
@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * Component, the user can only avail to wrap every Wire Record in the default
  * Google Protobuf Payload.
  */
-public final class CloudSubscriber implements WireEmitter, DataServiceListener, ConfigurableComponent {
+public final class CloudSubscriber implements WireEmitter, CloudClientListener, ConfigurableComponent {
 
 	/** The Logger instance. */
 	private static final Logger s_logger = LoggerFactory.getLogger(CloudSubscriber.class);
@@ -123,6 +123,28 @@ public final class CloudSubscriber implements WireEmitter, DataServiceListener, 
 	}
 
 	/**
+	 * Builds the Wire Record from the provided Kura Payload.
+	 *
+	 * @param payload
+	 *            the payload
+	 * @return the Wire Record
+	 * @throws KuraRuntimeException
+	 *             if the payload provided is null
+	 */
+	private WireRecord buildWireRecord(final KuraPayload payload) {
+		checkNull(payload, s_message.payloadNonNull());
+		final List<WireField> wireFields = CollectionUtil.newArrayList();
+
+		for (final String metric : payload.metricNames()) {
+			final Object metricValue = payload.getMetric(metric);
+			final WireField wireField = new WireField(metric, TypedValues.newStringValue(String.valueOf(metricValue)),
+					SeverityLevel.CONFIG);
+			wireFields.add(wireField);
+		}
+		return new WireRecord(wireFields.toArray(new WireField[0]));
+	}
+
+	/**
 	 * Closes cloud client.
 	 */
 	private void closeCloudClient() {
@@ -150,6 +172,45 @@ public final class CloudSubscriber implements WireEmitter, DataServiceListener, 
 		this.closeCloudClient();
 		// close the disconnect manager
 		s_logger.debug(s_message.deactivatingCloudSubscriberDone());
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onConnectionEstablished() {
+		// Not required
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onConnectionLost() {
+		// Not required
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onControlMessageArrived(final String deviceId, final String appTopic, final KuraPayload msg,
+			final int qos, final boolean retain) {
+		// Not required
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onMessageArrived(final String deviceId, final String appTopic, final KuraPayload msg, final int qos,
+			final boolean retain) {
+		final WireRecord record = this.buildWireRecord(msg);
+		this.m_wireSupport.emit(Arrays.asList(record));
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onMessageConfirmed(final int messageId, final String topic) {
+		// Not required
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onMessagePublished(final int messageId, final String topic) {
+		// Not required
 	}
 
 	/** {@inheritDoc} */
@@ -213,49 +274,6 @@ public final class CloudSubscriber implements WireEmitter, DataServiceListener, 
 			s_logger.error(s_message.cloudClientSetupProblem() + ThrowableUtil.stackTraceAsString(e));
 		}
 		s_logger.debug(s_message.updatingCloudSubscriberDone());
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void onConnectionEstablished() {
-		// Not required
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void onDisconnecting() {
-		// Not required
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void onDisconnected() {
-		// Not required
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void onConnectionLost(Throwable cause) {
-		// Not required
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void onMessageArrived(String topic, byte[] payload, int qos, boolean retained) {
-		WireRecord record = new WireRecord(new WireField("SUBSCRIBER", TypedValues.newStringValue("SUBSCRIBER"), SeverityLevel.CONFIG));
-		m_wireSupport.emit(Arrays.asList(record));
-	}
-	
-	/** {@inheritDoc} */
-	@Override
-	public void onMessagePublished(int messageId, String topic) {
-		// Not required
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public void onMessageConfirmed(int messageId, String topic) {
-		// Not required
 	}
 
 }
