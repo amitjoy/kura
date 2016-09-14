@@ -16,8 +16,6 @@
          name="DB Filter" 
          description="A wire component that provides filtering and aggregation for Wire Records stored by the DbWireRecordStores.">
 
-        <Icon resource="RecordFilter" size="32"/>
-        
         <AD id="sql.view"
         	name="sql.view"
         	type="String"

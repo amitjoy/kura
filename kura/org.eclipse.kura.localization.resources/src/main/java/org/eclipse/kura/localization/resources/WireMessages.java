@@ -27,6 +27,12 @@ public interface WireMessages {
 	@En("Activating Cloud Publisher Wire Component...Done")
 	public String activatingCloudPublisherDone();
 
+	@En("Activating Cloud Subscriber Wire Component...")
+	public String activatingCloudSubscriber();
+
+	@En("Activating Cloud Subscriber Wire Component...Done")
+	public String activatingCloudSubscriberDone();
+
 	@En("Activating DB Wire Record Filter...")
 	public String activatingFilter();
 
@@ -185,6 +191,12 @@ public interface WireMessages {
 
 	@En("Deactivating Cloud Publisher Wire Component...Done")
 	public String deactivatingCloudPublisherDone();
+
+	@En("Deactivating Cloud Subscriber Wire Component...")
+	public String deactivatingCloudSubscriber();
+
+	@En("Deactivating Cloud Subscriber Wire Component...Done")
+	public String deactivatingCloudSubscriberDone();
 
 	@En("Dectivating DB Wire Record Filter...")
 	public String deactivatingFilter();
@@ -530,6 +542,12 @@ public interface WireMessages {
 
 	@En("Updating Cloud Publisher Wire Component...Done")
 	public String updatingCloudPublisherDone();
+
+	@En("Updating Cloud Subscriber Wire Component...")
+	public String updatingCloudSubscriber();
+
+	@En("Updating Cloud Subscriber Wire Component...Done")
+	public String updatingCloudSubscriberDone();
 
 	@En("Updating DB Wire Record Filter...")
 	public String updatingFilter();

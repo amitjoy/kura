@@ -48,8 +48,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The Class CloudPublisherImpl is the specific Wire Component to publish a list
- * of wire records as received in Wire Envelope to the configured cloud
+ * The Class CloudPublisher is the specific Wire Component to publish a list of
+ * wire records as received in Wire Envelope to the configured cloud
  * platform.<br/>
  * <br/>
  *

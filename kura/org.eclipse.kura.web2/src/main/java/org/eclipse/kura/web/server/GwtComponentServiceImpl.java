@@ -341,7 +341,7 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
 					conf.getConfigurationProperties().put(ConfigurationAdmin.SERVICE_FACTORYPID, factoryPid);
 				}
 				if(conf != null && conf.getDefinition()==null){
-				   String tempName = String.valueOf(System.currentTimeMillis());
+				   String tempName = String.valueOf(System.nanoTime());
 				   cs.createFactoryConfiguration(factoryPid, tempName, extraProps, false);
 				   try{
 					   final BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();

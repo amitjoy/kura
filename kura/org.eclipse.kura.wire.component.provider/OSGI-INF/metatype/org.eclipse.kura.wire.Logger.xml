@@ -16,8 +16,6 @@
          name="Logger" 
          description="A wire component which logs data as received from upstream connected Wire Components">
 
-        <Icon resource="Logger" size="32"/>
-                
         <AD id="severity.level"
             name="severity.level"
             type="String"

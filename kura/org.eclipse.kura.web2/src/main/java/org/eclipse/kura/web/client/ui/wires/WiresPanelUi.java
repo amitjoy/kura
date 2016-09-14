@@ -220,6 +220,9 @@ public class WiresPanelUi extends Composite {
 		if ("org.eclipse.kura.wire.CloudPublisher".equalsIgnoreCase(factoryPid)) {
 			return "Publisher";
 		}
+		if ("org.eclipse.kura.wire.CloudSubscriber".equalsIgnoreCase(factoryPid)) {
+			return "Subscriber";
+		}
 		String[] split;
 		if (factoryPid.contains(".")) {
 			split = factoryPid.split("\\.");

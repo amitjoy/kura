@@ -16,8 +16,6 @@
          name="Publisher" 
          description="A wire component which publishes data to the cloud platform">
 
-        <Icon resource="CloudPublisher" size="32"/>
-                
         <AD id="autoconnect.mode"
             name="autoconnect.mode"
             type="String"

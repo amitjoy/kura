@@ -16,8 +16,6 @@
          name="DB Store" 
          description="A wire component that provides storage for Wire Records produced by connected WireEmitters.">
 
-        <Icon resource="RecordStore" size="32"/>
-        
         <AD id="table.name"
             name="table.name"
             type="String"
