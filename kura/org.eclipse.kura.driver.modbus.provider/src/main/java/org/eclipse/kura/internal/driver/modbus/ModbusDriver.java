@@ -415,7 +415,7 @@ public final class ModbusDriver implements Driver {
 				continue;
 			}
 			// check if the unit id is correct
-			if ((unitId < 1) && (unitId > 247)) {
+			if ((unitId < 1) || (unitId > 247)) {
 				record.setDriverStatus(
 						new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE, s_message.wrongUnitId(), null));
 				record.setTimestamp(System.currentTimeMillis());
@@ -593,14 +593,14 @@ public final class ModbusDriver implements Driver {
 				continue;
 			}
 			// check if the unit id is correct
-			if ((unitId < 1) && (unitId > 247)) {
+			if ((unitId < 1) || (unitId > 247)) {
 				record.setDriverStatus(
 						new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE, s_message.wrongUnitId(), null));
 				record.setTimestamp(System.currentTimeMillis());
 				continue;
 			}
 			final int memoryAddr = Integer.parseInt(channelConfig.get(MEMORY_ADDRESS).toString()) - 1;
-			// check if the mempry address is correct
+			// check if the memory address is correct
 			if ((memoryAddr < 0) || (memoryAddr > 65535)) {
 				record.setDriverStatus(
 						new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE, s_message.wrongRegister(), null));
