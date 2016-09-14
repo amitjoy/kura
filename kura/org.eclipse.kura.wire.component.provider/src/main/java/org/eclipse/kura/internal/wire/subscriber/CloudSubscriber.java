@@ -12,17 +12,29 @@
  */
 package org.eclipse.kura.internal.wire.subscriber;
 
+import static org.eclipse.kura.Preconditions.checkNull;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.kura.KuraException;
+import org.eclipse.kura.KuraRuntimeException;
 import org.eclipse.kura.cloud.CloudClient;
 import org.eclipse.kura.cloud.CloudService;
 import org.eclipse.kura.configuration.ConfigurableComponent;
+import org.eclipse.kura.data.listener.DataServiceListener;
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.WireMessages;
+import org.eclipse.kura.message.KuraPayload;
+import org.eclipse.kura.type.TypedValues;
 import org.eclipse.kura.util.base.ThrowableUtil;
+import org.eclipse.kura.util.collection.CollectionUtil;
+import org.eclipse.kura.wire.SeverityLevel;
 import org.eclipse.kura.wire.WireEmitter;
+import org.eclipse.kura.wire.WireField;
 import org.eclipse.kura.wire.WireHelperService;
+import org.eclipse.kura.wire.WireRecord;
 import org.eclipse.kura.wire.WireSupport;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.wireadmin.Wire;
@@ -40,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * Component, the user can only avail to wrap every Wire Record in the default
  * Google Protobuf Payload.
  */
-public final class CloudSubscriber implements WireEmitter, ConfigurableComponent {
+public final class CloudSubscriber implements WireEmitter, DataServiceListener, ConfigurableComponent {
 
 	/** The Logger instance. */
 	private static final Logger s_logger = LoggerFactory.getLogger(CloudSubscriber.class);
@@ -201,6 +213,49 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 			s_logger.error(s_message.cloudClientSetupProblem() + ThrowableUtil.stackTraceAsString(e));
 		}
 		s_logger.debug(s_message.updatingCloudSubscriberDone());
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onConnectionEstablished() {
+		// Not required
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onDisconnecting() {
+		// Not required
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onDisconnected() {
+		// Not required
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onConnectionLost(Throwable cause) {
+		// Not required
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onMessageArrived(String topic, byte[] payload, int qos, boolean retained) {
+		WireRecord record = new WireRecord(new WireField("SUBSCRIBER", TypedValues.newStringValue("SUBSCRIBER"), SeverityLevel.CONFIG));
+		m_wireSupport.emit(Arrays.asList(record));
+	}
+	
+	/** {@inheritDoc} */
+	@Override
+	public void onMessagePublished(int messageId, String topic) {
+		// Not required
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onMessageConfirmed(int messageId, String topic) {
+		// Not required
 	}
 
 }
