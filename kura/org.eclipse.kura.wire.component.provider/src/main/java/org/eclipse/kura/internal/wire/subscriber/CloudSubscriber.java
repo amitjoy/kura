@@ -27,6 +27,7 @@ import org.eclipse.kura.configuration.ConfigurableComponent;
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.WireMessages;
 import org.eclipse.kura.message.KuraPayload;
+import org.eclipse.kura.type.TypedValue;
 import org.eclipse.kura.type.TypedValues;
 import org.eclipse.kura.util.base.ThrowableUtil;
 import org.eclipse.kura.util.collection.CollectionUtil;
@@ -137,8 +138,47 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 
 		for (final String metric : payload.metricNames()) {
 			final Object metricValue = payload.getMetric(metric);
-			final WireField wireField = new WireField(metric, TypedValues.newStringValue(String.valueOf(metricValue)),
-					SeverityLevel.CONFIG);
+			TypedValue<?> val = TypedValues.newStringValue("");
+			// check instance of this metric value properly
+			if (metricValue instanceof Boolean) {
+				final boolean value = Boolean.parseBoolean(String.valueOf(metricValue));
+				val = TypedValues.newBooleanValue(value);
+			}
+			if (metricValue instanceof Boolean) {
+				final boolean value = Boolean.parseBoolean(String.valueOf(metricValue));
+				val = TypedValues.newBooleanValue(value);
+			}
+			if (metricValue instanceof Long) {
+				final long value = Long.parseLong(String.valueOf(metricValue));
+				val = TypedValues.newLongValue(value);
+			}
+			if (metricValue instanceof Double) {
+				final double value = Double.parseDouble(String.valueOf(metricValue));
+				val = TypedValues.newDoubleValue(value);
+			}
+			if (metricValue instanceof Integer) {
+				final int value = Integer.parseInt(String.valueOf(metricValue));
+				val = TypedValues.newIntegerValue(value);
+			}
+			if (metricValue instanceof Short) {
+				final short value = Short.parseShort(String.valueOf(metricValue));
+				val = TypedValues.newShortValue(value);
+			}
+			if (metricValue instanceof String) {
+				final String value = String.valueOf(metricValue);
+				val = TypedValues.newStringValue(value);
+			}
+			SeverityLevel level = null;
+			if ("ERROR".equalsIgnoreCase(String.valueOf(metricValue))) {
+				level = SeverityLevel.ERROR;
+			}
+			if ("TIMER".equalsIgnoreCase(String.valueOf(metricValue))) {
+				level = SeverityLevel.CONFIG;
+			}
+			if (level == null) {
+				level = SeverityLevel.INFO;
+			}
+			final WireField wireField = new WireField(metric, val, level);
 			wireFields.add(wireField);
 		}
 		return new WireRecord(wireFields.toArray(new WireField[0]));
