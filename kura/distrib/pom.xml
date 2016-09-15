@@ -276,6 +276,58 @@
 									<artifactId>org.eclipse.kura.windows.clock</artifactId>
 									<version>${org.eclipse.kura.windows.clock.version}</version>
 								</artifactItem>
+								<!-- KURA WIRES -->
+								<artifactItem>
+									<groupId>org.eclipse.kura</groupId>
+									<artifactId>org.eclipse.kura.asset.cloudlet.provider</artifactId>
+									<version>${org.eclipse.kura.asset.cloudlet.provider.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.kura</groupId>
+									<artifactId>org.eclipse.kura.asset.provider</artifactId>
+									<version>${org.eclipse.kura.asset.provider.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.kura</groupId>
+									<artifactId>org.eclipse.kura.localization</artifactId>
+									<version>${org.eclipse.kura.localization.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.kura</groupId>
+									<artifactId>org.eclipse.kura.localization.resources</artifactId>
+									<version>${org.eclipse.kura.localization.resources.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.kura</groupId>
+									<artifactId>org.eclipse.kura.util</artifactId>
+									<version>${org.eclipse.kura.util.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.kura</groupId>
+									<artifactId>org.eclipse.kura.wire.component.provider</artifactId>
+									<version>${org.eclipse.kura.wire.component.provider.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.kura</groupId>
+									<artifactId>org.eclipse.kura.wire.provider</artifactId>
+									<version>${org.eclipse.kura.wire.provider.version}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.kura</groupId>
+									<artifactId>org.eclipse.kura.driver.modbus.provider</artifactId>
+									<version>${org.eclipse.kura.driver.modbus.provider.version}</version>
+								</artifactItem>
+								<!--artifactItem>
+									<groupId>org.eclipse.kura</groupId>
+									<artifactId>org.eclipse.kura.driver.opcua.provider</artifactId>
+									<version>${org.eclipse.kura.driver.opcua.provider.version}</version>
+								</artifactItem-->
+								<artifactItem>
+									<groupId>org.eclipse.kura</groupId>
+									<artifactId>org.eclipse.kura.driver.s7plc.provider</artifactId>
+									<version>${org.eclipse.kura.driver.s7plc.provider.version}</version>
+								</artifactItem>
+								<!-- KURA WIRES -->
 							</artifactItems>
 							<stripVersion>true</stripVersion>
 							<outputDirectory>${project.basedir}/target/plugins</outputDirectory>
@@ -413,6 +465,18 @@
 								<move file="target/plugins/org.eclipse.kura.example.camel.quickstart.jar" tofile="target/plugins/org.eclipse.kura.example.camel.quickstart_${org.eclipse.kura.example.camel.quickstart.version}.jar" failonerror="false"/>
 							    <move file="target/plugins/org.eclipse.kura.windows.command.jar" tofile="target/plugins/org.eclipse.kura.windows.command_${org.eclipse.kura.windows.command.version}.jar"/>
 							    <move file="target/plugins/org.eclipse.kura.windows.clock.jar" tofile="target/plugins/org.eclipse.kura.windows.clock_${org.eclipse.kura.windows.clock.version}.jar"/>
+							    <!-- KURA WIRES -->
+							    <move file="target/plugins/org.eclipse.kura.localization.jar" tofile="target/plugins/org.eclipse.kura.localization_${org.eclipse.kura.localization.version}.jar"/>
+							    <move file="target/plugins/org.eclipse.kura.localization.resources.jar" tofile="target/plugins/org.eclipse.kura.localization.resources_${org.eclipse.kura.localization.resources.version}.jar"/>
+							    <move file="target/plugins/org.eclipse.kura.util.jar" tofile="target/plugins/org.eclipse.kura.util_${org.eclipse.kura.util.version}.jar"/>
+							    <move file="target/plugins/org.eclipse.kura.wire.provider.jar" tofile="target/plugins/org.eclipse.kura.wire.provider_${org.eclipse.kura.wire.provider.version}.jar"/>
+							    <move file="target/plugins/org.eclipse.kura.wire.component.provider.jar" tofile="target/plugins/org.eclipse.kura.wire.component.provider_${org.eclipse.kura.wire.component.provider.version}.jar"/>
+							    <move file="target/plugins/org.eclipse.kura.asset.provider.jar" tofile="target/plugins/org.eclipse.kura.asset.provider_${org.eclipse.kura.asset.provider.version}.jar"/>
+							    <move file="target/plugins/org.eclipse.kura.asset.cloudlet.provider.jar" tofile="target/plugins/org.eclipse.kura.asset.cloudlet.provider_${org.eclipse.kura.asset.cloudlet.provider.version}.jar"/>
+							    <move file="target/plugins/org.eclipse.kura.driver.modbus.provider.jar" tofile="target/plugins/org.eclipse.kura.driver.modbus.provider_${org.eclipse.kura.driver.modbus.provider.version}.jar"/>
+							    <!--move file="target/plugins/org.eclipse.kura.driver.opcua.provider.jar" tofile="target/plugins/org.eclipse.kura.driver.opcua.provider_${org.eclipse.kura.driver.opcua.provider.version}.jar"/-->
+							    <move file="target/plugins/org.eclipse.kura.driver.s7plc.provider.jar" tofile="target/plugins/org.eclipse.kura.driver.s7plc.provider_${org.eclipse.kura.driver.s7plc.provider.version}.jar"/>
+							    <!-- KURA WIRES -->
 							</tasks>
 						</configuration>
 					</execution>

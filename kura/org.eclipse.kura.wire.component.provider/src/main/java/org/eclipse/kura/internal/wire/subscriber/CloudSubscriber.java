@@ -93,6 +93,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 		s_logger.debug(s_message.activatingCloudSubscriber());
 		this.m_wireSupport = this.m_wireHelperService.newWireSupport(this);
 		this.m_options = new CloudSubscriberOptions(properties);
+		this.m_topic = this.m_options.getSubscribingTopic();
 		this.m_dataService.addDataServiceListener(this);
 		s_logger.debug(s_message.activatingCloudSubscriberDone());
 	}

@@ -7,8 +7,7 @@ Bundle-Vendor: EUROTECH
 Bundle-License: Eclipse Public License v1.0
 Bundle-Category: Asset-Driver Management
 Bundle-ActivationPolicy: lazy
-Import-Package: org.eclipse.core.runtime;version="3.4.0",
- org.eclipse.kura;version="[1.0,2.0)",
+Import-Package: org.eclipse.kura;version="[1.0,2.0)",
  org.eclipse.kura.configuration;version="[1.0,2.0)",
  org.eclipse.kura.configuration.metatype;version="[1.0,2.0)",
  org.eclipse.kura.core.configuration.metatype;version="[1.0,2.0)",
