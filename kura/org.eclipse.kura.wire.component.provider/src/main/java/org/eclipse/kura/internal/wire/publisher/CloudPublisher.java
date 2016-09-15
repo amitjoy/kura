@@ -110,6 +110,7 @@ public final class CloudPublisher implements WireReceiver, DataServiceListener, 
 		this.m_wireSupport = this.m_wireHelperService.newWireSupport(this);
 		// Update properties
 		this.m_options = new CloudPublisherOptions(properties);
+		this.m_dataService.addDataServiceListener(this);
 		// create the singleton disconnect manager
 		if (s_disconnectManager == null) {
 			s_disconnectManager = new CloudPublisherDisconnectManager(this.m_dataService,
@@ -300,6 +301,7 @@ public final class CloudPublisher implements WireReceiver, DataServiceListener, 
 				s_disconnectManager.stop();
 			}
 			s_disconnectManager = null;
+			this.m_dataService.removeDataServiceListener(this);
 		} finally {
 			this.m_monitor.unlock();
 		}

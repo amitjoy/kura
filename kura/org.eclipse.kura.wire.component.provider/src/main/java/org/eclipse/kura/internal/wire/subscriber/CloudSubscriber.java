@@ -93,6 +93,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 		s_logger.debug(s_message.activatingCloudSubscriber());
 		this.m_wireSupport = this.m_wireHelperService.newWireSupport(this);
 		this.m_options = new CloudSubscriberOptions(properties);
+		this.m_dataService.addDataServiceListener(this);
 		s_logger.debug(s_message.activatingCloudSubscriberDone());
 	}
 
@@ -210,6 +211,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 		// close the client
 		try {
 			this.unsubsribe();
+			this.m_dataService.removeDataServiceListener(this);
 		} catch (final KuraException e) {
 			s_logger.error(ThrowableUtil.stackTraceAsString(e));
 		}
