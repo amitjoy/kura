@@ -560,6 +560,7 @@ var kuraWires = (function() {
 		_.each(graph.getElements(), function(c) {
 			c.remove();
 		});
+		graph.clear();
 	}
 
 	function regiterFormInputFieldValidation() {
