@@ -81,21 +81,6 @@ final class CloudSubscriberOptions {
 	}
 
 	/**
-	 * Returns the topic to be used for message subscription.
-	 *
-	 * @return the subscribing application topic
-	 */
-	String getSubscribeApplication() {
-		String subscribeApp = DEFAULT_APPLICATION;
-		final Object app = this.m_properties.get(CONF_APPLICATION);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_APPLICATION) && (app != null)
-				&& (app instanceof String)) {
-			subscribeApp = String.valueOf(app);
-		}
-		return subscribeApp;
-	}
-
-	/**
 	 * Returns the QoS to be used for message subscription.
 	 *
 	 * @return the subscribing QoS

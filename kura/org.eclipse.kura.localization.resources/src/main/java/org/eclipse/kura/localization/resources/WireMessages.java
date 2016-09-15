@@ -258,6 +258,9 @@ public interface WireMessages {
 	@En("ERROR")
 	public String error();
 
+	@En("Error in creating cloud client")
+	public String errorCreatingCloudClinet();
+
 	@En("Error while creating wire component...")
 	public String errorCreatingWireComponent();
 
@@ -368,6 +371,9 @@ public interface WireMessages {
 
 	@En("outgoing_wires")
 	public String outgoingWires();
+
+	@En("Payload cannot be null")
+	public String payloadNonNull();
 
 	@En("Persisting Wires...")
 	public String persistingWires();
@@ -618,9 +624,6 @@ public interface WireMessages {
 	@En("Wire cannot be null")
 	public String wireNonNull();
 
-	@En("Payload cannot be null")
-	public String payloadNonNull();
-	
 	@En("Wire Record cannot be null")
 	public String wireRecordNonNull();
 

@@ -20,10 +20,11 @@ import java.util.Map;
 
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.KuraRuntimeException;
-import org.eclipse.kura.cloud.CloudClient;
-import org.eclipse.kura.cloud.CloudClientListener;
+import org.eclipse.kura.cloud.CloudPayloadProtoBufDecoder;
 import org.eclipse.kura.cloud.CloudService;
 import org.eclipse.kura.configuration.ConfigurableComponent;
+import org.eclipse.kura.data.DataService;
+import org.eclipse.kura.data.listener.DataServiceListener;
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.WireMessages;
 import org.eclipse.kura.message.KuraPayload;
@@ -53,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * Component, the user can only avail to wrap every Wire Record in the default
  * Google Protobuf Payload.
  */
-public final class CloudSubscriber implements WireEmitter, CloudClientListener, ConfigurableComponent {
+public final class CloudSubscriber implements WireEmitter, ConfigurableComponent, DataServiceListener {
 
 	/** The Logger instance. */
 	private static final Logger s_logger = LoggerFactory.getLogger(CloudSubscriber.class);
@@ -61,14 +62,17 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 	/** Localization Resource */
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
-	/** The cloud client. */
-	private CloudClient m_cloudClient;
-
 	/** The cloud service. */
 	private volatile CloudService m_cloudService;
 
+	/** The data service. */
+	private volatile DataService m_dataService;
+
 	/** The cloud subscriber options. */
 	private CloudSubscriberOptions m_options;
+
+	/** The subscribed topic */
+	private String m_topic;
 
 	/** The Wire Helper Service. */
 	private volatile WireHelperService m_wireHelperService;
@@ -88,14 +92,7 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 			final Map<String, Object> properties) {
 		s_logger.debug(s_message.activatingCloudSubscriber());
 		this.m_wireSupport = this.m_wireHelperService.newWireSupport(this);
-		// Update properties
 		this.m_options = new CloudSubscriberOptions(properties);
-		// recreate the CloudClient
-		try {
-			this.setupCloudClient();
-		} catch (final KuraException e) {
-			s_logger.error(s_message.cloudClientSetupProblem() + ThrowableUtil.stackTraceAsString(e));
-		}
 		s_logger.debug(s_message.activatingCloudSubscriberDone());
 	}
 
@@ -108,6 +105,18 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 	public synchronized void bindCloudService(final CloudService cloudService) {
 		if (this.m_cloudService == null) {
 			this.m_cloudService = cloudService;
+		}
+	}
+
+	/**
+	 * Binds the data service.
+	 *
+	 * @param dataService
+	 *            the new data service
+	 */
+	public synchronized void bindDataService(final DataService dataService) {
+		if (this.m_dataService == null) {
+			this.m_dataService = dataService;
 		}
 	}
 
@@ -184,16 +193,6 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 		return new WireRecord(wireFields.toArray(new WireField[0]));
 	}
 
-	/**
-	 * Closes cloud client.
-	 */
-	private void closeCloudClient() {
-		if (this.m_cloudClient != null) {
-			this.m_cloudClient.release();
-			this.m_cloudClient = null;
-		}
-	}
-
 	/** {@inheritDoc} */
 	@Override
 	public void consumersConnected(final Wire[] wires) {
@@ -209,7 +208,11 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 	protected synchronized void deactivate(final ComponentContext componentContext) {
 		s_logger.debug(s_message.deactivatingCloudSubscriber());
 		// close the client
-		this.closeCloudClient();
+		try {
+			this.unsubsribe();
+		} catch (final KuraException e) {
+			s_logger.error(ThrowableUtil.stackTraceAsString(e));
+		}
 		// close the disconnect manager
 		s_logger.debug(s_message.deactivatingCloudSubscriberDone());
 	}
@@ -217,28 +220,46 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 	/** {@inheritDoc} */
 	@Override
 	public void onConnectionEstablished() {
+		try {
+			if (this.m_topic != null) {
+				this.m_dataService.subscribe(this.m_topic, this.m_options.getSubscribingQos());
+			}
+		} catch (final KuraException e) {
+			s_logger.error(s_message.errorCreatingCloudClinet() + e);
+		}
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void onConnectionLost(final Throwable cause) {
 		// Not required
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void onConnectionLost() {
+	public void onDisconnected() {
 		// Not required
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void onControlMessageArrived(final String deviceId, final String appTopic, final KuraPayload msg,
-			final int qos, final boolean retain) {
+	public void onDisconnecting() {
 		// Not required
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void onMessageArrived(final String deviceId, final String appTopic, final KuraPayload msg, final int qos,
-			final boolean retain) {
-		final WireRecord record = this.buildWireRecord(msg);
-		this.m_wireSupport.emit(Arrays.asList(record));
+	public void onMessageArrived(final String topic, final byte[] payload, final int qos, final boolean retained) {
+		KuraPayload kuraPayload = null;
+		try {
+			kuraPayload = ((CloudPayloadProtoBufDecoder) this.m_cloudService).buildFromByteArray(payload);
+		} catch (final KuraException e) {
+			s_logger.error(ThrowableUtil.stackTraceAsString(e));
+		}
+		if (payload != null) {
+			final WireRecord record = this.buildWireRecord(kuraPayload);
+			this.m_wireSupport.emit(Arrays.asList(record));
+		}
 	}
 
 	/** {@inheritDoc} */
@@ -260,20 +281,6 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 	}
 
 	/**
-	 * Setup cloud client.
-	 *
-	 * @throws KuraException
-	 *             the kura exception
-	 */
-	private void setupCloudClient() throws KuraException {
-		this.closeCloudClient();
-		// create the new CloudClient for the specified application
-		final String appId = this.m_options.getSubscribeApplication();
-		this.m_cloudClient = this.m_cloudService.newCloudClient(appId);
-		this.m_cloudClient.subscribe(this.m_options.getSubscribingTopic(), this.m_options.getSubscribingQos());
-	}
-
-	/**
 	 * Unbinds cloud service.
 	 *
 	 * @param cloudService
@@ -282,6 +289,18 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 	public synchronized void unbindCloudService(final CloudService cloudService) {
 		if (this.m_cloudService == cloudService) {
 			this.m_cloudService = null;
+		}
+	}
+
+	/**
+	 * Unbinds data service.
+	 *
+	 * @param dataService
+	 *            the data service
+	 */
+	public synchronized void unbindDataService(final DataService dataService) {
+		if (this.m_dataService == dataService) {
+			this.m_dataService = null;
 		}
 	}
 
@@ -298,6 +317,19 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 	}
 
 	/**
+	 * Unsubscribe previous topic.
+	 *
+	 * @throws KuraException
+	 *             if couln't unsubscribe
+	 */
+	private void unsubsribe() throws KuraException {
+		if (this.m_topic != null) {
+			this.m_dataService.unsubscribe(this.m_topic);
+		}
+		this.m_topic = this.m_options.getSubscribingTopic();
+	}
+
+	/**
 	 * OSGi Service Component callback for updating.
 	 *
 	 * @param properties
@@ -305,14 +337,14 @@ public final class CloudSubscriber implements WireEmitter, CloudClientListener, 
 	 */
 	public synchronized void updated(final Map<String, Object> properties) {
 		s_logger.debug(s_message.updatingCloudSubscriber());
-		// Update properties
-		this.m_options = new CloudSubscriberOptions(properties);
 		// recreate the Cloud Client
 		try {
-			this.setupCloudClient();
+			this.unsubsribe();
 		} catch (final KuraException e) {
-			s_logger.error(s_message.cloudClientSetupProblem() + ThrowableUtil.stackTraceAsString(e));
+			s_logger.error(ThrowableUtil.stackTraceAsString(e));
 		}
+		// Update properties
+		this.m_options = new CloudSubscriberOptions(properties);
 		s_logger.debug(s_message.updatingCloudSubscriberDone());
 	}
 

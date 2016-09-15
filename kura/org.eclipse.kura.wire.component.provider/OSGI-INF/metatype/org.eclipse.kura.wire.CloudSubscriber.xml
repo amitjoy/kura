@@ -16,22 +16,13 @@
          name="Subscriber" 
          description="A wire component which subscribes data from the cloud platform">
 
-        <AD id="subscribe.application"
-            name="subscribe.application"
-            type="String"
-            cardinality="0"
-            required="true"
-            default="APP"
-            description="Application topic prefix to be used when subscribing for messages.">
-        </AD>
-
         <AD id="subscribe.topic"
             name="subscribe.topic"
             type="String"
             cardinality="0"
             required="true"
             default="EVENT"
-            description="Application portion of the topic to be used when subscribing for messages.">
+            description="Subscription topic to be used when subscribing for messages.">
         </AD>
 
         <AD id="subscribe.qos"
