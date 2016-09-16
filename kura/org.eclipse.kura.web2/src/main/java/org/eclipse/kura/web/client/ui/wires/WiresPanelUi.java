@@ -344,14 +344,14 @@ public class WiresPanelUi extends Composite {
 		exportJSNImakeUiDirty();
 	}
 
-	private static List<String> intersect(final List<String> firstArray, final List<String> secondArray) {
-		final List<String> rtnList = new LinkedList<String>();
-		for (final String dto : firstArray) {
-			if (secondArray.contains(dto)) {
-				rtnList.add(dto);
+	private static List<String> getCommonElements(final List<String> firstList, final List<String> secondList) {
+		final List<String> returnedList = new LinkedList<String>();
+		for (final String elem : firstList) {
+			if (secondList.contains(elem)) {
+				returnedList.add(elem);
 			}
 		}
-		return rtnList;
+		return returnedList;
 	}
 
 	public static boolean isDirty() {
@@ -548,7 +548,7 @@ public class WiresPanelUi extends Composite {
 	private static void populateComponentsPanel() {
 		final List<String> onlyProducers = new ArrayList<String>(m_emitters);
 		final List<String> onlyConsumers = new ArrayList<String>(m_receivers);
-		final List<String> both = intersect(m_emitters, m_receivers);
+		final List<String> both = getCommonElements(m_emitters, m_receivers);
 		onlyProducers.removeAll(both);
 		onlyConsumers.removeAll(both);
 		wireComponentsMenu.clear();
