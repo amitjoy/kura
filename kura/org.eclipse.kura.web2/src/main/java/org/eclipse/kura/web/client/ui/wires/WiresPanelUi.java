@@ -141,6 +141,13 @@ public class WiresPanelUi extends Composite {
 		wiresPanelUi = this;
 	}
 
+	public static void clearUnsavedPanelChanges() {
+		btnSave.setEnabled(false);
+		btnSave.setText("Save");
+		isDirty = false;
+		m_configs.clear();
+	}
+
 	private static JSONArray createComponentsJson() {
 
 		final JSONArray components = new JSONArray();
@@ -505,7 +512,7 @@ public class WiresPanelUi extends Composite {
 		});
 	}
 
-	private static void loadGraph() {
+	public static void loadGraph() {
 		final JSONObject obj = new JSONObject();
 		final JSONArray emitters = new JSONArray();
 		final JSONArray receivers = new JSONArray();

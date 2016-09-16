@@ -36,7 +36,7 @@ var kuraWires = (function() {
 		setup();
 		regiterFormInputFieldValidation();
 	};
-
+	
 	client.getDriver = function(assetPid) {
 		var _elements = graph.getElements();
 		for (var i = 0; i < _elements.length; i++) {
@@ -225,6 +225,7 @@ var kuraWires = (function() {
 		});
 		graph.on('remove', removeCellFunc);
 		graph.on('add', function() {
+			top.jsniMakeUiDirty();
 			toggleDeleteGraphButton(false);
 		});
 

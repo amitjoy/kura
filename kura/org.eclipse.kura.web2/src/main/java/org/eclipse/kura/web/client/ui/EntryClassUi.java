@@ -230,6 +230,7 @@ public class EntryClassUi extends Composite {
 						statusBinder.setSession(currentSession);
 						statusBinder.setParent(m_instanceReference);
 						statusBinder.loadStatusData();
+						discardWiresPanelChanges();
 					}
 				});
 
@@ -258,6 +259,7 @@ public class EntryClassUi extends Composite {
 						contentPanelBody.add(deviceBinder);
 						deviceBinder.setSession(currentSession);
 						deviceBinder.initDevicePanel();
+						discardWiresPanelChanges();
 					}
 				});
 				renderDirtyConfigModal(b);
@@ -285,6 +287,7 @@ public class EntryClassUi extends Composite {
 							contentPanelBody.add(networkBinder);
 							networkBinder.setSession(currentSession);
 							networkBinder.initNetworkPanel();
+							discardWiresPanelChanges();
 						}
 					});
 					renderDirtyConfigModal(b);
@@ -312,6 +315,7 @@ public class EntryClassUi extends Composite {
 							contentPanelBody.clear();
 							contentPanelBody.add(firewallBinder);
 							firewallBinder.initFirewallPanel();
+							discardWiresPanelChanges();
 						}
 					});
 					renderDirtyConfigModal(b);
@@ -340,6 +344,7 @@ public class EntryClassUi extends Composite {
 						packagesBinder.setSession(currentSession);
 						packagesBinder.setMainUi(ui);
 						packagesBinder.refresh();
+						discardWiresPanelChanges();
 					}
 				});
 				renderDirtyConfigModal(b);
@@ -366,6 +371,7 @@ public class EntryClassUi extends Composite {
 						contentPanelBody.add(settingsBinder);
 						settingsBinder.setSession(currentSession);
 						settingsBinder.load();
+						discardWiresPanelChanges();
 					}
 				});
 				renderDirtyConfigModal(b);
@@ -383,15 +389,12 @@ public class EntryClassUi extends Composite {
 						if (modal != null ) {
 							modal.hide();
 						}
-						if (servicesUi != null) {
-							servicesUi.renderForm();
-						}
 						contentPanel.setVisible(true);
 						contentPanelHeader.setText("Wire Graph");
 						contentPanelBody.clear();
 						contentPanelBody.add(wiresBinder);
 						wiresBinder.load();
-
+						discardWiresPanelChanges();
 					}
 				});
 				renderDirtyConfigModal(b);
@@ -591,6 +594,27 @@ public class EntryClassUi extends Composite {
 
 	// create the prompt for dirty configuration before switching to another tab
 	private void renderDirtyConfigModal(Button b) {
+		
+		modal = new Modal();
+
+		ModalHeader header = new ModalHeader();
+		header.setTitle(MSGS.warning());
+		modal.add(header);
+
+		ModalBody body = new ModalBody();
+		body.add(new Span(MSGS.deviceConfigDirty()));
+		modal.add(body);
+
+		ModalFooter footer = new ModalFooter();
+		footer.add(b);
+		footer.add(new Button(MSGS.noButton(), new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				modal.hide();
+			}
+		}));
+		modal.add(footer);
+		
 		if (servicesUi != null) {
 			servicesDirty= servicesUi.isDirty();
 		}
@@ -610,36 +634,23 @@ public class EntryClassUi extends Composite {
 		if (settings.isVisible()) {
 			settingsDirty= settingsBinder.isDirty(); 
 		}
-
+		
 		if (	(servicesUi!=null && servicesUi.isDirty()) || 
 				networkDirty  || 
 				firewallDirty || 
-				settingsDirty ) {
-			modal = new Modal();
-
-			ModalHeader header = new ModalHeader();
-			header.setTitle(MSGS.warning());
-			modal.add(header);
-
-			ModalBody body = new ModalBody();
-			body.add(new Span(MSGS.deviceConfigDirty()));
-			modal.add(body);
-
-			ModalFooter footer = new ModalFooter();
-			footer.add(b);
-			footer.add(new Button(MSGS.noButton(), new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					modal.hide();
-				}
-			}));
-			modal.add(footer);
+				settingsDirty || WiresPanelUi.isDirty()) {
 			modal.show();
-
 		} else {
 			b.click();
 		}
 
+	}
+	
+	public void discardWiresPanelChanges() {
+		if (WiresPanelUi.isDirty()) {
+			WiresPanelUi.clearUnsavedPanelChanges();
+			WiresPanelUi.loadGraph();
+		}
 	}
 
 	public boolean isNetworkDirty(){
