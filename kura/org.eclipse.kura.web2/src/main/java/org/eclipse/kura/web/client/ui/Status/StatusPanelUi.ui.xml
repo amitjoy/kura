@@ -26,7 +26,7 @@
 	</ui:style>
 	
 	<b:Container fluid="true">
-		<b:Column size="MD12">
+		<b:Column size="MD_12">
 			<b:Row>
 				<b:Panel>
 					<b:ButtonGroup size="SMALL">
