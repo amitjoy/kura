@@ -209,33 +209,61 @@ public class WiresPanelUi extends Composite {
 		render(config, pid);
 	}
 
+	private static List<String> getCommonElements(final List<String> firstList, final List<String> secondList) {
+		final List<String> returnedList = new LinkedList<String>();
+		for (final String elem : firstList) {
+			if (secondList.contains(elem)) {
+				returnedList.add(elem);
+			}
+		}
+		return returnedList;
+	}
+
 	public static native String getDriver(String assetPid)
 	/*-{
 		return $wnd.kuraWires.getDriver(assetPid);
 	}-*/;
 
-	public static String getFormattedFactoryPid(final String factoryPid) {
-		if ("org.eclipse.kura.wire.WireAsset".equalsIgnoreCase(factoryPid)) {
+	public static String getFormattedPid(final String pid) {
+		if ("org.eclipse.kura.wire.WireAsset".equalsIgnoreCase(pid)) {
 			return "Asset";
 		}
-		if ("org.eclipse.kura.wire.DbWireRecordStore".equalsIgnoreCase(factoryPid)) {
+		if ("org.eclipse.kura.wire.DbWireRecordStore".equalsIgnoreCase(pid)) {
 			return "DB Store";
 		}
-		if ("org.eclipse.kura.wire.DbWireRecordFilter".equalsIgnoreCase(factoryPid)) {
+		if ("org.eclipse.kura.wire.DbWireRecordFilter".equalsIgnoreCase(pid)) {
 			return "DB Filter";
 		}
-		if ("org.eclipse.kura.wire.CloudPublisher".equalsIgnoreCase(factoryPid)) {
+		if ("org.eclipse.kura.wire.CloudPublisher".equalsIgnoreCase(pid)) {
 			return "Publisher";
 		}
-		if ("org.eclipse.kura.wire.CloudSubscriber".equalsIgnoreCase(factoryPid)) {
+		if ("org.eclipse.kura.wire.CloudSubscriber".equalsIgnoreCase(pid)) {
 			return "Subscriber";
 		}
 		String[] split;
-		if (factoryPid.contains(".")) {
-			split = factoryPid.split("\\.");
-			return split[split.length - 1];
+		if (pid.contains(".")) {
+			split = pid.split("\\.");
+			final String lastString = split[split.length - 1];
+			// if it's a 14 digit long no, it's a temporary instance of Asset
+			// which is handled internally
+			if (lastString.matches("^[0-9]{14}$")) {
+				return "Asset";
+			}
+			if ("CloudPublisher".equalsIgnoreCase(lastString)) {
+				return "Publisher";
+			}
+			if ("CloudSubscriber".equalsIgnoreCase(lastString)) {
+				return "Subscriber";
+			}
+			if ("DbWireRecordStore".equalsIgnoreCase(lastString)) {
+				return "DB Store";
+			}
+			if ("DbWireRecordFilter".equalsIgnoreCase(lastString)) {
+				return "DB Filter";
+			}
+			return lastString;
 		}
-		return factoryPid;
+		return pid;
 	}
 
 	private static void internalLoad(final GwtWiresConfiguration config) {
@@ -300,7 +328,7 @@ public class WiresPanelUi extends Composite {
 					final PropertiesUi ui = entry.getValue();
 					final String componentId = ui.getConfiguration().getComponentId();
 					if (ui.isDirty() && !ui.isNonValidated()) {
-						pids.add(getFormattedFactoryPid(componentId));
+						pids.add(getFormattedPid(componentId));
 					}
 				}
 				if (!pids.isEmpty()) {
@@ -342,16 +370,6 @@ public class WiresPanelUi extends Composite {
 		exportJSNIShowDuplicatePidModal();
 		exportJSNIshowCycleExistenceError();
 		exportJSNImakeUiDirty();
-	}
-
-	private static List<String> getCommonElements(final List<String> firstList, final List<String> secondList) {
-		final List<String> returnedList = new LinkedList<String>();
-		for (final String elem : firstList) {
-			if (secondList.contains(elem)) {
-				returnedList.add(elem);
-			}
-		}
-		return returnedList;
 	}
 
 	public static boolean isDirty() {
@@ -588,9 +606,9 @@ public class WiresPanelUi extends Composite {
 				pid = "";
 			}
 			if (propertiesUi.isDirty()) {
-				propertiesPanelHeader.setText(getFormattedFactoryPid(item.getFactoryId()) + " - " + pid + "*");
+				propertiesPanelHeader.setText(getFormattedPid(item.getFactoryId()) + " - " + pid + "*");
 			} else {
-				propertiesPanelHeader.setText(getFormattedFactoryPid(item.getFactoryId()) + " - " + pid);
+				propertiesPanelHeader.setText(getFormattedPid(item.getFactoryId()) + " - " + pid);
 			}
 			currentSelection = item;
 			propertiesPanelBody.add(propertiesUi);

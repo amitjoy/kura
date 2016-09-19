@@ -1110,48 +1110,24 @@ public class PropertiesUi extends Composite {
 	public void setDirty(final boolean flag) {
 		this.dirty = flag;
 		if (flag) {
-			if (!this.m_configurableComponent.getComponentName().equalsIgnoreCase(this.pid)) {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(this.m_configurableComponent.getComponentName() + " - " + this.pid + "*");
-			} else {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId())
-								+ " - " + this.pid + "*");
-			}
+			WiresPanelUi.propertiesPanelHeader.setText(
+					WiresPanelUi.getFormattedPid(this.m_configurableComponent.getFactoryId()) + " - " + this.pid + "*");
 			WiresPanelUi.setDirty(true);
 		} else {
-			if (!this.m_configurableComponent.getComponentName().equalsIgnoreCase(this.pid)) {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(this.m_configurableComponent.getComponentName() + " - " + this.pid);
-			} else {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId())
-								+ " - " + this.pid);
-			}
+			WiresPanelUi.propertiesPanelHeader.setText(
+					WiresPanelUi.getFormattedPid(this.m_configurableComponent.getFactoryId()) + " - " + this.pid);
 		}
 	}
 
 	public void setNonValidated(final boolean flag) {
 		this.nonValidated = flag;
 		if (flag) {
-			if (!this.m_configurableComponent.getComponentName().equalsIgnoreCase(this.pid)) {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(this.m_configurableComponent.getComponentName() + " - " + this.pid + "*");
-			} else {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId())
-								+ " - " + this.pid + "*");
-			}
+			WiresPanelUi.propertiesPanelHeader.setText(
+					WiresPanelUi.getFormattedPid(this.m_configurableComponent.getFactoryId()) + " - " + this.pid + "*");
 			WiresPanelUi.btnSave.setEnabled(false);
 		} else if (this.nonValidatedCells.isEmpty()) {
-			if (!this.m_configurableComponent.getComponentName().equalsIgnoreCase(this.pid)) {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(this.m_configurableComponent.getComponentName() + " - " + this.pid);
-			} else {
-				WiresPanelUi.propertiesPanelHeader
-						.setText(WiresPanelUi.getFormattedFactoryPid(this.m_configurableComponent.getFactoryId())
-								+ " - " + this.pid);
-			}
+			WiresPanelUi.propertiesPanelHeader.setText(
+					WiresPanelUi.getFormattedPid(this.m_configurableComponent.getFactoryId()) + " - " + this.pid);
 			WiresPanelUi.btnSave.setEnabled(true);
 		}
 	}

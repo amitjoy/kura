@@ -33,7 +33,7 @@ public class WireComponentsAnchorListItem extends AnchorListItem {
 		this.isEmitter = isEmitter;
 		this.isReceiver = isReceiver;
 		super.setIcon(this.getFactoryIcon());
-		super.setText(WiresPanelUi.getFormattedFactoryPid(factoryPid));
+		super.setText(WiresPanelUi.getFormattedPid(factoryPid));
 
 		super.addClickHandler(new ClickHandler() {
 			@Override
