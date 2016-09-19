@@ -30,6 +30,24 @@ public interface ModbusDriverMessages {
 	@En("COILS")
 	public String coils();
 
+	@En("Connecting to Modbus RTU...")
+	public String connectingRtu();
+
+	@En("Connecting to Modbus RTU...Done")
+	public String connectingRtuDone();
+
+	@En("Connecting to Modbus TCP...")
+	public String connectingTcp();
+
+	@En("Connecting to Modbus TCP...Done")
+	public String connectingTcpDone();
+
+	@En("Connecting to Modbus UDP...")
+	public String connectingUdp();
+
+	@En("Connecting to Modbus UDP...Done")
+	public String connectingUdpDone();
+
 	@En("Unable to Connect...")
 	public String connectionProblem();
 
@@ -38,6 +56,24 @@ public interface ModbusDriverMessages {
 
 	@En("Deactivating Modbus Driver.....Done")
 	public String deactivatingDone();
+
+	@En("Disconnecting from Modbus RTU...")
+	public String disconnectingRtu();
+
+	@En("Disconnecting from Modbus RTU...Done")
+	public String disconnectingRtuDone();
+
+	@En("Disconnecting from Modbus TCP...")
+	public String disconnectingTcp();
+
+	@En("Disconnecting from Modbus TCP...Done")
+	public String disconnectingTcpDone();
+
+	@En("Disconnecting from Modbus UDP...")
+	public String disconnectingUdp();
+
+	@En("Disconnecting from Modbus UDP...Done")
+	public String disconnectingUdpDone();
 
 	@En("Unable to Disconnect...")
 	public String disconnectionProblem();

@@ -152,22 +152,31 @@ public final class ModbusDriver implements Driver {
 		final ModbusType type = this.m_options.getType();
 		if ((type == TCP) && (this.m_tcpMaster != null)) {
 			try {
+				s_logger.debug(s_message.connectingTcp());
 				this.m_tcpMaster.connect();
+				s_logger.debug(s_message.connectingTcpDone());
 			} catch (final Exception e) {
+				s_logger.error(s_message.connectionProblem() + ThrowableUtil.stackTraceAsString(e));
 				throw new ConnectionException(s_message.connectionProblem() + ThrowableUtil.stackTraceAsString(e));
 			}
 		}
 		if ((type == UDP) && (this.m_udpMaster != null)) {
 			try {
+				s_logger.debug(s_message.connectingUdp());
 				this.m_udpMaster.connect();
+				s_logger.debug(s_message.connectingUdpDone());
 			} catch (final Exception e) {
+				s_logger.error(s_message.connectionProblem() + ThrowableUtil.stackTraceAsString(e));
 				throw new ConnectionException(s_message.connectionProblem() + ThrowableUtil.stackTraceAsString(e));
 			}
 		}
 		if ((type == RTU) && (this.m_rtuMaster != null)) {
 			try {
+				s_logger.debug(s_message.connectingRtu());
 				this.m_rtuMaster.connect();
+				s_logger.debug(s_message.connectingRtuDone());
 			} catch (final Exception e) {
+				s_logger.error(s_message.connectionProblem() + ThrowableUtil.stackTraceAsString(e));
 				throw new ConnectionException(s_message.connectionProblem() + ThrowableUtil.stackTraceAsString(e));
 			}
 		}
@@ -200,24 +209,33 @@ public final class ModbusDriver implements Driver {
 		if (this.m_isConnected) {
 			if ((type == TCP) && (this.m_tcpMaster != null)) {
 				try {
+					s_logger.debug(s_message.disconnectingTcp());
 					this.m_tcpMaster.disconnect();
+					s_logger.debug(s_message.disconnectingTcpDone());
 				} catch (final Exception e) {
+					s_logger.error(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 					throw new ConnectionException(
 							s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 				}
 			}
 			if ((type == UDP) && (this.m_udpMaster != null)) {
 				try {
+					s_logger.debug(s_message.disconnectingUdp());
 					this.m_udpMaster.disconnect();
+					s_logger.debug(s_message.disconnectingUdpDone());
 				} catch (final Exception e) {
+					s_logger.error(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 					throw new ConnectionException(
 							s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 				}
 			}
 			if ((type == RTU) && (this.m_rtuMaster != null)) {
 				try {
+					s_logger.debug(s_message.disconnectingRtu());
 					this.m_rtuMaster.disconnect();
+					s_logger.debug(s_message.disconnectingRtuDone());
 				} catch (final Exception e) {
+					s_logger.error(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 					throw new ConnectionException(
 							s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 				}

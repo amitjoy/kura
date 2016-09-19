@@ -408,7 +408,6 @@ public final class CloudPublisher implements WireReceiver, DataServiceListener, 
 			} catch (final Exception e) {
 				s_logger.error(s_message.errorPublishingWireRecords() + ThrowableUtil.stackTraceAsString(e));
 			}
-
 		}
 	}
 

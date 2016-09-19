@@ -27,6 +27,12 @@ public interface OpcUaMessages {
 	@En("Activating OPC-UA Driver.....Done")
 	public String activatingDone();
 
+	@En("Connecting to OPC-UA...")
+	public String connecting();
+
+	@En("Connecting to OPC-UA...Done")
+	public String connectingDone();
+
 	@En("Unable to Connect...No desired Endpoints returned")
 	public String connectionProblem();
 
@@ -35,6 +41,12 @@ public interface OpcUaMessages {
 
 	@En("Deactivating OPC-UA Driver.....Done")
 	public String deactivatingDone();
+
+	@En("Disconnecting from OPC-UA...")
+	public String disconnecting();
+
+	@En("Disconnecting from OPC-UA...Done")
+	public String disconnectingDone();
 
 	@En("Unable to Disconnect...")
 	public String disconnectionProblem();

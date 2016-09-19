@@ -115,6 +115,7 @@ public final class OpcUaDriver implements Driver {
 	@Override
 	public void connect() throws ConnectionException {
 		try {
+			s_logger.debug(s_message.connecting());
 			final String endPoint = new StringBuilder().append("opc.tcp://").append(this.m_options.getIp()).append(":")
 					.append(this.m_options.getPort()).append("/").append(this.m_options.getServerName()).toString();
 			final EndpointDescription[] endpoints = UaTcpStackClient.getEndpoints(endPoint).get();
@@ -133,7 +134,9 @@ public final class OpcUaDriver implements Driver {
 					.setCertificate(loader.getClientCertificate()).build();
 			this.m_client = new OpcUaClient(clientConfig);
 			this.m_isConnected = true;
+			s_logger.debug(s_message.connectingDone());
 		} catch (final Exception e) {
+			s_logger.debug(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 			throw new ConnectionException(e);
 		}
 
@@ -160,8 +163,10 @@ public final class OpcUaDriver implements Driver {
 	@Override
 	public void disconnect() throws ConnectionException {
 		if (this.m_isConnected) {
+			s_logger.debug(s_message.disconnecting());
 			this.m_client.disconnect();
 			this.m_isConnected = false;
+			s_logger.debug(s_message.disconnectingDone());
 		}
 	}
 

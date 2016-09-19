@@ -108,9 +108,11 @@ public final class S7PlcDriver implements Driver {
 	@Override
 	public void connect() throws ConnectionException {
 		if (!this.m_isConnected) {
+			s_logger.debug(s_message.connecting());
 			this.m_connector = S7ConnectorFactory.buildTCPConnector().withHost(this.m_options.getIp())
 					.withRack(this.m_options.getRack()).withSlot(this.m_options.getSlot()).build();
 			this.m_isConnected = true;
+			s_logger.debug(s_message.connectingDone());
 		}
 	}
 
@@ -136,9 +138,12 @@ public final class S7PlcDriver implements Driver {
 	public void disconnect() throws ConnectionException {
 		if (this.m_isConnected) {
 			try {
+				s_logger.debug(s_message.disconnecting());
 				this.m_connector.close();
 				this.m_isConnected = false;
+				s_logger.debug(s_message.disconnectingDone());
 			} catch (final IOException e) {
+				s_logger.error(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 				throw new ConnectionException(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 			}
 		}

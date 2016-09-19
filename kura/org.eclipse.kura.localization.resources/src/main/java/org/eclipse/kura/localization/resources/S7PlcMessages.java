@@ -36,6 +36,12 @@ public interface S7PlcMessages {
 	@En("Byte Count (required for READ operation)")
 	public String byteCountDesc();
 
+	@En("Connecting to S7 PLC...")
+	public String connecting();
+
+	@En("Connecting to S7 PLC...Done")
+	public String connectingDone();
+
 	@En("Unable to Connect...")
 	public String connectionProblem();
 
@@ -44,6 +50,12 @@ public interface S7PlcMessages {
 
 	@En("Deactivating S7 PLC Driver.....Done")
 	public String deactivatingDone();
+
+	@En("Disconnecting from S7 PLC...")
+	public String disconnecting();
+
+	@En("Disconnecting from S7 PLC...Done")
+	public String disconnectingDone();
 
 	@En("Unable to Disconnect...")
 	public String disconnectionProblem();

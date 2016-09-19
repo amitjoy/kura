@@ -140,7 +140,7 @@
             type="String"
             cardinality="0"
             required="true"
-            default="SERIAL_ENCODING_ASCII"
+            default="SERIAL_ENCODING_RTU"
             description="Modbus Serial Encoding">
             <Option label="SERIAL_ENCODING_ASCII" value="SERIAL_ENCODING_ASCII"/>
             <Option label="SERIAL_ENCODING_RTU" value="SERIAL_ENCODING_RTU"/>
