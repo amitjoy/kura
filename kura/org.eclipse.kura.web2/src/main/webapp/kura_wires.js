@@ -31,6 +31,7 @@ var kuraWires = (function() {
 	 * / Public functions
 	 */
 	client.render = function(obj) {
+		elementsContainerTemp = [];
 		clientConfig = JSON.parse(obj);
 		sse();
 		setup();
@@ -41,10 +42,8 @@ var kuraWires = (function() {
 		var _elements = graph.getElements();
 		for (var i = 0; i < _elements.length; i++) {
 			var elem = _elements[i];
-			if (!elem.isLink()) {
-				if (elem.attributes.label === assetPid) {
-					return elem.attributes.driver;
-				}
+			if (elem.attributes.label === assetPid) {
+				return elem.attributes.driver;
 			}
 		}
 	};
@@ -130,6 +129,7 @@ var kuraWires = (function() {
 			$("#btn-zoom-out").on("click", zoomOutPaper);
 
 			initialized = true;
+			elementsContainerTemp = [];
 
 			// Set up custom elements
 			setupElements();
