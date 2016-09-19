@@ -1232,7 +1232,7 @@ Resource-Processor: org.eclipse.kura.deployment.customizer.upgrade.rp.UpgradeScr
 			<entry key="osgi.bundles" operation="+"
 				value=", reference:file:${kura.install.dir}/kura/kura/plugins/org.eclipse.kura.localization_${org.eclipse.kura.localization.version}.jar@3:start" />
 			<entry key="osgi.bundles" operation="+"
-				value=", reference:file:${kura.install.dir}/kura/kura/plugins/org.eclipse.kura.localization.resources_${org.eclipse.kura.localization.resources.version}.jar@3:start" />
+				value=", reference:file:${kura.install.dir}/kura/kura/plugins/org.eclipse.kura.localization.resources_${org.eclipse.kura.localization.resources.version}.jar" />
 			<entry key="osgi.bundles" operation="+"
 				value=", reference:file:${kura.install.dir}/kura/kura/plugins/org.eclipse.kura.util_${org.eclipse.kura.util.version}.jar@3:start" />
 			<entry key="osgi.bundles" operation="+"
@@ -1257,6 +1257,7 @@ Resource-Processor: org.eclipse.kura.deployment.customizer.upgrade.rp.UpgradeScr
 	<!-- Jar targets -->
 	<target name="kura-wires-jars">
 		<zip destfile="${project.build.directory}/${build.output.name}.zip" update="true">
+			<zipfileset file="${kura.install.dir}/kura/plugins/org.eclipse.equinox.wireadmin_${org.eclipse.equinox.wireadmin.version}.jar" prefix="${build.output.name}/kura/plugins" />
 			<zipfileset file="${project.build.directory}/plugins/org.eclipse.kura.localization_${org.eclipse.kura.localization.version}.jar" prefix="${build.output.name}/kura/plugins" />
             <zipfileset file="${project.build.directory}/plugins/org.eclipse.kura.localization.resources_${org.eclipse.kura.localization.resources.version}.jar" prefix="${build.output.name}/kura/plugins" />
 			<zipfileset file="${project.build.directory}/plugins/org.eclipse.kura.util_${org.eclipse.kura.util.version}.jar" prefix="${build.output.name}/kura/plugins" />
