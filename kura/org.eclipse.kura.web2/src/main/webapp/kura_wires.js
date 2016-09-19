@@ -258,8 +258,6 @@ var kuraWires = (function() {
 				oldCellView = null;
 			}
 		});
-
-		// paper.$el.on('mousewheel wheel', scrollPaper);
 	}
 
 	function zoomInPaper() {
@@ -274,32 +272,6 @@ var kuraWires = (function() {
 			currentZoomLevel = currentZoomLevel - paperScaling;
 			paper.scale(currentZoomLevel);
 		}
-	}
-
-	function scrollPaper(e) {
-		e.preventDefault();
-		e = e.originalEvent;
-
-		var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))) / 50;
-		var offsetX = (e.offsetX || e.clientX - $(this).offset().left);
-		var offsetY = (e.offsetY || e.clientY - $(this).offset().top);
-
-		var p = localPointOffset(offsetX, offsetY);
-		var newScale = V(paper.viewport).scale().sx + delta;
-
-		currentZoomLevel = newScale;
-		if (newScale > 0.4 && newScale < 2) {
-			paper.setOrigin(0, 0);
-			paper.scale(newScale, newScale, p.x, p.y);
-		}
-	}
-
-	function localPointOffset(x, y) {
-		var svgPoint = paper.svg.createSVGPoint();
-		svgPoint.x = x;
-		svgPoint.y = y;
-		var point = svgPoint.matrixTransform(paper.viewport.getCTM().inverse());
-		return point;
 	}
 
 	function fireTransition(t) {
