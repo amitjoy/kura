@@ -36,7 +36,7 @@ var kuraWires = (function() {
 		setup();
 		regiterFormInputFieldValidation();
 	};
-	
+
 	client.getDriver = function(assetPid) {
 		var _elements = graph.getElements();
 		for (var i = 0; i < _elements.length; i++) {
@@ -259,7 +259,7 @@ var kuraWires = (function() {
 			}
 		});
 
-		paper.$el.on('mousewheel wheel', onMouseWheel);
+		// paper.$el.on('mousewheel wheel', scrollPaper);
 	}
 
 	function zoomInPaper() {
@@ -276,42 +276,30 @@ var kuraWires = (function() {
 		}
 	}
 
-	function onMouseWheel(e) {
-
+	function scrollPaper(e) {
 		e.preventDefault();
 		e = e.originalEvent;
 
 		var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail))) / 50;
-		var offsetX = (e.offsetX || e.clientX - $(this).offset().left); // offsetX
+		var offsetX = (e.offsetX || e.clientX - $(this).offset().left);
+		var offsetY = (e.offsetY || e.clientY - $(this).offset().top);
 
-		var offsetY = (e.offsetY || e.clientY - $(this).offset().top); // offsetY
-
-		var p = offsetToLocalPoint(offsetX, offsetY);
-		var newScale = V(paper.viewport).scale().sx + delta; // the current
+		var p = localPointOffset(offsetX, offsetY);
+		var newScale = V(paper.viewport).scale().sx + delta;
 
 		currentZoomLevel = newScale;
 		if (newScale > 0.4 && newScale < 2) {
-			paper.setOrigin(0, 0); // reset the previous viewport translation
+			paper.setOrigin(0, 0);
 			paper.scale(newScale, newScale, p.x, p.y);
 		}
 	}
 
-	function offsetToLocalPoint(x, y) {
+	function localPointOffset(x, y) {
 		var svgPoint = paper.svg.createSVGPoint();
 		svgPoint.x = x;
 		svgPoint.y = y;
-		// Transform point into the viewport coordinate system.
-		var pointTransformed = svgPoint.matrixTransform(paper.viewport.getCTM()
-				.inverse());
-		return pointTransformed;
-	}
-
-	function allPredecessorsVisited(needle, haystack) {
-		for (var i = 0; i < needle.length; i++) {
-			if (haystack.indexOf(needle[i]) === -1)
-				return false;
-		}
-		return true;
+		var point = svgPoint.matrixTransform(paper.viewport.getCTM().inverse());
+		return point;
 	}
 
 	function fireTransition(t) {
