@@ -416,38 +416,12 @@ public class PropertiesUi extends Composite {
 		return this.m_configurableComponent;
 	}
 
-	private String getErrorMessage(final GwtConfigParameterType param) {
-		switch (param) {
-		case STRING:
-			return "String values only";
-		case LONG:
-			return "Long values only";
-		case DOUBLE:
-			return "Double values only";
-		case FLOAT:
-			return "Float values only";
-		case INTEGER:
-			return "Integer values only";
-		case BYTE:
-			return "Byte values only";
-		case CHAR:
-			return "Character values only";
-		case BOOLEAN:
-			return "Boolean values only";
-		case SHORT:
-			return "Short values only";
-		case PASSWORD:
-			return "Password only";
-		}
-		return "";
-	}
-
 	private Column<GwtChannelInfo, String> getInputCellColumn(final GwtConfigParameter param) {
 		final String id = param.getId();
 		final GwtConfigParameterType type = param.getType();
 		final String max = param.getMax();
 		final String min = param.getMin();
-		final ValidatableInputCell cell = new ValidatableInputCell(this.getErrorMessage(type));
+		final ValidationInputCell cell = new ValidationInputCell();
 		final Column<GwtChannelInfo, String> result = new Column<GwtChannelInfo, String>(cell) {
 
 			@Override

@@ -12,9 +12,10 @@
 package org.eclipse.kura.web.client.ui.wires;
 
 /**
- * The ViewData used by {@link ValidatableInputCell}.
+ * The ViewData used by {@link ValidationInputCell}.
  */
-public class ValidationData {
+public final class ValidationData {
+
 	private boolean invalid;
 	private String value;
 

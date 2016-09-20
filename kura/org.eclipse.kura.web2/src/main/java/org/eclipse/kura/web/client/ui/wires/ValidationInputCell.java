@@ -11,8 +11,6 @@
  */
 package org.eclipse.kura.web.client.ui.wires;
 
-import java.util.logging.Logger;
-
 import com.google.gwt.cell.client.AbstractInputCell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
@@ -22,51 +20,52 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.safecss.shared.SafeStyles;
 import com.google.gwt.safecss.shared.SafeStylesUtils;
 import com.google.gwt.safehtml.client.SafeHtmlTemplates;
-import com.google.gwt.safehtml.client.SafeHtmlTemplates.Template;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import com.google.gwt.safehtml.shared.SimpleHtmlSanitizer;
 
-public class ValidatableInputCell extends AbstractInputCell<String, ValidationData> {
+/**
+ * A custom Input Cell which is inherently used to validate its data based on
+ * validation provided from Metatype
+ */
+public final class ValidationInputCell extends AbstractInputCell<String, ValidationData> {
 
-	interface Template extends SafeHtmlTemplates {
+	interface ValidationInputTemplate extends SafeHtmlTemplates {
 		@Template("<input type=\"text\" value=\"{0}\" style=\"{1}\" class=\"{2}\" tabindex=\"-1\"/>")
 		SafeHtml input(String value, SafeStyles color, String cssClassName);
 	}
 
-	private static final Logger logger = Logger.getLogger(ValidatableInputCell.class.getSimpleName());
-	private final SafeHtml errorMessage;
-	private Template template;
+	private static final String CHANGE_EVENT = "change";
+	private static final String NONPENDING_COLOR = "black";
+	private static final String NONVALIDATED_COLOR = "red";
+	private static final String NONVALIDATED_CSS_CLASS_NAME = "error-text-box";
+	private static final String VALIDATED_COLOR = "blue";
+	private static final String VALIDATED_CSS_CLASS_NAME = "noerror-text-box";
 
-	public ValidatableInputCell(final String errorMessage) {
-		super("change");
-		if (this.template == null) {
-			this.template = GWT.create(Template.class);
+	private ValidationInputTemplate validationTemplate;
+
+	/** Constructor */
+	public ValidationInputCell() {
+		super(CHANGE_EVENT);
+		if (this.validationTemplate == null) {
+			this.validationTemplate = GWT.create(ValidationInputTemplate.class);
 		}
-		this.errorMessage = SimpleHtmlSanitizer.sanitizeHtml(errorMessage);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void onBrowserEvent(final Context context, final Element parent, final String value, final NativeEvent event,
 			final ValueUpdater<String> valueUpdater) {
 		super.onBrowserEvent(context, parent, value, event, valueUpdater);
-
-		// Ignore events that don't target the input.
 		final Element target = event.getEventTarget().cast();
 		if (!parent.getFirstChildElement().isOrHasChild(target)) {
 			return;
 		}
-
 		final Object key = context.getKey();
 		ValidationData viewData = this.getViewData(key);
 		final String eventType = event.getType();
-		if ("change".equals(eventType)) {
+		if (CHANGE_EVENT.equals(eventType)) {
 			final InputElement input = parent.getFirstChild().cast();
-
-			// Mark cell as containing a pending change
-			input.getStyle().setColor("blue");
-
-			// Save the new value in the view data.
+			input.getStyle().setColor(VALIDATED_COLOR);
 			if (viewData == null) {
 				viewData = new ValidationData();
 				this.setViewData(key, viewData);
@@ -74,14 +73,13 @@ public class ValidatableInputCell extends AbstractInputCell<String, ValidationDa
 			final String newValue = input.getValue();
 			viewData.setValue(newValue);
 			this.finishEditing(parent, newValue, key, valueUpdater);
-
-			// Update the value updater, which updates the field updater.
 			if (valueUpdater != null) {
 				valueUpdater.update(newValue);
 			}
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void onEnterKeyDown(final Context context, final Element parent, final String value,
 			final NativeEvent event, final ValueUpdater<String> valueUpdater) {
@@ -93,35 +91,20 @@ public class ValidatableInputCell extends AbstractInputCell<String, ValidationDa
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
-	public void render(final Context context, final String value, final SafeHtmlBuilder sb) {
-		// Get the view data.
+	public void render(final Context context, final String value, final SafeHtmlBuilder shb) {
 		final Object key = context.getKey();
-		ValidationData viewData = this.getViewData(key);
-		if ((viewData != null) && viewData.getValue().equals(value)) {
-			// Clear the view data if the value is the same as the current
-			// value.
+		ValidationData validationViewData = this.getViewData(key);
+		if ((validationViewData != null) && validationViewData.getValue().equals(value)) {
 			this.clearViewData(key);
-			viewData = null;
+			validationViewData = null;
 		}
-
-		/*
-		 * If viewData is null, just paint the contents black. If it is
-		 * non-null, show the pending value and paint the contents red if they
-		 * are known to be invalid.
-		 */
-		final String pendingValue = (viewData == null) ? null : viewData.getValue();
-		final boolean invalid = (viewData == null) ? false : viewData.isInvalid();
-
-		final String color = pendingValue != null ? (invalid ? "red" : "blue") : "black";
+		final String processingValue = (validationViewData == null) ? null : validationViewData.getValue();
+		final boolean invalid = (validationViewData == null) ? false : validationViewData.isInvalid();
+		final String color = processingValue != null ? (invalid ? NONVALIDATED_COLOR : VALIDATED_COLOR) : NONPENDING_COLOR;
 		final SafeStyles safeColor = SafeStylesUtils.fromTrustedString("color: " + color + ";");
-		sb.append(this.template.input(pendingValue != null ? pendingValue : value, safeColor,
-				invalid ? "error-text-box" : "noerror-text-box"));
-
-		/**
-		 * if (invalid) {
-		 * sb.appendHtmlConstant("&nbsp;<span class='tooltiptext'>");
-		 * sb.append(this.errorMessage); sb.appendHtmlConstant("</span>"); }
-		 */
+		shb.append(this.validationTemplate.input(processingValue != null ? processingValue : value, safeColor,
+				invalid ? NONVALIDATED_CSS_CLASS_NAME : VALIDATED_CSS_CLASS_NAME));
 	}
 }
