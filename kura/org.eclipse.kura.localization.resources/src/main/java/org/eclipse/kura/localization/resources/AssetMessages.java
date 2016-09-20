@@ -7,7 +7,6 @@
  *  http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *   Eurotech
  *   Amit Kumar Mondal (admin@amitinside.com)
  */
 package org.eclipse.kura.localization.resources;
@@ -123,9 +122,6 @@ public interface AssetMessages {
 
 	@En("Driver Name")
 	public String driverName();
-	
-	@En("It signifies severity level of Wire Fields to be accepted by this Wire Component")
-	public String severityLevelDesc();
 
 	@En("Driver cannot be null")
 	public String driverNonNull();
@@ -204,6 +200,9 @@ public interface AssetMessages {
 
 	@En("Retrieving configurations from the properties...Done")
 	public String retrievingConfDone();
+
+	@En("It signifies severity level of Wire Fields to be accepted by this Wire Component")
+	public String severityLevelDesc();
 
 	@En("timestamp")
 	public String timestamp();

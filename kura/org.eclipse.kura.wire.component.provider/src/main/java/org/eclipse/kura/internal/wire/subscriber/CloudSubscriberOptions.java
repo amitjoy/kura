@@ -7,7 +7,6 @@
  *  http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *   Eurotech
  *   Amit Kumar Mondal (admin@amitinside.com)
  */
 package org.eclipse.kura.internal.wire.subscriber;
@@ -22,17 +21,11 @@ import org.eclipse.kura.wire.SeverityLevel;
  */
 final class CloudSubscriberOptions {
 
-	/** The Constant denoting the publisher application. */
-	private static final String CONF_APPLICATION = "subscribe.application";
-
 	/** The Constant denoting QoS. */
 	private static final String CONF_QOS = "subscribe.qos";
 
 	/** The Constant denoting MQTT topic. */
 	private static final String CONF_TOPIC = "subscribe.topic";
-
-	/** The Constant application to perform (either publish or subscribe). */
-	private static final String DEFAULT_APPLICATION = "SUB";
 
 	/** The Constant denoting default QoS. */
 	private static final int DEFAULT_QOS = 0;

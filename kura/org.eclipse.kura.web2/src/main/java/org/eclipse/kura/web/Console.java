@@ -9,6 +9,7 @@
  * Contributors:
  *     Eurotech
  *     Jens Reimann <jreimann@redhat.com> - Fix possible NPE, cleanup
+ *     Amit Kumar Mondal (admin@amitinside.com) 
  *******************************************************************************/
 package org.eclipse.kura.web;
 

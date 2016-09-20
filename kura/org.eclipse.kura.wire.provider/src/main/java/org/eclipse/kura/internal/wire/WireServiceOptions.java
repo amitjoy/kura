@@ -7,7 +7,6 @@
  *  http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *   Eurotech
  *   Amit Kumar Mondal (admin@amitinside.com)
  */
 package org.eclipse.kura.internal.wire;
@@ -52,21 +51,6 @@ final class WireServiceOptions {
 		checkNull(configurations, s_message.wireHelperServiceNonNull());
 
 		this.m_wireConfigurations = configurations;
-	}
-
-	/**
-	 * Gets the wire configurations.
-	 *
-	 * @return the wire configurations
-	 */
-	List<WireConfiguration> getWireConfigurations() {
-		return this.m_wireConfigurations;
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "WireServiceOptions [m_wireConfigurations=" + this.m_wireConfigurations + "]";
 	}
 
 	/**
@@ -121,6 +105,21 @@ final class WireServiceOptions {
 			wireConfs.add(configuration);
 		}
 		return new WireServiceOptions(wireConfs);
+	}
+
+	/**
+	 * Gets the wire configurations.
+	 *
+	 * @return the wire configurations
+	 */
+	List<WireConfiguration> getWireConfigurations() {
+		return this.m_wireConfigurations;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public String toString() {
+		return "WireServiceOptions [m_wireConfigurations=" + this.m_wireConfigurations + "]";
 	}
 
 }

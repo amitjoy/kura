@@ -7,7 +7,6 @@
  *  http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *   Eurotech
  *   Amit Kumar Mondal (admin@amitinside.com)
  */
 package org.eclipse.kura.internal.driver.modbus;
@@ -48,6 +47,7 @@ import com.fazecast.jSerialComm.SerialPort;
  * <li>modbus.tcp-udp.port</li>
  * <li>modbus.rtu.stopbits</li>
  * <li>modbus.transaction.retry</li>
+ * <li>modbus.timeout</li> in seconds
  * <li>access.type</li> must be on of these: TCP, UDP, RTU
  * </ul>
  */

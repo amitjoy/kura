@@ -8,6 +8,7 @@
  *
  * Contributors:
  *     Eurotech
+ *     Amit Kumar Mondal (admin@amitinside.com)
  *******************************************************************************/
 /**
  *
@@ -18,6 +19,5 @@
  * <li>Management of Exceptions</li>
  * <li>Preconditions for Defensive Programming</li>
  * </ul>
- *
  */
 package org.eclipse.kura;

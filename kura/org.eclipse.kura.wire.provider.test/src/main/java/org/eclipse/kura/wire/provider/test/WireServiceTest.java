@@ -7,7 +7,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Eurotech
+ *     Amit Kumar Mondal (admin@amitinside.com)
  *******************************************************************************/
 package org.eclipse.kura.wire.provider.test;
 
@@ -53,6 +53,23 @@ public final class WireServiceTest {
 
 	/** Configuration Service Reference */
 	private static WireService s_wireService;
+
+	/**
+	 * JUnit Callback to be triggered before creating the instance of this suite
+	 *
+	 * @throws Exception
+	 *             if the dependent services are null
+	 */
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		// Wait for OSGi dependencies
+		s_logger.info("Setting Up The Testcase....");
+		try {
+			dependencyLatch.await(10, TimeUnit.SECONDS);
+		} catch (final InterruptedException e) {
+			fail("OSGi dependencies unfulfilled");
+		}
+	}
 
 	/**
 	 * Binds the configuration service dependency
@@ -149,23 +166,6 @@ public final class WireServiceTest {
 	public void unbindWireService(final WireService wireService) {
 		if (s_wireService == wireService) {
 			s_wireService = null;
-		}
-	}
-
-	/**
-	 * JUnit Callback to be triggered before creating the instance of this suite
-	 *
-	 * @throws Exception
-	 *             if the dependent services are null
-	 */
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-		// Wait for OSGi dependencies
-		s_logger.info("Setting Up The Testcase....");
-		try {
-			dependencyLatch.await(10, TimeUnit.SECONDS);
-		} catch (final InterruptedException e) {
-			fail("OSGi dependencies unfulfilled");
 		}
 	}
 }

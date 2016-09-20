@@ -8,14 +8,13 @@
      http://www.eclipse.org/legal/epl-v10.html
 
     Contributors:
-      Eurotech
       Amit Kumar Mondal (admin@amitinside.com)
 -->
 <MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0" localization="en_us">
     <OCD id="org.eclipse.kura.wire.test.emitter" 
          name="StubEmitter" 
          description="StubEmitter">
-         <Icon resource="CloudPublisher" size="32"/>
+         
         <AD id="publish.retain"
             name="publish.retain"
             type="Boolean"
@@ -24,6 +23,7 @@
             default="false"
             description="Whether or not the broker should retain the message">
         </AD>
+        
     </OCD>
     <Designate pid="org.eclipse.kura.wire.test.emitter">
         <Object ocdref="org.eclipse.kura.wire.test.emitter"/>
