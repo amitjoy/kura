@@ -263,7 +263,15 @@ public final class OpcUaDriver implements Driver {
 				record.setTimestamp(System.currentTimeMillis());
 				continue;
 			}
-			final int nodeNamespaceIndex = Integer.parseInt(channelConfig.get(NODE_NAMESPACE_INDEX).toString());
+			int nodeNamespaceIndex;
+			try {
+				nodeNamespaceIndex = Integer.parseInt(channelConfig.get(NODE_NAMESPACE_INDEX).toString());
+			} catch (final NumberFormatException nfe) {
+				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
+						s_message.errorRetrievingNodeNamespace(), null));
+				record.setTimestamp(System.currentTimeMillis());
+				continue;
+			}
 			final NodeId nodeId = new NodeId(nodeNamespaceIndex, channelConfig.get(NODE_ID).toString());
 			final UaVariableNode node = this.m_client.getAddressSpace().getVariableNode(nodeId);
 			Object value = null;
@@ -346,7 +354,15 @@ public final class OpcUaDriver implements Driver {
 				record.setTimestamp(System.currentTimeMillis());
 				continue;
 			}
-			final int nodeNamespaceIndex = Integer.parseInt(channelConfig.get(NODE_NAMESPACE_INDEX).toString());
+			int nodeNamespaceIndex;
+			try {
+				nodeNamespaceIndex = Integer.parseInt(channelConfig.get(NODE_NAMESPACE_INDEX).toString());
+			} catch (final NumberFormatException nfe) {
+				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
+						s_message.errorRetrievingNodeNamespace(), null));
+				record.setTimestamp(System.currentTimeMillis());
+				continue;
+			}
 			final TypedValue<?> value = record.getValue();
 			final NodeId nodeId = new NodeId(nodeNamespaceIndex, channelConfig.get(NODE_ID).toString());
 			final UaVariableNode node = this.m_client.getAddressSpace().getVariableNode(nodeId);

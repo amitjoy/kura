@@ -146,6 +146,24 @@
             <Option label="SERIAL_ENCODING_RTU" value="SERIAL_ENCODING_RTU"/>
             <Option label="SERIAL_ENCODING_BIN" value="SERIAL_ENCODING_BIN"/>
         </AD>
+        
+        <AD id="modbus.transaction.retry"
+            name="modbus.transaction.retry"
+            type="Integer"
+            cardinality="0"
+            required="true"
+            default="3"
+            description="The no of retries to perform a failed Modbus Transaction">
+        </AD>
+        
+        <AD id="modbus.timeout"
+            name="modbus.timeout"
+            type="Integer"
+            cardinality="0"
+            required="true"
+            default="5"
+            description="The time in seconds that Modbus Driver should wait before it fails for receiving response">
+        </AD>
     </OCD>
     
     <Designate pid="org.eclipse.kura.driver.modbus" factoryPid="org.eclipse.kura.driver.modbus">

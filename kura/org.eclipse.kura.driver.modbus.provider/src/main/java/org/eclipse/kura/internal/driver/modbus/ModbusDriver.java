@@ -16,8 +16,10 @@ import static com.ghgande.j2mod.modbus.Modbus.READ_COILS;
 import static com.ghgande.j2mod.modbus.Modbus.READ_HOLDING_REGISTERS;
 import static com.ghgande.j2mod.modbus.Modbus.READ_INPUT_DISCRETES;
 import static com.ghgande.j2mod.modbus.Modbus.READ_INPUT_REGISTERS;
+import static com.ghgande.j2mod.modbus.Modbus.WRITE_COIL;
 import static com.ghgande.j2mod.modbus.Modbus.WRITE_MULTIPLE_COILS;
 import static com.ghgande.j2mod.modbus.Modbus.WRITE_MULTIPLE_REGISTERS;
+import static com.ghgande.j2mod.modbus.Modbus.WRITE_SINGLE_REGISTER;
 import static org.eclipse.kura.Preconditions.checkNull;
 import static org.eclipse.kura.driver.DriverConstants.CHANNEL_VALUE_TYPE;
 import static org.eclipse.kura.driver.DriverFlag.DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE;
@@ -71,8 +73,10 @@ import com.ghgande.j2mod.modbus.msg.ReadInputRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadInputRegistersResponse;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersRequest;
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
+import com.ghgande.j2mod.modbus.msg.WriteCoilRequest;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleCoilsRequest;
 import com.ghgande.j2mod.modbus.msg.WriteMultipleRegistersRequest;
+import com.ghgande.j2mod.modbus.msg.WriteSingleRegisterRequest;
 import com.ghgande.j2mod.modbus.procimg.Register;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 import com.ghgande.j2mod.modbus.util.BitVector;
@@ -369,17 +373,19 @@ public final class ModbusDriver implements Driver {
 	 *
 	 * @param primaryTable
 	 *            the string representation of the address space
+	 * @param isMultipleWrite
+	 *            the flag denoting if multiple write operations are allowed
 	 * @return the function code
 	 * @throws KuraRuntimeException
 	 *             if the argument is null
 	 */
-	private int getWriteFunctionCode(final String primaryTable) {
+	private int getWriteFunctionCode(final String primaryTable, final boolean isMultipleWrite) {
 		checkNull(primaryTable, s_message.primaryTableNonNull());
 		if ("COILS".equalsIgnoreCase(primaryTable)) {
-			return WRITE_MULTIPLE_COILS;
+			return isMultipleWrite ? WRITE_MULTIPLE_COILS : WRITE_COIL;
 		}
 		if ("HOLDING_REGISTERS".equalsIgnoreCase(primaryTable)) {
-			return WRITE_MULTIPLE_REGISTERS;
+			return isMultipleWrite ? WRITE_MULTIPLE_REGISTERS : WRITE_SINGLE_REGISTER;
 		}
 		return 0;
 	}
@@ -420,10 +426,19 @@ public final class ModbusDriver implements Driver {
 				record.setTimestamp(System.currentTimeMillis());
 				continue;
 			}
-			final int unitId = Integer.parseInt(channelConfig.get(UNIT_ID).toString());
+			int unitId;
+			int memoryAddr;
+			try {
+				unitId = Integer.parseInt(channelConfig.get(UNIT_ID).toString());
+				memoryAddr = Integer.parseInt(channelConfig.get(MEMORY_ADDRESS).toString()) - 1;
+			} catch (final NumberFormatException nfe) {
+				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
+						s_message.errorRetrievingMemAddr(), null));
+				record.setTimestamp(System.currentTimeMillis());
+				continue;
+			}
 			final String primaryTable = channelConfig.get(PRIMARY_TABLE).toString();
 			final int functionCode = this.getReadFunctionCode(primaryTable);
-			final int memoryAddr = Integer.parseInt(channelConfig.get(MEMORY_ADDRESS).toString()) - 1;
 
 			// check if the function code is correct
 			if (functionCode == 0) {
@@ -528,9 +543,12 @@ public final class ModbusDriver implements Driver {
 			throw new ModbusException(s_message.requestTypeNotSupported(functionCode));
 		}
 		req.setUnitID(unitId);
+		// set the transport timeout
+		modbusTransport.setTimeout(this.m_options.getTimeout());
 		// Prepare the transaction
 		trans = modbusTransport.createTransaction();
 		trans.setRequest(req);
+		trans.setRetries(this.m_options.getNoOfRetry());
 		if (trans instanceof ModbusTCPTransaction) {
 			((ModbusTCPTransaction) trans).setReconnecting(true);
 		}
@@ -600,9 +618,19 @@ public final class ModbusDriver implements Driver {
 				record.setTimestamp(System.currentTimeMillis());
 				continue;
 			}
-			final int unitId = Integer.parseInt(channelConfig.get(UNIT_ID).toString());
+			int unitId;
+			int memoryAddr;
+			try {
+				unitId = Integer.parseInt(channelConfig.get(UNIT_ID).toString());
+				memoryAddr = Integer.parseInt(channelConfig.get(MEMORY_ADDRESS).toString()) - 1;
+			} catch (final NumberFormatException nfe) {
+				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
+						s_message.errorRetrievingMemAddr(), null));
+				record.setTimestamp(System.currentTimeMillis());
+				continue;
+			}
 			final String primaryTable = channelConfig.get(PRIMARY_TABLE).toString();
-			final int functionCode = this.getWriteFunctionCode(primaryTable);
+			final int functionCode = this.getWriteFunctionCode(primaryTable, false);
 			// check if the function code is correct
 			if (functionCode == 0) {
 				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
@@ -617,7 +645,6 @@ public final class ModbusDriver implements Driver {
 				record.setTimestamp(System.currentTimeMillis());
 				continue;
 			}
-			final int memoryAddr = Integer.parseInt(channelConfig.get(MEMORY_ADDRESS).toString()) - 1;
 			// check if the memory address is correct
 			if ((memoryAddr < 0) || (memoryAddr > 65535)) {
 				record.setDriverStatus(
@@ -638,18 +665,35 @@ public final class ModbusDriver implements Driver {
 			}
 			try {
 				final DataType expectedValueType = (DataType) channelConfig.get(CHANNEL_VALUE_TYPE.value());
-				int valueToWrite;
-				if (expectedValueType != INTEGER) {
+				Object valueToWrite = null;
+				if ((expectedValueType != INTEGER) && (expectedValueType != BOOLEAN)) {
 					record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
 							s_message.errorRetrievingValueType(), null));
 					record.setTimestamp(System.currentTimeMillis());
 					continue;
 				}
-				valueToWrite = Integer.parseInt(record.getValue().getValue().toString());
-				if (valueToWrite != 0) {
-					this.writeRequest(unitId, this.m_modbusTransport, functionCode, memoryAddr, valueToWrite);
-					record.setDriverStatus(new DriverStatus(WRITE_SUCCESSFUL));
+				if (expectedValueType == INTEGER) {
+					try {
+						valueToWrite = Integer.parseInt(record.getValue().getValue().toString());
+					} catch (final NumberFormatException nfe) {
+						record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
+								s_message.errorRetrievingValueType(), null));
+						record.setTimestamp(System.currentTimeMillis());
+						continue;
+					}
 				}
+				if (expectedValueType == BOOLEAN) {
+					try {
+						valueToWrite = Boolean.parseBoolean(record.getValue().getValue().toString());
+					} catch (final NumberFormatException nfe) {
+						record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
+								s_message.errorRetrievingValueType(), null));
+						record.setTimestamp(System.currentTimeMillis());
+						continue;
+					}
+				}
+				this.writeRequest(unitId, this.m_modbusTransport, functionCode, memoryAddr, valueToWrite);
+				record.setDriverStatus(new DriverStatus(WRITE_SUCCESSFUL));
 			} catch (final ModbusException e) {
 				record.setDriverStatus(new DriverStatus(WRITE_FAILURE, null, e));
 			} catch (final KuraRuntimeException e) {
@@ -684,37 +728,48 @@ public final class ModbusDriver implements Driver {
 	 * @return Response object
 	 * @throws KuraRuntimeException
 	 *             if the transport is null
+	 * @throws ModbusException
+	 *             if the function code provided is not supported for write
+	 *             operation
 	 */
 	private synchronized ModbusResponse writeRequest(final int unitId, final AbstractModbusTransport modbusTransport,
-			final int functionCode, final int register, final int... values) throws ModbusException {
+			final int functionCode, final int register, final Object... values) throws ModbusException {
 		checkNull(modbusTransport, s_message.transportNonNull());
 
 		ModbusTransaction trans;
 		ModbusRequest req;
 		// Prepare the request
 		switch (functionCode) {
-		case WRITE_MULTIPLE_REGISTERS:
-			final Register[] regs = new Register[values.length];
-			for (int i = 0; i < values.length; i++) {
-				regs[i] = new SimpleRegister(values[i]);
-			}
-			req = new WriteMultipleRegistersRequest(register, regs);
+		case WRITE_COIL:
+			req = new WriteCoilRequest(register, Boolean.valueOf(values[0].toString()));
+			break;
+		case WRITE_SINGLE_REGISTER:
+			req = new WriteSingleRegisterRequest(register, new SimpleRegister(Integer.parseInt(values[0].toString())));
 			break;
 		case WRITE_MULTIPLE_COILS:
 			final BitVector bitVector = new BitVector(values.length);
 			for (int i = 0; i < values.length; i++) {
-				bitVector.setBit(i, values[i] != 0);
+				bitVector.setBit(i, Boolean.valueOf(values[i].toString()));
 			}
 			req = new WriteMultipleCoilsRequest(register, bitVector);
+			break;
+		case WRITE_MULTIPLE_REGISTERS:
+			final Register[] regs = new Register[values.length];
+			for (int i = 0; i < values.length; i++) {
+				regs[i] = new SimpleRegister(Integer.valueOf(values[i].toString()));
+			}
+			req = new WriteMultipleRegistersRequest(register, regs);
 			break;
 		default:
 			throw new ModbusException(s_message.requestTypeNotSupported(functionCode));
 		}
 		req.setUnitID(unitId);
-
+		// set the transport timeout
+		modbusTransport.setTimeout(this.m_options.getTimeout());
 		// Prepare the transaction
 		trans = modbusTransport.createTransaction();
 		trans.setRequest(req);
+		trans.setRetries(this.m_options.getNoOfRetry());
 		if (trans instanceof ModbusTCPTransaction) {
 			((ModbusTCPTransaction) trans).setReconnecting(true);
 		}

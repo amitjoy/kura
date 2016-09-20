@@ -210,10 +210,20 @@ public final class S7PlcDriver implements Driver {
 				record.setTimestamp(System.currentTimeMillis());
 				continue;
 			}
-			final byte[] value = this.m_connector.read(DaveArea.DB,
-					Integer.parseInt(channelConfig.get(AREA_NO).toString()),
-					Integer.parseInt(channelConfig.get(BYTE_COUNT).toString()),
-					Integer.parseInt(channelConfig.get(OFFSET).toString()));
+			int areaNo;
+			int byteCount;
+			int offset;
+			try {
+				areaNo = Integer.parseInt(channelConfig.get(AREA_NO).toString());
+				byteCount = Integer.parseInt(channelConfig.get(BYTE_COUNT).toString());
+				offset = Integer.parseInt(channelConfig.get(OFFSET).toString());
+			} catch (final NumberFormatException nfe) {
+				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
+						s_message.instanceOfByteArray(), null));
+				record.setTimestamp(System.currentTimeMillis());
+				continue;
+			}
+			final byte[] value = this.m_connector.read(DaveArea.DB, areaNo, byteCount, offset);
 			if (value != null) {
 				record.setDriverStatus(new DriverStatus(READ_SUCCESSFUL));
 				record.setValue(TypedValues.newByteArrayValue(value));
@@ -293,9 +303,19 @@ public final class S7PlcDriver implements Driver {
 				record.setTimestamp(System.currentTimeMillis());
 				continue;
 			}
+			int areaNo;
+			int offset;
+			try {
+				areaNo = Integer.parseInt(channelConfig.get(AREA_NO).toString());
+				offset = Integer.parseInt(channelConfig.get(OFFSET).toString());
+			} catch (final NumberFormatException nfe) {
+				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
+						s_message.instanceOfByteArray(), null));
+				record.setTimestamp(System.currentTimeMillis());
+				continue;
+			}
 			final byte[] value = ((ByteArrayValue) recordValue).getValue();
-			this.m_connector.write(DaveArea.DB, Integer.parseInt(channelConfig.get(AREA_NO).toString()),
-					Integer.parseInt(channelConfig.get(OFFSET).toString()), value);
+			this.m_connector.write(DaveArea.DB, areaNo, offset, value);
 			record.setDriverStatus(new DriverStatus(WRITE_SUCCESSFUL));
 			record.setTimestamp(System.currentTimeMillis());
 		}

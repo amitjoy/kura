@@ -47,6 +47,7 @@ import com.fazecast.jSerialComm.SerialPort;
  * EVEN_PARITY, MARK_PARITY, SPACE_PARITY
  * <li>modbus.tcp-udp.port</li>
  * <li>modbus.rtu.stopbits</li>
+ * <li>modbus.transaction.retry</li>
  * <li>access.type</li> must be on of these: TCP, UDP, RTU
  * </ul>
  */
@@ -76,6 +77,9 @@ final class ModbusOptions {
 	/** Modbus TCP or UDP access type configuration Port */
 	private static final String PORT = "modbus.tcp-udp.port";
 
+	/** Modbus Transaction no of retries */
+	private static final String RETRY = "modbus.transaction.retry";
+
 	/** Localization Resource. */
 	private static final ModbusDriverMessages s_message = LocalizationAdapter.adapt(ModbusDriverMessages.class);
 
@@ -84,6 +88,9 @@ final class ModbusOptions {
 
 	/** Modbus Serial (RTU) access type Stopbits */
 	private static final String STOPBITS = "modbus.rtu.stopbits";
+
+	/** Modbus Timeout */
+	private static final String TIMEOUT = "modbus.timeout";
 
 	/** Modbus TCP or UDP or RTU access type */
 	private static final String TYPE = "access.type";
@@ -238,6 +245,20 @@ final class ModbusOptions {
 	}
 
 	/**
+	 * Returns Modbus Transaction No of Retries
+	 *
+	 * @return the Modbus Transaction No of Retries
+	 */
+	int getNoOfRetry() {
+		int retry = 0;
+		final Object retryNo = this.m_properties.get(RETRY);
+		if ((this.m_properties != null) && this.m_properties.containsKey(RETRY) && (retryNo != null)) {
+			retry = Integer.valueOf(retryNo.toString());
+		}
+		return retry;
+	}
+
+	/**
 	 * Returns the Modbus RTU Parity
 	 *
 	 * @return the Modbus RTU Parity
@@ -320,6 +341,20 @@ final class ModbusOptions {
 			}
 		}
 		return 0;
+	}
+
+	/**
+	 * Returns Modbus Timeout In Milliseconds
+	 *
+	 * @return the Modbus Timeout in Milliseconds
+	 */
+	int getTimeout() {
+		int timeout = 0;
+		final Object timeoutSec = this.m_properties.get(TIMEOUT);
+		if ((this.m_properties != null) && this.m_properties.containsKey(TIMEOUT) && (timeoutSec != null)) {
+			timeout = Integer.valueOf(timeoutSec.toString());
+		}
+		return timeout * 1000;
 	}
 
 	/**
