@@ -259,21 +259,26 @@ public final class AssetCloudlet extends Cloudlet {
 				final AssetRecord assetRecord = new AssetRecord(id);
 				final String userValue = (String) reqPayload.getMetric("value");
 				final String userType = (String) reqPayload.getMetric("type");
-				this.wrapValue(assetRecord, userValue, userType);
-
-				List<AssetRecord> assetRecords = null;
+				boolean flag = true;
 				try {
-					assetRecords = asset.write(Arrays.asList(assetRecord));
+					this.wrapValue(assetRecord, userValue, userType);
+				} catch (final NumberFormatException nfe) {
+					flag = false;
+					assetRecord.setAssetStatus(
+							new AssetStatus(AssetFlag.FAILURE, s_message.valueTypeConversionError(), nfe));
+					assetRecord.setTimestamp(System.currentTimeMillis());
+				}
+
+				List<AssetRecord> assetRecords = Arrays.asList(assetRecord);
+				try {
+					if (flag) {
+						assetRecords = asset.write(assetRecords);
+					}
 				} catch (final KuraException e) {
 					// if connection exception occurs
 					respPayload.addMetric(s_message.errorMessage(), s_message.connectionException());
 				}
-				if (assetRecords != null) {
-					this.prepareResponse(respPayload, assetRecords);
-				}
-				if (assetRecords != null) {
-					this.prepareResponse(respPayload, assetRecords);
-				}
+				this.prepareResponse(respPayload, assetRecords);
 			}
 		}
 		s_logger.info(s_message.cloudPUTReqReceived());
@@ -364,26 +369,30 @@ public final class AssetCloudlet extends Cloudlet {
 		checkNull(userType, s_message.typeNonNull());
 
 		TypedValue<?> value = null;
-		if ("INTEGER".equalsIgnoreCase(userType)) {
-			value = TypedValues.newIntegerValue(Integer.parseInt(userValue));
-		}
-		if ("BOOLEAN".equalsIgnoreCase(userType)) {
-			value = TypedValues.newBooleanValue(Boolean.parseBoolean(userValue));
-		}
-		if ("BYTE".equalsIgnoreCase(userType)) {
-			value = TypedValues.newByteValue(Byte.parseByte(userValue));
-		}
-		if ("DOUBLE".equalsIgnoreCase(userType)) {
-			value = TypedValues.newDoubleValue(Double.parseDouble(userValue));
-		}
-		if ("LONG".equalsIgnoreCase(userType)) {
-			value = TypedValues.newLongValue(Long.parseLong(userValue));
-		}
-		if ("SHORT".equalsIgnoreCase(userType)) {
-			value = TypedValues.newShortValue(Short.parseShort(userValue));
-		}
-		if ("STRING".equalsIgnoreCase(userType)) {
-			value = TypedValues.newStringValue(userValue);
+		try {
+			if ("INTEGER".equalsIgnoreCase(userType)) {
+				value = TypedValues.newIntegerValue(Integer.parseInt(userValue));
+			}
+			if ("BOOLEAN".equalsIgnoreCase(userType)) {
+				value = TypedValues.newBooleanValue(Boolean.parseBoolean(userValue));
+			}
+			if ("BYTE".equalsIgnoreCase(userType)) {
+				value = TypedValues.newByteValue(Byte.parseByte(userValue));
+			}
+			if ("DOUBLE".equalsIgnoreCase(userType)) {
+				value = TypedValues.newDoubleValue(Double.parseDouble(userValue));
+			}
+			if ("LONG".equalsIgnoreCase(userType)) {
+				value = TypedValues.newLongValue(Long.parseLong(userValue));
+			}
+			if ("SHORT".equalsIgnoreCase(userType)) {
+				value = TypedValues.newShortValue(Short.parseShort(userValue));
+			}
+			if ("STRING".equalsIgnoreCase(userType)) {
+				value = TypedValues.newStringValue(userValue);
+			}
+		} catch (final NumberFormatException nfe) {
+			throw nfe;
 		}
 		if (userValue != null) {
 			assetRecord.setValue(value);

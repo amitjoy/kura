@@ -110,4 +110,7 @@ public interface AssetCloudletMessages {
 	@En("User Provided Value cannot be null")
 	public String valueNonNull();
 
+	@En("The provided value type is erroneous")
+	public String valueTypeConversionError();
+
 }
