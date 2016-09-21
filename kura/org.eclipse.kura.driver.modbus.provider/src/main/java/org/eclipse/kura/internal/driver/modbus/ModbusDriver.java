@@ -743,7 +743,7 @@ public final class ModbusDriver implements Driver {
 			req = new WriteCoilRequest(register, Boolean.valueOf(values[0].toString()));
 			break;
 		case WRITE_SINGLE_REGISTER:
-			req = new WriteSingleRegisterRequest(register, new SimpleRegister(Integer.parseInt(values[0].toString())));
+			req = new WriteSingleRegisterRequest(register, new SimpleRegister(Integer.valueOf(values[0].toString())));
 			break;
 		case WRITE_MULTIPLE_COILS:
 			final BitVector bitVector = new BitVector(values.length);
