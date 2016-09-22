@@ -7,7 +7,6 @@
  *  http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *   Eurotech
  *   Amit Kumar Mondal (admin@amitinside.com)
  */
 package org.eclipse.kura.web.shared.model;
@@ -32,6 +31,14 @@ public final class GwtWiresConfiguration extends GwtBaseModel implements Seriali
 
 	/** Wire Component Instances. */
 	private List<String> wireComponents;
+
+	/** Wire Components Configuration in JSON. */
+	@Nullable
+	private String wireComponentsJson;
+
+	/** Wire Configurations in JSON. */
+	@Nullable
+	private String wireConfigurationsJson;
 
 	/** Wire Emitter Factory PIDs. */
 	private List<String> wireEmitterFactoryPids;
@@ -67,6 +74,14 @@ public final class GwtWiresConfiguration extends GwtBaseModel implements Seriali
 	 */
 	public List<String> getWireComponents() {
 		return this.wireComponents;
+	}
+
+	public String getWireComponentsJson() {
+		return this.wireComponentsJson;
+	}
+
+	public String getWireConfigurationsJson() {
+		return this.wireConfigurationsJson;
 	}
 
 	/**
@@ -107,6 +122,14 @@ public final class GwtWiresConfiguration extends GwtBaseModel implements Seriali
 			this.graph = "{}";
 		}
 		this.graph = graph;
+	}
+
+	public void setWireComponentsJson(final String json) {
+		this.wireComponentsJson = json;
+	}
+
+	public void setWireConfigurationsJson(final String wireConfigurationsJson) {
+		this.wireConfigurationsJson = wireConfigurationsJson;
 	}
 
 	public void setWiresConfigurationJson(final String wiresConfigurationJson) {

@@ -13,7 +13,6 @@
 var kuraWires = (function() {
 	var client = {}; // Holds accessible elements of JS library
 	var clientConfig = {}; // Configuration passed from Kura OSGi
-	var delCells = []; // Components and Wires to be deleted from OSGi
 	// framework on save
 	var graph, paper; // JointJS objects
 	var initialized = false;
@@ -50,7 +49,6 @@ var kuraWires = (function() {
 
 	var removeCellFunc = function(cell) {
 		top.jsniMakeUiDirty();
-		removeCell(cell);
 		var _elements = graph.getElements();
 		if (_elements.length == 0) {
 			toggleDeleteGraphButton(true);
@@ -168,14 +166,7 @@ var kuraWires = (function() {
 
 		graph.off('remove', removeCellFunc);
 		// Load a graph if it exists
-		if (!$.isEmptyObject(clientConfig.pGraph)) {
-			graph.clear();
-			try {
-				graph.fromJSON(clientConfig.pGraph);
-			} catch (err) {
-				console.log(err.stack);
-			}
-		}
+		loadExistingWireGraph();
 
 		// for any position change of the element, make the UI dirty
 		var _elements = graph.getElements();
@@ -194,39 +185,12 @@ var kuraWires = (function() {
 			toggleDeleteGraphButton(false);
 		}
 
-		// for any position change of the link, make the UI dirty
-		var _links = graph.getLinks();
-		for (var i = 0; i < _links.length; i++) {
-			var link = _links[i];
-			elem.on('change', function() {
-				top.jsniMakeUiDirty();
-			})
-		}
-
-		// If components exist in the framework but not the graph, create UI
-		// elements
-		if (typeof clientConfig.components != 'undefined') {
-			$.each(clientConfig.components, function(index, component) {
-				var exists = false;
-				$.each(graph.getCells(), function(index, cell) {
-					if (cell.attributes.pid === component.pid) {
-						exists = true;
-					}
-				});
-				if (!exists) {
-					createComponent(component);
-				}
-			});
-		}
 		graph.on('change:source change:target', function(link) {
 			createWire(link);
 			top.jsniMakeUiDirty();
 		});
+
 		graph.on('remove', removeCellFunc);
-		graph.on('add', function() {
-			top.jsniMakeUiDirty();
-			toggleDeleteGraphButton(false);
-		});
 
 		paper.on('cell:pointerdown', function(cellView, evt, x, y) {
 			var pid = cellView.model.attributes.label;
@@ -259,6 +223,76 @@ var kuraWires = (function() {
 		});
 	}
 
+	function loadExistingWireGraph() {
+		if (!$.isEmptyObject(clientConfig.wireComponentsJson)) {
+			graph.clear();
+			var wireComponents = clientConfig.wireComponentsJson;
+			for (var i = 0; i < wireComponents.length; i++) {
+				var component = wireComponents[i].pid;
+				var fPid = wireComponents[i].fPid;
+				var type = wireComponents[i].type;
+				var x = parseInt(getLocationFromJsonByPid(component).split(",")[0]);
+				var y = parseInt(getLocationFromJsonByPid(component).split(",")[1]);
+
+				var compConfig = {
+					fPid : fPid,
+					pid : component,
+					name : component,
+					type : type,
+					x : x,
+					y : y,
+				};
+				createComponent(compConfig);
+			}
+			createExisitingWires();
+		}
+	}
+
+	function createExisitingWires() {
+		var wireConfigs = clientConfig.wireConfigsJson;
+		for (var j = 0; j < wireConfigs.length; j++) {
+			var emitter = wireConfigs[j].emitter;
+			var receiver = wireConfigs[j].receiver;
+			createLinkBetween(emitter, receiver);
+		}
+	}
+
+	function getLocationFromJsonByPid(pid) {
+		for (var i = 0; i < Object.keys(clientConfig.pGraph).length; i++) {
+			var obj = clientConfig.pGraph[i];
+			var componentPid = obj["pid"];
+			if (componentPid === pid) {
+				return obj["loc"];
+			}
+		}
+		return xPos + "," + yPos;
+	}
+
+	function createLinkBetween(emitterPid, receiverPid) {
+		var _elements = graph.getElements();
+		var emitter = null, receiver = null;
+		for (var i = 0; i < _elements.length; i++) {
+			var element = _elements[i];
+			if (element.attributes.pid === emitterPid) {
+				emitter = element;
+			}
+			if (element.attributes.pid === receiverPid) {
+				receiver = element;
+			}
+		}
+		if (emitter != null && receiver != null) {
+			var link = new joint.shapes.customLink.Element({
+				source : {
+					id : emitter.id
+				},
+				target : {
+					id : receiver.id
+				}
+			});
+			graph.addCell(link);
+		}
+	}
+
 	function zoomInPaper() {
 		if (currentZoomLevel <= paperScaleMax) {
 			currentZoomLevel = currentZoomLevel + paperScaling;
@@ -274,7 +308,6 @@ var kuraWires = (function() {
 	}
 
 	function fireTransition(t) {
-
 		var inbound = graph.getConnectedLinks(t, {
 			inbound : false
 		});
@@ -404,8 +437,8 @@ var kuraWires = (function() {
 
 		var rect = new joint.shapes.devs.Atomic({
 			position : {
-				x : xPos,
-				y : yPos
+				x : comp.x,
+				y : comp.y
 			},
 			attrs : attrib,
 			inPorts : inputPorts,
@@ -483,14 +516,85 @@ var kuraWires = (function() {
 	 * / Event Functions
 	 */
 	function saveConfig() {
+		graphToSave = prepareJsonFromGraph();
 		newConfig = {
-			jointJs : graph,
-			deleteCells : delCells
+			wiregraph : graphToSave
 		}
 		elementsContainerTemp = [];
-		delCells = [];
 		if (!checkForCycleExistence()) {
 			top.jsniUpdateWireConfig(JSON.stringify(newConfig));
+		}
+	}
+
+	function prepareJsonFromGraph() {
+		var _links = graph.getLinks();
+		var _elements = graph.getElements();
+		var wiregraph = {};
+		var wires = {};
+		for (var i = 0; i < _links.length; i++) {
+			var link = _links[i];
+			var entry = {
+				"producer" : getPidById(link.attributes.source.id),
+				"consumer" : getPidById(link.attributes.target.id)
+			}
+			wires[i] = entry;
+		}
+		for (var j = 0; j < _elements.length; j++) {
+			var element = _elements[j];
+			entry = {
+				"pid" : getPidById(element.id),
+				"loc" : getElementLocation(element.id),
+				"driver" : getDriverById(element.id),
+				"fpid" : getFactoryPidById(element.id),
+				"type" : element.attributes.cType
+			}
+			wiregraph[j] = entry;
+		}
+		wiregraph['wires'] = wires;
+		return wiregraph;
+	}
+
+	function getPidById(id) {
+		var _elements = graph.getElements();
+		for (var i = 0; i < _elements.length; i++) {
+			var element = _elements[i];
+			if (element.id === id) {
+				return element.attributes.label;
+			}
+		}
+	}
+
+	function getDriverById(id) {
+		var _elements = graph.getElements();
+		for (var i = 0; i < _elements.length; i++) {
+			var element = _elements[i];
+			if (element.id === id) {
+				return element.attributes.driver;
+			}
+		}
+		return null;
+	}
+
+	function getFactoryPidById(id) {
+		var _elements = graph.getElements();
+		for (var i = 0; i < _elements.length; i++) {
+			var element = _elements[i];
+			if (element.id === id) {
+				return element.attributes.factoryPid;
+			}
+		}
+		return null;
+	}
+
+	function getElementLocation(id) {
+		var _elements = graph.getElements();
+		for (var i = 0; i < _elements.length; i++) {
+			var element = _elements[i];
+			if (element.id === id) {
+				var x = element.attributes.position.x;
+				var y = element.attributes.position.y;
+				return x + "," + y;
+			}
 		}
 	}
 
@@ -578,44 +682,28 @@ var kuraWires = (function() {
 					pid : "none",
 					name : name,
 					driver : driverPid,
-					type : cType
+					type : cType,
+					x : xPos,
+					y : yPos
 				}
 			} else {
 				newComp = {
 					fPid : fPid,
 					pid : "none",
 					name : name,
-					type : cType
+					type : cType,
+					x : xPos,
+					y : yPos
 				}
 			}
+			top.jsniMakeUiDirty();
+			toggleDeleteGraphButton(false);
 			// Create the new component and store information in array
 			createComponent(newComp);
 			$("#componentName").val('');
 			$("#driverPids").val('--- Select Driver ---');
 			$("#factoryPid").val('');
 			$("#asset-comp-modal").modal('hide');
-		}
-	}
-
-	function removeCell(cell) {
-		// If the cell only exists in JointJS, no need to delete from
-		// OSGi framework. For components this is determined by the
-		// PID equalling 'none'. For wires, the neWire value will be true.
-
-		// Delete Wire
-		if (cell.attributes.type === 'customLink.Element'
-				&& !cell.attributes.newWire) {
-			delCells.push({
-				cellType : 'wire',
-				p : cell.attributes.producer,
-				c : cell.attributes.consumer
-			});
-		} else if (cell.attributes.type === 'devs.Atomic'
-				&& cell.attributes.pid !== 'none') {
-			delCells.push({
-				cellType : 'instance',
-				pid : cell.attributes.pid
-			});
 		}
 	}
 

@@ -18,6 +18,11 @@
       <provide interface="org.eclipse.kura.configuration.ConfigurationService"/>
    </service>
    <property name="service.pid" value="org.eclipse.kura.configuration.ConfigurationService"/>   
+   <property name="osgi.command.scope" type="String" value="kura.conf"/>
+   <property name="osgi.command.function" type="String">
+   	createFactoryConfiguration
+   	deleteFactoryConfiguration
+   </property>   
    <reference name="ConfigurationAdmin"
               bind="setConfigurationAdmin"
               unbind="unsetConfigurationAdmin"

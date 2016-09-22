@@ -101,9 +101,11 @@ public class WiresPanelUi extends Composite {
 	private static List<String> m_drivers;
 	private static List<String> m_emitters;
 	private static String m_graph;
-
 	private static Map<String, PropertiesUi> m_propertiesUis;
+
 	private static List<String> m_receivers;
+	private static String m_wireComponentsConfigJson;
+	private static String m_wireConfigsJson;
 	private static String m_wires;
 	@UiField
 	public static Panel propertiesPanel;
@@ -294,6 +296,8 @@ public class WiresPanelUi extends Composite {
 		m_components = config.getWireComponents();
 		m_wires = config.getWiresConfigurationJson();
 		m_graph = config.getGraph();
+		m_wireComponentsConfigJson = config.getWireComponentsJson();
+		m_wireConfigsJson = config.getWireConfigurationsJson();
 
 		factoryPid.setVisible(false);
 		btnDelete.setEnabled(false);
@@ -524,6 +528,8 @@ public class WiresPanelUi extends Composite {
 					@Override
 					public void onSuccess(final GwtWiresConfiguration result) {
 						requestDriverInstances(result);
+						m_wireComponentsConfigJson = result.getWireComponentsJson();
+						m_wireConfigsJson = result.getWireConfigurationsJson();
 					}
 				});
 			}
@@ -558,6 +564,8 @@ public class WiresPanelUi extends Composite {
 		obj.put("components", createComponentsJson());
 		obj.put("wires", JSONParser.parseStrict(m_wires));
 		obj.put("pGraph", JSONParser.parseStrict(m_graph));
+		obj.put("wireComponentsJson", JSONParser.parseStrict(m_wireComponentsConfigJson));
+		obj.put("wireConfigsJson", JSONParser.parseStrict(m_wireConfigsJson));
 
 		wiresOpen(obj.toString());
 		btnSave.setEnabled(false);

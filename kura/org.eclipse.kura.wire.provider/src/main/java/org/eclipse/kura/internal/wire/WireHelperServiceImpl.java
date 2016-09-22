@@ -64,6 +64,7 @@ public final class WireHelperServiceImpl implements WireHelperService {
 			if (wc == wireComponent) {
 				return ref.getProperty(KURA_SERVICE_PID).toString();
 			}
+			context.ungetService(ref);
 		}
 		return null;
 	}
@@ -93,6 +94,7 @@ public final class WireHelperServiceImpl implements WireHelperService {
 			if (wc == wireComponent) {
 				return ref.getProperty(SERVICE_PID).toString();
 			}
+			context.ungetService(ref);
 		}
 		return null;
 	}

@@ -7,7 +7,6 @@
  *  http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *   Eurotech
  *   Amit Kumar Mondal (admin@amitinside.com)
  */
 package org.eclipse.kura.web.server;
@@ -32,6 +31,7 @@ import org.eclipse.kura.driver.ChannelDescriptor;
 import org.eclipse.kura.driver.Driver;
 import org.eclipse.kura.driver.DriverService;
 import org.eclipse.kura.web.server.util.GwtServerUtil;
+import org.eclipse.kura.web.server.util.GwtWireServiceUtil;
 import org.eclipse.kura.web.server.util.ServiceLocator;
 import org.eclipse.kura.web.shared.GwtKuraErrorCode;
 import org.eclipse.kura.web.shared.GwtKuraException;
@@ -39,6 +39,8 @@ import org.eclipse.kura.web.shared.model.GwtChannelInfo;
 import org.eclipse.kura.web.shared.model.GwtConfigComponent;
 import org.eclipse.kura.web.shared.model.GwtConfigParameter;
 import org.eclipse.kura.web.shared.model.GwtConfigParameter.GwtConfigParameterType;
+import org.eclipse.kura.web.shared.model.GwtWireComponentConfiguration;
+import org.eclipse.kura.web.shared.model.GwtWireConfiguration;
 import org.eclipse.kura.web.shared.model.GwtWiresConfiguration;
 import org.eclipse.kura.web.shared.model.GwtXSRFToken;
 import org.eclipse.kura.web.shared.service.GwtWireService;
@@ -48,7 +50,6 @@ import org.eclipse.kura.wire.WireEmitter;
 import org.eclipse.kura.wire.WireHelperService;
 import org.eclipse.kura.wire.WireReceiver;
 import org.eclipse.kura.wire.WireService;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.framework.BundleContext;
@@ -67,119 +68,21 @@ import org.slf4j.LoggerFactory;
  */
 public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implements GwtWireService {
 
-	/**
-	 * Different property related constants
-	 */
-	private static final String CELL_TYPE = "cellType";
-	private static final String CELLS = "cells";
 	private static final String CONSUMER = "consumer";
-	private static final String DELETE_CELLS = "deleteCells";
-	private static final String DEVS_MODEL_ELEMENT = "devs.Atomic";
-	private static final String FACTORY_PID = "factoryPid";
-	private static final String GRAPH = "graph";
-	private static final String ID = "id";
-	private static final String JOINT_JS = "jointJs";
-	private static final String LABEL = "label";
-	private static final String NEW_WIRE = "newWire";
-	private static final String PID = "pid";
-
+	private static final String CONSUMER_DRIVER = "consumerDriver";
+	private static final String CONSUMER_FACTORY_PID = "consumerFpid";
+	private static final String GRAPH = "wiregraph";
 	private static final String PRODUCER = "producer";
-
+	private static final String PRODUCER_DRIVER = "producerDriver";
+	private static final String PRODUCER_FACTORY_PID = "producerFpid";
 	/** The Logger instance. */
 	private static final Logger s_logger = LoggerFactory.getLogger(GwtWireServiceImpl.class);
 
 	/** Serial Version */
 	private static final long serialVersionUID = -6577843865830245755L;
 
-	private static final String TYPE = "type";
-
 	/** Wire Service PID Property */
 	private static final String WIRE_SERVICE_PID = "org.eclipse.kura.wire.WireService";
-
-	private static Map<String, Object> fillPropertiesFromConfiguration(final GwtConfigComponent config,
-			final ComponentConfiguration currentCC) {
-		// Build the new properties
-		final Map<String, Object> properties = new HashMap<String, Object>();
-		final ComponentConfiguration backupCC = currentCC;
-		if (backupCC == null) {
-			return null;
-		}
-		final Map<String, Object> backupConfigProp = backupCC.getConfigurationProperties();
-		for (final GwtConfigParameter gwtConfigParam : config.getParameters()) {
-
-			Object objValue;
-
-			final Map<String, Object> currentConfigProp = currentCC.getConfigurationProperties();
-			final Object currentObjValue = currentConfigProp.get(gwtConfigParam.getName());
-
-			final int cardinality = gwtConfigParam.getCardinality();
-			if ((cardinality == 0) || (cardinality == 1) || (cardinality == -1)) {
-
-				final String strValue = gwtConfigParam.getValue();
-
-				if ((currentObjValue instanceof Password) && PLACEHOLDER.equals(strValue)) {
-					objValue = currentConfigProp.get(gwtConfigParam.getName());
-				} else {
-					objValue = GwtServerUtil.getObjectValue(gwtConfigParam, strValue);
-				}
-			} else {
-
-				final String[] strValues = gwtConfigParam.getValues();
-
-				if (currentObjValue instanceof Password[]) {
-					final Password[] currentPasswordValue = (Password[]) currentObjValue;
-					for (int i = 0; i < strValues.length; i++) {
-						if (PLACEHOLDER.equals(strValues[i])) {
-							strValues[i] = new String(currentPasswordValue[i].getPassword());
-						}
-					}
-				}
-
-				objValue = GwtServerUtil.getObjectValue(gwtConfigParam, strValues);
-			}
-			properties.put(gwtConfigParam.getName(), objValue);
-		}
-
-		// Force kura.service.pid into properties, if originally present
-		if (backupConfigProp.get("kura.service.pid") != null) {
-			properties.put("kura.service.pid", backupConfigProp.get("kura.service.pid"));
-		}
-		return properties;
-	}
-
-	/**
-	 * Returns the formatted component string required for JS
-	 *
-	 * @param pid
-	 *            the PID to parse
-	 * @return the formatted string
-	 * @throws GwtKuraException
-	 */
-	private static String getComponentString(final String pid) throws GwtKuraException {
-		final StringBuilder result = new StringBuilder();
-
-		final BundleContext ctx = FrameworkUtil.getBundle(GwtWireServiceImpl.class).getBundleContext();
-		final Collection<ServiceReference<WireComponent>> refs = ServiceLocator.getInstance()
-				.getServiceReferences(WireComponent.class, null);
-		for (final ServiceReference<WireComponent> ref : refs) {
-			if (ref.getProperty(ConfigurationService.KURA_SERVICE_PID).equals(pid)) {
-				final String fPid = (String) ref.getProperty(ConfigurationAdmin.SERVICE_FACTORYPID);
-				final WireComponent comp = ctx.getService(ref);
-				String compType;
-				if ((comp instanceof WireEmitter) && (comp instanceof WireReceiver)) {
-					compType = "both";
-				} else if (comp instanceof WireEmitter) {
-					compType = "producer";
-				} else {
-					compType = "consumer";
-				}
-				result.append(fPid).append("|").append(pid).append("|").append(pid).append("|").append(compType);
-				return result.toString();
-			}
-		}
-		s_logger.error("Could not find WireComponent for pid {}", pid);
-		throw new GwtKuraException(GwtKuraErrorCode.INTERNAL_ERROR);
-	}
 
 	private GwtChannelInfo getChannelFromProperties(final int channelIndex, final GwtConfigComponent descriptor,
 			final GwtConfigComponent asset) {
@@ -325,6 +228,7 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 	private GwtWiresConfiguration getWiresConfigurationInternal() throws GwtKuraException {
 		final ConfigurationService configService = ServiceLocator.getInstance().getService(ConfigurationService.class);
 		final WireService wireService = ServiceLocator.getInstance().getService(WireService.class);
+
 		final Set<WireConfiguration> wireConfigurations = wireService.getWireConfigurations();
 		final List<String> wireEmitterFactoryPids = new ArrayList<String>();
 		final List<String> wireReceiverFactoryPids = new ArrayList<String>();
@@ -360,12 +264,34 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 				throw new GwtKuraException(GwtKuraErrorCode.INTERNAL_ERROR, exception);
 			}
 		}
+		final List<GwtWireComponentConfiguration> configs = new ArrayList<GwtWireComponentConfiguration>();
+		for (final String wc : GwtWireServiceUtil.getWireComponents()) {
+			// create instance of GWT Wire Component Configuration to hold all
+			// the information for a Wire Component
+			final GwtWireComponentConfiguration config = new GwtWireComponentConfiguration();
+			config.setFactoryPid(GwtWireServiceUtil.getFactoryPid(wc));
+			config.setType(GwtWireServiceUtil.getType(wc));
+			config.setPid(wc);
+			configs.add(config);
+		}
+
+		final List<GwtWireConfiguration> wires = new ArrayList<GwtWireConfiguration>();
+		for (final WireConfiguration wc : GwtWireServiceUtil.getWireConfigurations()) {
+			final GwtWireConfiguration config = new GwtWireConfiguration();
+			config.setEmitterPid(wc.getEmitterPid());
+			config.setReceiverPid(wc.getReceiverPid());
+			wires.add(config);
+		}
+
 		final GwtWiresConfiguration configuration = new GwtWiresConfiguration();
 		configuration.getWireEmitterFactoryPids().addAll(wireEmitterFactoryPids);
 		configuration.getWireReceiverFactoryPids().addAll(wireReceiverFactoryPids);
 		configuration.getWireComponents().addAll(wireComponents);
 		configuration.setWiresConfigurationJson(wireConfig.toString());
 		configuration.setGraph(sGraph == null ? "{}" : sGraph);
+		configuration.setWireComponentsJson(GwtWireServiceUtil.getWireComponentsJson(configs));
+		configuration.setWireConfigurationsJson(GwtWireServiceUtil.getWireConfigurationsJson(wires));
+
 		return configuration;
 	}
 
@@ -377,144 +303,113 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 			throws GwtKuraException {
 		this.checkXSRFToken(xsrfToken);
 
-		final Map<String, String> idToPid = new HashMap<String, String>();
-
-		JSONObject jObj = null; // JSON object containing wires configuration
-		JSONObject jGraph = null; // JSON object containing graph configuration
-		JSONArray jCells = null; // JSON array of cells within JointJS graph
-		JSONArray jDelCells = null; // JSON array of cells to be deleted
-
+		JSONObject jWireGraph = null;
 		final WireService wireService = ServiceLocator.getInstance().getService(WireService.class);
 		final WireHelperService wireHelperService = ServiceLocator.getInstance().getService(WireHelperService.class);
 		final ConfigurationService configService = ServiceLocator.getInstance().getService(ConfigurationService.class);
 
 		try {
-			jObj = new JSONObject(newJsonConfiguration);
-			jDelCells = jObj.getJSONArray(DELETE_CELLS);
-			jGraph = jObj.getJSONObject(JOINT_JS);
-			jCells = jGraph.getJSONArray(CELLS);
-
+			jWireGraph = new JSONObject(newJsonConfiguration).getJSONObject(GRAPH);
+			// don't consider the "wires" JSON
+			final int length = jWireGraph.length() - 1;
 			// Delete wires
-			// if you are wondering why we need to delete first, then you must
-			// know that there can be situations where the graph is deleted but
-			// not yet saved and the components are not removed from OSGi and
-			// the user at the same time, creates a graph with new components
-			// with the same names as given to the previously delete components.
-			// That's the reason, we need to delete first and the recreate it.
-			for (int i = 0; i < jDelCells.length(); i++) {
-				final JSONObject jsonObject = jDelCells.getJSONObject(i);
-				final String deleteCells = jsonObject.getString(CELL_TYPE);
-				String producerPid = null;
-				String consumerPid = null;
-				if ("wire".equalsIgnoreCase(deleteCells)) {
-					// delete wires must rely on the previous config saved in
-					// the Wire Service properties
-					try {
-						final Map<String, Object> wsProps = configService.getComponentConfiguration(WIRE_SERVICE_PID)
-								.getConfigurationProperties();
-						final String graph = (String) wsProps.get(GRAPH);
+			Iterator<WireConfiguration> iterator = wireService.getWireConfigurations().iterator();
+			while (iterator.hasNext()) {
+				final WireConfiguration wireConfiguration = iterator.next();
+				// check if jObj is an empty JSON. It means all the existing
+				// wire configurations need to be deleted
+				if (length == 0) {
+					s_logger.info("Deleting Wire: Emitter PID -> " + wireConfiguration.getEmitterPid()
+							+ " | Receiver PID -> " + wireConfiguration.getReceiverPid());
+					wireService.deleteWireConfiguration(wireConfiguration);
+				}
+			}
 
-						if (graph != null) {
-							final JSONObject oldGraph = new JSONObject(graph);
-							final JSONArray oldArray = oldGraph.getJSONArray("cells");
-							for (int k = 0; k < oldArray.length(); k++) {
-								final JSONObject oldJson = oldArray.getJSONObject(k);
-								if (jsonObject.getString("p").equalsIgnoreCase(oldJson.getString(ID))) {
-									producerPid = oldJson.getString(PID);
-								}
-								if (jsonObject.getString("c").equalsIgnoreCase(oldJson.getString(ID))) {
-									consumerPid = oldJson.getString(PID);
-								}
-							}
-						}
-					} catch (final KuraException exception) {
-						throw new GwtKuraException(GwtKuraErrorCode.INTERNAL_ERROR, exception);
-					} catch (final JSONException exception) {
-						throw new GwtKuraException(GwtKuraErrorCode.INTERNAL_ERROR, exception);
+			iterator = wireService.getWireConfigurations().iterator();
+			while (iterator.hasNext()) {
+				final WireConfiguration wireConfiguration = iterator.next();
+				boolean isFound = false;
+				for (final GwtWireConfiguration configuration : GwtWireServiceUtil
+						.getWireConfigurationsFromJson(jWireGraph.getJSONObject("wires"))) {
+					final WireConfiguration temp = new WireConfiguration(configuration.getEmitterPid(),
+							configuration.getReceiverPid(), null);
+					if (temp.equals(wireConfiguration)) {
+						isFound = true;
 					}
-					if ((producerPid != null) && (consumerPid != null)) {
-						s_logger.info(
-								"Deleting Wire: Producer PID -> " + producerPid + " | Consumer PID -> " + consumerPid);
-						final WireConfiguration wireConfiguration = new WireConfiguration(producerPid, consumerPid,
-								null);
-						wireService.deleteWireConfiguration(wireConfiguration);
-					}
+				}
+				if (!isFound) {
+					s_logger.info("Deleting Wire: Emitter PID -> " + wireConfiguration.getEmitterPid()
+							+ " | Receiver PID -> " + wireConfiguration.getReceiverPid());
+					wireService.deleteWireConfiguration(wireConfiguration);
 				}
 			}
 
 			// Delete Wire Component instances
-			for (int i = 0; i < jDelCells.length(); i++) {
-				final JSONObject jsonObject = jDelCells.getJSONObject(i);
-				if ("instance".equalsIgnoreCase(jsonObject.getString(CELL_TYPE))) {
-					final String componentPid = jsonObject.getString(PID);
-					// just to ensure the map doesn't explode :P
-					if (configurations.containsKey(componentPid)) {
-						configurations.remove(componentPid);
+			final List<String> wireComponents = GwtWireServiceUtil.getWireComponents();
+			for (final String componentPid : GwtWireServiceUtil.getWireComponents()) {
+				// check if jObj is an empty JSON. It means all the existing
+				// wire components need to be deleted
+				if (length == 0) {
+					s_logger.info("Deleting Wire Component: PID -> " + componentPid);
+					configService.deleteFactoryConfiguration(componentPid, false);
+					continue;
+				}
+				boolean isFound = false;
+				for (int i = 0; i < length; i++) {
+					final JSONObject jsonObject = jWireGraph.getJSONObject(String.valueOf(i));
+					final String component = jsonObject.getString("pid");
+					if (component.equalsIgnoreCase(componentPid)) {
+						isFound = true;
+						break;
 					}
-					// check if the wire component is present as there can be a
-					// situation where wire component is already deleted but the
-					// JSON still has stale data
-					final String servicePid = wireHelperService.getServicePid(componentPid);
-					if (servicePid != null) {
-						s_logger.info("Deleting Wire Component: PID -> " + componentPid);
-						configService.deleteFactoryConfiguration(componentPid, false);
-						for (final Iterator<Map.Entry<String, GwtConfigComponent>> it = configurations.entrySet()
-								.iterator(); it.hasNext();) {
-							final Map.Entry<String, GwtConfigComponent> entry = it.next();
-							if (entry.getKey().equals(componentPid)) {
-								s_logger.debug("Deleting Wire Component Configuration of: PID -> " + componentPid
-										+ " from the configuration map");
-								it.remove();
-							}
-						}
-					}
+				}
+				if (!isFound) {
+					s_logger.info("Deleting Wire Component: PID -> " + componentPid);
+					configService.deleteFactoryConfiguration(componentPid, false);
 				}
 			}
 
-			// Create new Wire Component instances
-			for (int i = 0; i < jCells.length(); i++) {
-				final JSONObject jsonObject = jCells.getJSONObject(i);
-				if (DEVS_MODEL_ELEMENT.equalsIgnoreCase(jsonObject.getString(TYPE))) {
-					String elementPid = jsonObject.getString(PID);
-					if ("none".equalsIgnoreCase(elementPid)) {
-						final String elementFactoryPid = jsonObject.getString(FACTORY_PID);
-						final String elementLabel = jsonObject.getString(LABEL);
-						s_logger.info("Creating new component: Factory PID -> " + elementFactoryPid + " | PID -> "
-								+ elementLabel);
-						elementPid = elementLabel;
-						Map<String, Object> properties = null;
-						String driver = null;
-						try {
-							driver = jsonObject.getString("driver");
-						} catch (final JSONException ex) {
-							// do nothing
-						}
-						if (driver != null) {
-							properties = new HashMap<String, Object>();
-							properties.put("asset.desc", "Sample Asset");
-							properties.put("driver.pid", driver);
-						}
-						configService.createFactoryConfiguration(elementFactoryPid, elementPid, properties, false);
-						jsonObject.put(PID, elementPid);
+			for (int i = 0; i < length; i++) {
+				final JSONObject jsonObject = jWireGraph.getJSONObject(String.valueOf(i));
+				String pid = null;
+				String fpid = null;
+				String driver = null;
+				try {
+					pid = jsonObject.getString("pid");
+					fpid = jsonObject.getString("fpid");
+					driver = jsonObject.getString("driver");
+				} catch (final JSONException jse) {
+					// no need
+				}
+				Map<String, Object> properties = null;
+				if ((pid != null) && !wireComponents.contains(pid)) {
+					s_logger.info("Creating new Wire Component: Factory PID -> " + fpid + " | PID -> " + pid);
+					if (driver != null) {
+						properties = new HashMap<String, Object>();
+						properties.put("asset.desc", "Sample Asset");
+						properties.put("driver.pid", driver);
 					}
-					final String elementId = jsonObject.getString(ID);
-					idToPid.put(elementId, elementPid);
+					configService.createFactoryConfiguration(fpid, pid, properties, false);
 				}
 			}
-			jGraph.put(CELLS, jCells);
 
 			// Create new wires
-			for (int i = 0; i < jCells.length(); i++) {
-				if ("customLink.Element".equalsIgnoreCase(jCells.getJSONObject(i).getString(TYPE))
-						&& jCells.getJSONObject(i).getBoolean(NEW_WIRE)) {
-					final String prod = idToPid.get(jCells.getJSONObject(i).getString(PRODUCER));
-					final String cons = idToPid.get(jCells.getJSONObject(i).getString(CONSUMER));
-					s_logger.info("Creating new wire: Producer PID -> " + prod + " | Consumer PID -> " + cons);
-					s_logger.info("Service Pid for Producer before tracker: {}", wireHelperService.getServicePid(prod));
-					s_logger.info("Service Pid for Consumer before tracker: {}", wireHelperService.getServicePid(cons));
+			final Set<WireConfiguration> wireConfs = wireService.getWireConfigurations();
+			for (final GwtWireConfiguration conf : GwtWireServiceUtil
+					.getWireConfigurationsFromJson(jWireGraph.getJSONObject("wires"))) {
+				final String emitterPid = conf.getEmitterPid();
+				final String receiverPid = conf.getReceiverPid();
+				final WireConfiguration temp = new WireConfiguration(emitterPid, receiverPid, null);
+				if (!wireConfs.contains(temp)) {
+					s_logger.info(
+							"Creating new wire: Emitter PID -> " + emitterPid + " | Consumer PID -> " + receiverPid);
+					s_logger.info("Service PID for Emitter before tracker: {}",
+							wireHelperService.getServicePid(emitterPid));
+					s_logger.info("Service PID for Receiver before tracker: {}",
+							wireHelperService.getServicePid(receiverPid));
 
-					// track and wait for the producer
-					final String pPid = wireHelperService.getServicePid(prod);
+					// track and wait for the emitter
+					final String pPid = wireHelperService.getServicePid(emitterPid);
 					final BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 					String filterString = "(" + Constants.SERVICE_PID + "=" + pPid + ")";
 					Filter filter = bundleContext.createFilter(filterString);
@@ -523,8 +418,8 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 					producerTracker.waitForService(5000);
 					producerTracker.close();
 
-					// track and wait for the consumer
-					final String cPid = wireHelperService.getServicePid(cons);
+					// track and wait for the receiver
+					final String cPid = wireHelperService.getServicePid(receiverPid);
 					filterString = "(" + Constants.SERVICE_PID + "=" + cPid + ")";
 					filter = bundleContext.createFilter(filterString);
 					final ServiceTracker consumerTracker = new ServiceTracker(bundleContext, filter, null);
@@ -532,13 +427,11 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 					consumerTracker.waitForService(5000);
 					consumerTracker.close();
 
-					wireService.createWireConfiguration(prod, cons);
-					jCells.getJSONObject(i).put(NEW_WIRE, false);
+					wireService.createWireConfiguration(emitterPid, receiverPid);
 				}
 			}
 
-			// Update the configuration for all the changes tracked in Wires
-			// Composer
+			// Update configuration for all changes tracked in Wires Composer
 			for (final String pid : configurations.keySet()) {
 				final GwtConfigComponent config = configurations.get(pid);
 				if (config != null) {
@@ -556,7 +449,9 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 			}
 			final Map<String, Object> props = configService.getComponentConfiguration(WIRE_SERVICE_PID)
 					.getConfigurationProperties();
-			props.put(GRAPH, jGraph.toString());
+			// remove wires JSON from actual wire graph
+			jWireGraph.remove("wires");
+			props.put(GRAPH, jWireGraph.toString());
 			configService.updateConfiguration(WIRE_SERVICE_PID, props, true);
 			configurations.clear();
 		} catch (final JSONException exception) {
@@ -569,6 +464,91 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 			throw new GwtKuraException(GwtKuraErrorCode.INTERNAL_ERROR, exception);
 		}
 		return this.getWiresConfigurationInternal();
+	}
+
+	private static Map<String, Object> fillPropertiesFromConfiguration(final GwtConfigComponent config,
+			final ComponentConfiguration currentCC) {
+		// Build the new properties
+		final Map<String, Object> properties = new HashMap<String, Object>();
+		final ComponentConfiguration backupCC = currentCC;
+		if (backupCC == null) {
+			return null;
+		}
+		final Map<String, Object> backupConfigProp = backupCC.getConfigurationProperties();
+		for (final GwtConfigParameter gwtConfigParam : config.getParameters()) {
+
+			Object objValue;
+
+			final Map<String, Object> currentConfigProp = currentCC.getConfigurationProperties();
+			final Object currentObjValue = currentConfigProp.get(gwtConfigParam.getName());
+
+			final int cardinality = gwtConfigParam.getCardinality();
+			if ((cardinality == 0) || (cardinality == 1) || (cardinality == -1)) {
+
+				final String strValue = gwtConfigParam.getValue();
+
+				if ((currentObjValue instanceof Password) && PLACEHOLDER.equals(strValue)) {
+					objValue = currentConfigProp.get(gwtConfigParam.getName());
+				} else {
+					objValue = GwtServerUtil.getObjectValue(gwtConfigParam, strValue);
+				}
+			} else {
+
+				final String[] strValues = gwtConfigParam.getValues();
+
+				if (currentObjValue instanceof Password[]) {
+					final Password[] currentPasswordValue = (Password[]) currentObjValue;
+					for (int i = 0; i < strValues.length; i++) {
+						if (PLACEHOLDER.equals(strValues[i])) {
+							strValues[i] = new String(currentPasswordValue[i].getPassword());
+						}
+					}
+				}
+
+				objValue = GwtServerUtil.getObjectValue(gwtConfigParam, strValues);
+			}
+			properties.put(gwtConfigParam.getName(), objValue);
+		}
+
+		// Force kura.service.pid into properties, if originally present
+		if (backupConfigProp.get("kura.service.pid") != null) {
+			properties.put("kura.service.pid", backupConfigProp.get("kura.service.pid"));
+		}
+		return properties;
+	}
+
+	/**
+	 * Returns the formatted component string required for JS
+	 *
+	 * @param pid
+	 *            the PID to parse
+	 * @return the formatted string
+	 * @throws GwtKuraException
+	 */
+	private static String getComponentString(final String pid) throws GwtKuraException {
+		final StringBuilder result = new StringBuilder();
+
+		final BundleContext ctx = FrameworkUtil.getBundle(GwtWireServiceImpl.class).getBundleContext();
+		final Collection<ServiceReference<WireComponent>> refs = ServiceLocator.getInstance()
+				.getServiceReferences(WireComponent.class, null);
+		for (final ServiceReference<WireComponent> ref : refs) {
+			if (ref.getProperty(ConfigurationService.KURA_SERVICE_PID).equals(pid)) {
+				final String fPid = (String) ref.getProperty(ConfigurationAdmin.SERVICE_FACTORYPID);
+				final WireComponent comp = ctx.getService(ref);
+				String compType;
+				if ((comp instanceof WireEmitter) && (comp instanceof WireReceiver)) {
+					compType = "both";
+				} else if (comp instanceof WireEmitter) {
+					compType = PRODUCER;
+				} else {
+					compType = CONSUMER;
+				}
+				result.append(fPid).append("|").append(pid).append("|").append(pid).append("|").append(compType);
+				return result.toString();
+			}
+		}
+		s_logger.error("Could not find WireComponent for pid {}", pid);
+		throw new GwtKuraException(GwtKuraErrorCode.INTERNAL_ERROR);
 	}
 
 }
