@@ -149,6 +149,7 @@ var kuraWires = (function() {
 					var parentId = elementView.model.get('parent');
 					return parentId && this.model.getCell(parentId).getBBox();
 				},
+				interactive: { vertexAdd: false },
 				validateConnection : function(cellViewS, magnetS, cellViewT,
 						magnetT, end, linkView) {
 					// Prevent linking from input ports.
