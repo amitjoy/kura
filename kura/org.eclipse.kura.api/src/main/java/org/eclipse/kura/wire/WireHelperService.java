@@ -61,6 +61,29 @@ public interface WireHelperService {
 	public String getServicePid(final WireComponent wireComponent);
 
 	/**
+	 * Checks whether the provided Wire Component PID belongs to a Wire Emitter
+	 *
+	 * @param wireComponentPid
+	 *            the wire component PID (kura.service.pid)
+	 * @return true if the provided Wire Component PID belongs to a Wire Emitter
+	 * @throws KuraRuntimeException
+	 *             if the argument is null
+	 */
+	public boolean isEmitter(final String wireComponentPid);
+
+	/**
+	 * Checks whether the provided Wire Component PID belongs to a Wire Receiver
+	 *
+	 * @param wireComponentPid
+	 *            the wire component PID (kura.service.pid)
+	 * @return true if the provided Wire Component PID belongs to a Wire
+	 *         Receiver
+	 * @throws KuraRuntimeException
+	 *             if the argument is null
+	 */
+	public boolean isReceiver(final String wireComponentPid);
+
+	/**
 	 * Returns a Wire Support instance of the provided wire component
 	 *
 	 * @param wireComponent

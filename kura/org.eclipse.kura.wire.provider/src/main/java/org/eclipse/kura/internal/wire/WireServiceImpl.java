@@ -152,6 +152,9 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 			if ((emitterServicePid == null) || (receiverServicePid == null)) {
 				throw new KuraException(KuraErrorCode.INTERNAL_ERROR, s_message.componentPidsNull());
 			}
+			if (!(this.m_wireHelperService.isEmitter(emitterPid) || this.m_wireHelperService.isReceiver(receiverPid))) {
+				throw new KuraException(KuraErrorCode.INTERNAL_ERROR, s_message.componentsNotApplicable());
+			}
 			conf = new WireConfiguration(emitterPid, receiverPid, null);
 			final Wire wire = this.m_wireAdmin.createWire(emitterServicePid, receiverServicePid, null);
 			if (wire != null) {

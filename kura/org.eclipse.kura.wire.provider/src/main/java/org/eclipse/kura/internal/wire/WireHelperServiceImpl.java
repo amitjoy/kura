@@ -15,17 +15,16 @@ import static org.eclipse.kura.Preconditions.checkNull;
 import static org.eclipse.kura.configuration.ConfigurationService.KURA_SERVICE_PID;
 import static org.osgi.framework.Constants.SERVICE_PID;
 
-import org.eclipse.kura.KuraErrorCode;
-import org.eclipse.kura.KuraRuntimeException;
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.WireMessages;
-import org.eclipse.kura.util.base.ThrowableUtil;
+import org.eclipse.kura.util.service.ServiceUtil;
 import org.eclipse.kura.wire.WireComponent;
+import org.eclipse.kura.wire.WireEmitter;
 import org.eclipse.kura.wire.WireHelperService;
+import org.eclipse.kura.wire.WireReceiver;
 import org.eclipse.kura.wire.WireSupport;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.event.EventAdmin;
 
@@ -58,7 +57,7 @@ public final class WireHelperServiceImpl implements WireHelperService {
 	public String getPid(final WireComponent wireComponent) {
 		checkNull(wireComponent, s_message.wireComponentNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-		final ServiceReference<?>[] refs = this.getServiceReferences(context, WireComponent.class.getName(), null);
+		final ServiceReference<?>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class, null);
 		for (final ServiceReference<?> ref : refs) {
 			final WireComponent wc = (WireComponent) context.getService(ref);
 			if (wc == wireComponent) {
@@ -74,7 +73,7 @@ public final class WireHelperServiceImpl implements WireHelperService {
 	public String getServicePid(final String wireComponentPid) {
 		checkNull(wireComponentPid, s_message.wireComponentPidNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-		final ServiceReference<?>[] refs = this.getServiceReferences(context, WireComponent.class.getName(), null);
+		final ServiceReference<?>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class, null);
 		for (final ServiceReference<?> ref : refs) {
 			if (ref.getProperty(KURA_SERVICE_PID).equals(wireComponentPid)) {
 				return ref.getProperty(SERVICE_PID).toString();
@@ -88,7 +87,7 @@ public final class WireHelperServiceImpl implements WireHelperService {
 	public String getServicePid(final WireComponent wireComponent) {
 		checkNull(wireComponent, s_message.wireComponentNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-		final ServiceReference<?>[] refs = this.getServiceReferences(context, WireComponent.class.getName(), null);
+		final ServiceReference<?>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class, null);
 		for (final ServiceReference<?> ref : refs) {
 			final WireComponent wc = (WireComponent) context.getService(ref);
 			if (wc == wireComponent) {
@@ -99,32 +98,46 @@ public final class WireHelperServiceImpl implements WireHelperService {
 		return null;
 	}
 
-	/**
-	 * Returns references to <em>all</em> services matching the given class name
-	 * and OSGi filter.
-	 *
-	 * @param bundleContext
-	 *            OSGi bundle context
-	 * @param clazz
-	 *            fully qualified class name (can be <code>null</code>)
-	 * @param filter
-	 *            valid OSGi filter (can be <code>null</code>)
-	 * @return non-<code>null</code> array of references to matching services
-	 * @throws KuraRuntimeException
-	 *             if the filter syntax is wrong (even though filter is
-	 *             nullable) or bundle syntax or class instance name is null
-	 */
-	private ServiceReference<?>[] getServiceReferences(final BundleContext bundleContext, final String clazz,
-			final String filter) {
-		checkNull(bundleContext, s_message.bundleContextNonNull());
-		checkNull(bundleContext, s_message.clazzNonNull());
-
-		try {
-			final ServiceReference<?>[] refs = bundleContext.getServiceReferences(clazz, filter);
-			return refs == null ? new ServiceReference[0] : refs;
-		} catch (final InvalidSyntaxException ise) {
-			throw new KuraRuntimeException(KuraErrorCode.INTERNAL_ERROR, ThrowableUtil.stackTraceAsString(ise));
+	/** {@inheritDoc} */
+	@Override
+	public boolean isEmitter(final String wireComponentPid) {
+		checkNull(wireComponentPid, s_message.wireComponentPidNonNull());
+		final BundleContext context = FrameworkUtil.getBundle(WireHelperServiceImpl.class).getBundleContext();
+		final ServiceReference<?>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class, null);
+		for (final ServiceReference<?> ref : refs) {
+			WireComponent wc;
+			if (ref.getProperty(KURA_SERVICE_PID).equals(wireComponentPid)) {
+				wc = (WireComponent) context.getService(ref);
+			} else {
+				continue;
+			}
+			context.ungetService(ref);
+			if (wc instanceof WireEmitter) {
+				return true;
+			}
 		}
+		return false;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public boolean isReceiver(final String wireComponentPid) {
+		checkNull(wireComponentPid, s_message.wireComponentPidNonNull());
+		final BundleContext context = FrameworkUtil.getBundle(WireHelperServiceImpl.class).getBundleContext();
+		final ServiceReference<?>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class, null);
+		for (final ServiceReference<?> ref : refs) {
+			WireComponent wc;
+			if (ref.getProperty(KURA_SERVICE_PID).equals(wireComponentPid)) {
+				wc = (WireComponent) context.getService(ref);
+			} else {
+				continue;
+			}
+			context.ungetService(ref);
+			if (wc instanceof WireReceiver) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** {@inheritDoc} */

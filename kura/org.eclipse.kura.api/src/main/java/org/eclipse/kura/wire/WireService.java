@@ -39,7 +39,9 @@ public interface WireService {
 	 * @throws KuraException
 	 *             if there doesn't exist any Wire Component having provided
 	 *             emitter PID or any Wire Component having provided receiver
-	 *             PID
+	 *             PID or the provided emitter PID does not belong to a Wire
+	 *             Emitter or the receiver PID does not belong to a Wire
+	 *             Receiver
 	 * @throws KuraRuntimeException
 	 *             if any of the arguments is null
 	 * @return the wire instance recently created

@@ -149,6 +149,9 @@ public interface WireMessages {
 	@En("Unable to retrieve Factory PIDs of one of the provided Wire Components because of null")
 	public String componentPidsNull();
 
+	@En("The provided Wire Components do not belong to its specified type")
+	public String componentsNotApplicable();
+
 	@En("Configurations cannot be null")
 	public String configurationNonNull();
 
