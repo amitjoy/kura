@@ -761,22 +761,28 @@ public class PropertiesUi extends Composite {
 
 		final ListBox listBox = new ListBox();
 
-		String current;
-		int i = 0;
-		final Map<String, String> oMap = param.getOptions();
-		final java.util.Iterator<String> it = oMap.keySet().iterator();
-		while (it.hasNext()) {
-			current = it.next();
-			listBox.addItem(current);
-			if ((param.getDefault() != null) && oMap.get(current).equals(param.getDefault())) {
-				listBox.setSelectedIndex(i);
-			}
-
-			if ((param.getValue() != null) && oMap.get(current).equals(param.getValue())) {
-				listBox.setSelectedIndex(i);
-			}
-			i++;
-		}
+		Map<String, String> oMap = param.getOptions();
+        int i = 0;
+        boolean valueFound = false;
+        for(Map.Entry<String, String> entry : oMap.entrySet()){
+        	listBox.addItem(entry.getKey());
+        	
+        	boolean hasDefault = param.getDefault() != null;
+        	boolean setDefault = param.getDefault().equals(entry.getValue());
+        	boolean hasValue = param.getValue() != null;
+        	boolean setValue = param.getValue().equals(entry.getValue());
+        	
+        	if(!valueFound){
+	        	if(hasDefault && setDefault){
+	        		listBox.setSelectedIndex(i);
+	        	} else if(hasValue && setValue){
+	        		listBox.setSelectedIndex(i);
+	        		valueFound = true;
+	        	}
+        	}
+        	
+        	i++;
+        }
 
 		listBox.addChangeHandler(new ChangeHandler() {
 			@Override

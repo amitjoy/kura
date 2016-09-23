@@ -405,15 +405,13 @@ public class ServicesUi extends Composite {
             logger.fine("Widget: " + fg.getClass());
 
             if (fg.getWidget(i) instanceof FormLabel) {
-                param = m_configurableComponent.getParameter(fg.getWidget(i).getTitle());
+            	 String id = ((FormLabel) fg.getWidget(i)).getText();
+            	 param = m_configurableComponent.getParameter(id.trim().replaceAll("\\*$", ""));
                 logger.fine("Param: " + fg.getTitle() + " -> " + param);
 
             } else if (fg.getWidget(i) instanceof ListBox || fg.getWidget(i) instanceof Input || fg.getWidget(i) instanceof TextBoxBase) {
-
-                if (param == null) {
-                    continue;
-                }
-                String value = getUpdatedFieldConfiguration(param, fg.getWidget(i));
+            	
+            	String value = getUpdatedFieldConfiguration(param, fg.getWidget(i));
                 if (value == null) {
                     continue;
                 }
@@ -805,6 +803,8 @@ public class ServicesUi extends Composite {
     }
 
     private void renderChoiceField(final GwtConfigParameter param, boolean isFirstInstance, FormGroup formGroup) {
+    	
+    	logger.log(Level.SEVERE, "Populating ListBox " + param.getName());
         valid.put(param.getId(), true);
 
         if (isFirstInstance) {
@@ -824,23 +824,29 @@ public class ServicesUi extends Composite {
 
         ListBox listBox = new ListBox();
 
-        String current;
-        int i = 0;
         Map<String, String> oMap = param.getOptions();
-        java.util.Iterator<String> it = oMap.keySet().iterator();
-        while (it.hasNext()) {
-            current = it.next();
-            listBox.addItem(current);
-            if (param.getDefault() != null && oMap.get(current).equals((String) param.getDefault())) {
-                listBox.setSelectedIndex(i);
-            }
-
-            if (param.getValue() != null && oMap.get(current).equals((String) param.getValue())) {
-                listBox.setSelectedIndex(i);
-            }
-            i++;
+        int i = 0;
+        boolean valueFound = false;
+        for(Map.Entry<String, String> entry : oMap.entrySet()){
+        	listBox.addItem(entry.getKey());
+        	
+        	boolean hasDefault = param.getDefault() != null;
+        	boolean setDefault = param.getDefault().equals(entry.getValue());
+        	boolean hasValue = param.getValue() != null;
+        	boolean setValue = param.getValue().equals(entry.getValue());
+        	
+        	if(!valueFound){
+	        	if(hasDefault && setDefault){
+	        		listBox.setSelectedIndex(i);
+	        	} else if(hasValue && setValue){
+	        		listBox.setSelectedIndex(i);
+	        		valueFound = true;
+	        	}
+        	}
+        	
+        	i++;
         }
-
+        
         listBox.addChangeHandler(new ChangeHandler() {
             @Override
             public void onChange(ChangeEvent event) {
