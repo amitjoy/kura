@@ -13,6 +13,8 @@ package org.eclipse.kura.web.shared.model;
 
 import java.io.Serializable;
 
+import org.eclipse.kura.annotation.Nullable;
+
 /**
  * The Class GwtWireComponentConfiguration represents a POJO for every Wire
  * Component present in the system
@@ -22,6 +24,10 @@ public final class GwtWireComponentConfiguration extends GwtBaseModel implements
 	/** Serial Version */
 	private static final long serialVersionUID = 50782654510063453L;
 
+	/** Driver Associated to it */
+	@Nullable
+	private String driverPid;
+
 	/** Factory PID */
 	private String factoryPid;
 
@@ -30,6 +36,10 @@ public final class GwtWireComponentConfiguration extends GwtBaseModel implements
 
 	/** The Wire Component Type */
 	private String type;
+
+	public String getDriverPid() {
+		return this.driverPid;
+	}
 
 	public String getFactoryPid() {
 		return this.factoryPid;
@@ -41,6 +51,10 @@ public final class GwtWireComponentConfiguration extends GwtBaseModel implements
 
 	public String getType() {
 		return this.type;
+	}
+
+	public void setDriverPid(final String driverPid) {
+		this.driverPid = driverPid;
 	}
 
 	public void setFactoryPid(final String factoryPid) {

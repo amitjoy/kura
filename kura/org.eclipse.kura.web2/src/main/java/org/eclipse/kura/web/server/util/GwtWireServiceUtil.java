@@ -43,6 +43,19 @@ public final class GwtWireServiceUtil {
 	/** The Logger instance. */
 	private static final Logger s_logger = LoggerFactory.getLogger(GwtWireServiceUtil.class);
 
+	public static String getDriverByPid(final String pid) throws GwtKuraException {
+		final BundleContext context = FrameworkUtil.getBundle(GwtWireServiceUtil.class).getBundleContext();
+		final ServiceReference<?>[] refs = getServiceReferences(context, WireComponent.class.getName(), null);
+		for (final ServiceReference<?> ref : refs) {
+			if (ref.getProperty(KURA_SERVICE_PID).equals(pid)) {
+				final String driver = String.valueOf(ref.getProperty("driver.pid"));
+				context.ungetService(ref);
+				return driver;
+			}
+		}
+		return null;
+	}
+
 	public static String getFactoryPid(final String pid) throws GwtKuraException {
 		final BundleContext context = FrameworkUtil.getBundle(GwtWireServiceUtil.class).getBundleContext();
 		final ServiceReference<?>[] refs = getServiceReferences(context, WireComponent.class.getName(), null);
@@ -131,6 +144,7 @@ public final class GwtWireServiceUtil {
 				wireConf.put("pid", wcConf.getPid());
 				wireConf.put("name", wcConf.getPid());
 				wireConf.put("type", wcConf.getType());
+				wireConf.put("driver", wcConf.getDriverPid());
 				wireCompConfig.put(String.valueOf(i++), wireConf);
 			} catch (final JSONException exception) {
 				throw new GwtKuraException(GwtKuraErrorCode.INTERNAL_ERROR, exception);

@@ -240,6 +240,7 @@ var kuraWires = (function() {
 				var component = wireComponents[i].pid;
 				var fPid = wireComponents[i].fPid;
 				var type = wireComponents[i].type;
+				var driver = wireComponents[i].driver;
 				var x = parseInt(getLocationFromJsonByPid(component).split(",")[0]);
 				var y = parseInt(getLocationFromJsonByPid(component).split(",")[1]);
 
@@ -248,6 +249,7 @@ var kuraWires = (function() {
 					pid : component,
 					name : component,
 					type : type,
+					driver : driver,
 					x : x,
 					y : y,
 				};
@@ -265,7 +267,7 @@ var kuraWires = (function() {
 			createLinkBetween(emitter, receiver);
 		}
 	}
-
+	
 	function getLocationFromJsonByPid(pid) {
 		for (var i = 0; i < Object.keys(clientConfig.pGraph).length; i++) {
 			var obj = clientConfig.pGraph[i];

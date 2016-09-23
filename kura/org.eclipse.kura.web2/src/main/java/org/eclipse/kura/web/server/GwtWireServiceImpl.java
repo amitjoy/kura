@@ -272,6 +272,7 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 			config.setFactoryPid(GwtWireServiceUtil.getFactoryPid(wc));
 			config.setType(GwtWireServiceUtil.getType(wc));
 			config.setPid(wc);
+			config.setDriverPid(GwtWireServiceUtil.getDriverByPid(wc));
 			configs.add(config);
 		}
 
