@@ -149,7 +149,9 @@ var kuraWires = (function() {
 					var parentId = elementView.model.get('parent');
 					return parentId && this.model.getCell(parentId).getBBox();
 				},
-				interactive: { vertexAdd: false },
+				interactive : {
+					vertexAdd : false
+				},
 				validateConnection : function(cellViewS, magnetS, cellViewT,
 						magnetT, end, linkView) {
 					// Prevent linking from input ports.
@@ -198,7 +200,7 @@ var kuraWires = (function() {
 			var factoryPid = cellView.model.attributes.factoryPid;
 			selectedElement = cellView.model;
 			if (oldCellView != null) {
-				// oldCellView.unhighlight();
+				oldCellView.unhighlight();
 				oldCellView = null;
 			}
 			if (typeof cellView !== 'undefined'
@@ -208,7 +210,7 @@ var kuraWires = (function() {
 					oldSelectedPid = pid;
 					isUpdateSelectionTriggered = true;
 				}
-				// cellView.highlight();
+				cellView.highlight();
 				oldCellView = cellView;
 			}
 		});
@@ -218,9 +220,15 @@ var kuraWires = (function() {
 			selectedElement = "";
 			oldSelectedPid = null;
 			if (oldCellView != null) {
-				// oldCellView.unhighlight();
+				oldCellView.unhighlight();
 				oldCellView = null;
 			}
+		});
+
+		// prevent opening context menu on paper
+		paper.$el.on('contextmenu', function(evt) {
+			evt.stopPropagation();
+			evt.preventDefault();
 		});
 	}
 
