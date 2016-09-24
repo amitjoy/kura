@@ -182,7 +182,7 @@ public final class AssetCloudlet extends Cloudlet {
 			if (reqTopic.getResources().length == 1) {
 				int i = 0;
 				for (final Map.Entry<String, Asset> assetEntry : this.m_assets.entrySet()) {
-					respPayload.addMetric("PID " + (++i), assetEntry.getKey());
+					respPayload.addMetric((++i) + ". ", assetEntry.getKey());
 				}
 			}
 			// Checks if the name of the asset is provided
