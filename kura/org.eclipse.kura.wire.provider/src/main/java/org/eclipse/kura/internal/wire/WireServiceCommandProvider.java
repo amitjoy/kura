@@ -35,7 +35,7 @@ public final class WireServiceCommandProvider implements CommandProvider {
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** The Wire Service. */
-	private volatile WireService m_wireService;
+	private volatile WireService wireService;
 
 	/**
 	 * The command {@code createWire} creates a Wire Configuration between the
@@ -57,7 +57,7 @@ public final class WireServiceCommandProvider implements CommandProvider {
 		final String emitterPid = pids.get(0);
 		final String receiverPid = pids.get(1);
 		try {
-			this.m_wireService.createWireConfiguration(emitterPid, receiverPid);
+			this.wireService.createWireConfiguration(emitterPid, receiverPid);
 		} catch (final KuraException e) {
 			ci.println("Exception occurred ==> " + ThrowableUtil.stackTraceAsString(e));
 		}
@@ -82,10 +82,10 @@ public final class WireServiceCommandProvider implements CommandProvider {
 		}
 		final String emitterPid = pids.get(0);
 		final String receiverPid = pids.get(1);
-		for (final WireConfiguration configuration : this.m_wireService.getWireConfigurations()) {
+		for (final WireConfiguration configuration : this.wireService.getWireConfigurations()) {
 			if (configuration.getEmitterPid().equals(emitterPid)
 					&& configuration.getReceiverPid().equals(receiverPid)) {
-				this.m_wireService.deleteWireConfiguration(configuration);
+				this.wireService.deleteWireConfiguration(configuration);
 				return;
 			}
 		}
@@ -99,7 +99,7 @@ public final class WireServiceCommandProvider implements CommandProvider {
 	 */
 	public void _listWires(final CommandInterpreter ci) {
 		ci.println("=================== Wire Configurations ===================");
-		final Set<WireConfiguration> configs = this.m_wireService.getWireConfigurations();
+		final Set<WireConfiguration> configs = this.wireService.getWireConfigurations();
 		int i = 0;
 		for (final WireConfiguration config : configs) {
 			ci.println(new StringBuilder().append(i++).append(".").append(" ").append("Emitter PID ===>").append(" ")
@@ -116,8 +116,8 @@ public final class WireServiceCommandProvider implements CommandProvider {
 	 *            the new Wire Helper Service
 	 */
 	public synchronized void bindWireService(final WireService wireHelperService) {
-		if (this.m_wireService == null) {
-			this.m_wireService = wireHelperService;
+		if (this.wireService == null) {
+			this.wireService = wireHelperService;
 		}
 	}
 
@@ -150,8 +150,8 @@ public final class WireServiceCommandProvider implements CommandProvider {
 	 *            the new Wire Helper Service
 	 */
 	public synchronized void unbindWireHelperService(final WireService wireHelperService) {
-		if (this.m_wireService == wireHelperService) {
-			this.m_wireService = null;
+		if (this.wireService == wireHelperService) {
+			this.wireService = null;
 		}
 	}
 }

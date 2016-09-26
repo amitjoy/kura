@@ -12,12 +12,12 @@
 package org.eclipse.kura.internal.asset.cloudlet;
 
 import static org.eclipse.kura.Preconditions.checkNull;
+import static org.eclipse.kura.asset.AssetConstants.ASSET_PID;
 
 import java.util.Map;
 
 import org.eclipse.kura.KuraRuntimeException;
 import org.eclipse.kura.asset.Asset;
-import org.eclipse.kura.asset.AssetConstants;
 import org.eclipse.kura.asset.AssetService;
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.AssetCloudletMessages;
@@ -42,13 +42,13 @@ final class AssetTrackerCustomizer implements ServiceTrackerCustomizer<Asset, As
 	private static final AssetCloudletMessages s_message = LocalizationAdapter.adapt(AssetCloudletMessages.class);
 
 	/** The map of assets present in the OSGi service registry. */
-	private final Map<String, Asset> m_assets;
+	private final Map<String, Asset> assets;
 
 	/** The Asset Service dependency. */
-	private final AssetService m_assetService;
+	private final AssetService assetService;
 
 	/** Bundle Context */
-	private final BundleContext m_context;
+	private final BundleContext context;
 
 	/**
 	 * Instantiates a new asset tracker.
@@ -64,15 +64,15 @@ final class AssetTrackerCustomizer implements ServiceTrackerCustomizer<Asset, As
 		checkNull(context, s_message.bundleContextNonNull());
 		checkNull(context, s_message.assetServiceNonNull());
 
-		this.m_assets = CollectionUtil.newConcurrentHashMap();
-		this.m_context = context;
-		this.m_assetService = assetService;
+		this.assets = CollectionUtil.newConcurrentHashMap();
+		this.context = context;
+		this.assetService = assetService;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public Asset addingService(final ServiceReference<Asset> reference) {
-		final Asset service = this.m_context.getService(reference);
+		final Asset service = this.context.getService(reference);
 		s_logger.info(s_message.assetFoundAdding());
 		if (service != null) {
 			return this.addService(service);
@@ -91,8 +91,8 @@ final class AssetTrackerCustomizer implements ServiceTrackerCustomizer<Asset, As
 	 */
 	private Asset addService(final Asset service) {
 		checkNull(service, s_message.assetServiceNonNull());
-		final String assetPid = this.m_assetService.getAssetPid(service);
-		this.m_assets.put(assetPid, service);
+		final String assetPid = this.assetService.getAssetPid(service);
+		this.assets.put(assetPid, service);
 		return service;
 	}
 
@@ -102,7 +102,7 @@ final class AssetTrackerCustomizer implements ServiceTrackerCustomizer<Asset, As
 	 * @return the map of assets
 	 */
 	Map<String, Asset> getRegisteredAssets() {
-		return CollectionUtil.newConcurrentHashMap(this.m_assets);
+		return CollectionUtil.newConcurrentHashMap(this.assets);
 	}
 
 	/** {@inheritDoc} */
@@ -115,10 +115,10 @@ final class AssetTrackerCustomizer implements ServiceTrackerCustomizer<Asset, As
 	/** {@inheritDoc} */
 	@Override
 	public void removedService(final ServiceReference<Asset> reference, final Asset service) {
-		final String assetPid = String.valueOf(reference.getProperty(AssetConstants.ASSET_PID.value()));
-		this.m_context.ungetService(reference);
-		if ((assetPid != null) && this.m_assets.containsKey(assetPid)) {
-			this.m_assets.remove(assetPid);
+		final String assetPid = String.valueOf(reference.getProperty(ASSET_PID.value()));
+		this.context.ungetService(reference);
+		if ((assetPid != null) && this.assets.containsKey(assetPid)) {
+			this.assets.remove(assetPid);
 		}
 		s_logger.info(s_message.assetRemoved() + service);
 	}

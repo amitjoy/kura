@@ -87,13 +87,13 @@ public final class OpcUaDriver implements Driver {
 	private static final OpcUaMessages s_message = LocalizationAdapter.adapt(OpcUaMessages.class);
 
 	/** OPC-UA Client Connector */
-	private OpcUaClient m_client;
+	private OpcUaClient client;
 
 	/** flag to check if the driver is connected. */
-	private boolean m_isConnected;
+	private boolean isConnected;
 
 	/** OPC-UA Configuration Options. */
-	private OpcUaOptions m_options;
+	private OpcUaOptions options;
 
 	/**
 	 * OSGi service component callback while activation.
@@ -115,24 +115,24 @@ public final class OpcUaDriver implements Driver {
 	public void connect() throws ConnectionException {
 		try {
 			s_logger.debug(s_message.connecting());
-			final String endPoint = new StringBuilder().append("opc.tcp://").append(this.m_options.getIp()).append(":")
-					.append(this.m_options.getPort()).append("/").append(this.m_options.getServerName()).toString();
+			final String endPoint = new StringBuilder().append("opc.tcp://").append(this.options.getIp()).append(":")
+					.append(this.options.getPort()).append("/").append(this.options.getServerName()).toString();
 			final EndpointDescription[] endpoints = UaTcpStackClient.getEndpoints(endPoint).get();
 			final EndpointDescription endpoint = Arrays.stream(endpoints).filter(
-					e -> e.getSecurityPolicyUri().equals(this.m_options.getSecurityPolicy().getSecurityPolicyUri()))
+					e -> e.getSecurityPolicyUri().equals(this.options.getSecurityPolicy().getSecurityPolicyUri()))
 					.findFirst().orElseThrow(() -> new ConnectionException(s_message.connectionProblem()));
-			final KeyStoreLoader loader = new KeyStoreLoader(this.m_options.getKeystoreType(),
-					this.m_options.getKeystoreClientAlias(), this.m_options.getKeystoreServerAlias(),
-					this.m_options.getKeystorePassword(), this.m_options.getApplicationCertificate());
+			final KeyStoreLoader loader = new KeyStoreLoader(this.options.getKeystoreType(),
+					this.options.getKeystoreClientAlias(), this.options.getKeystoreServerAlias(),
+					this.options.getKeystorePassword(), this.options.getApplicationCertificate());
 			final OpcUaClientConfig clientConfig = OpcUaClientConfig.builder().setEndpoint(endpoint)
-					.setApplicationName(LocalizedText.english(this.m_options.getApplicationName()))
-					.setApplicationUri(this.m_options.getApplicationUri())
-					.setRequestTimeout(UInteger.valueOf(this.m_options.getRequestTimeout()))
-					.setSessionTimeout(UInteger.valueOf(this.m_options.getSessionTimeout()))
-					.setIdentityProvider(this.m_options.getIdentityProvider()).setKeyPair(loader.getClientKeyPair())
+					.setApplicationName(LocalizedText.english(this.options.getApplicationName()))
+					.setApplicationUri(this.options.getApplicationUri())
+					.setRequestTimeout(UInteger.valueOf(this.options.getRequestTimeout()))
+					.setSessionTimeout(UInteger.valueOf(this.options.getSessionTimeout()))
+					.setIdentityProvider(this.options.getIdentityProvider()).setKeyPair(loader.getClientKeyPair())
 					.setCertificate(loader.getClientCertificate()).build();
-			this.m_client = new OpcUaClient(clientConfig);
-			this.m_isConnected = true;
+			this.client = new OpcUaClient(clientConfig);
+			this.isConnected = true;
 			s_logger.debug(s_message.connectingDone());
 		} catch (final Exception e) {
 			s_logger.debug(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
@@ -154,17 +154,17 @@ public final class OpcUaDriver implements Driver {
 		} catch (final ConnectionException e) {
 			s_logger.error(s_message.errorDisconnecting() + ThrowableUtil.stackTraceAsString(e));
 		}
-		this.m_client = null;
+		this.client = null;
 		s_logger.debug(s_message.deactivatingDone());
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void disconnect() throws ConnectionException {
-		if (this.m_isConnected) {
+		if (this.isConnected) {
 			s_logger.debug(s_message.disconnecting());
-			this.m_client.disconnect();
-			this.m_isConnected = false;
+			this.client.disconnect();
+			this.isConnected = false;
 			s_logger.debug(s_message.disconnectingDone());
 		}
 	}
@@ -177,7 +177,7 @@ public final class OpcUaDriver implements Driver {
 	 */
 	private void extractProperties(final Map<String, Object> properties) {
 		checkNull(properties, s_message.propertiesNonNull());
-		this.m_options = new OpcUaOptions(properties);
+		this.options = new OpcUaOptions(properties);
 	}
 
 	/** {@inheritDoc} */
@@ -236,7 +236,7 @@ public final class OpcUaDriver implements Driver {
 	/** {@inheritDoc} */
 	@Override
 	public List<DriverRecord> read(final List<DriverRecord> records) throws ConnectionException {
-		if (!this.m_isConnected) {
+		if (!this.isConnected) {
 			this.connect();
 		}
 		for (final DriverRecord record : records) {
@@ -272,7 +272,7 @@ public final class OpcUaDriver implements Driver {
 				continue;
 			}
 			final NodeId nodeId = new NodeId(nodeNamespaceIndex, channelConfig.get(NODE_ID).toString());
-			final UaVariableNode node = this.m_client.getAddressSpace().getVariableNode(nodeId);
+			final UaVariableNode node = this.client.getAddressSpace().getVariableNode(nodeId);
 			Object value = null;
 			try {
 				value = node.readValueAttribute().get();
@@ -327,7 +327,7 @@ public final class OpcUaDriver implements Driver {
 	/** {@inheritDoc} */
 	@Override
 	public List<DriverRecord> write(final List<DriverRecord> records) throws ConnectionException {
-		if (!this.m_isConnected) {
+		if (!this.isConnected) {
 			this.connect();
 		}
 		for (final DriverRecord record : records) {
@@ -364,7 +364,7 @@ public final class OpcUaDriver implements Driver {
 			}
 			final TypedValue<?> value = record.getValue();
 			final NodeId nodeId = new NodeId(nodeNamespaceIndex, channelConfig.get(NODE_ID).toString());
-			final UaVariableNode node = this.m_client.getAddressSpace().getVariableNode(nodeId);
+			final UaVariableNode node = this.client.getAddressSpace().getVariableNode(nodeId);
 			final DataValue newValue = new DataValue(new Variant(value.getValue()));
 			try {
 				node.writeValue(newValue).get();

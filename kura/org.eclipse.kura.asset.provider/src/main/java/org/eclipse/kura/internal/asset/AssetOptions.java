@@ -65,13 +65,13 @@ public final class AssetOptions {
 	private static final AssetMessages s_message = LocalizationAdapter.adapt(AssetMessages.class);
 
 	/** The asset description. */
-	private String m_assetDescription;
+	private String assetDescription;
 
 	/** The list of channels associated with this asset. */
-	private final Map<Long, Channel> m_channels = CollectionUtil.newConcurrentHashMap();
+	private final Map<Long, Channel> channels = CollectionUtil.newConcurrentHashMap();
 
 	/** Name of the driver to be associated with. */
-	private String m_driverPid;
+	private String driverPid;
 
 	/**
 	 * Instantiates a new asset configuration.
@@ -96,7 +96,7 @@ public final class AssetOptions {
 	 */
 	private void addChannel(final Channel channel) {
 		checkNull(channel, s_message.channelNonNull());
-		this.m_channels.put(channel.getId(), channel);
+		this.channels.put(channel.getId(), channel);
 	}
 
 	/**
@@ -129,10 +129,10 @@ public final class AssetOptions {
 		checkNull(properties, s_message.propertiesNonNull());
 		try {
 			if (properties.containsKey(ASSET_DRIVER_PROP.value())) {
-				this.m_driverPid = (String) properties.get(ASSET_DRIVER_PROP.value());
+				this.driverPid = (String) properties.get(ASSET_DRIVER_PROP.value());
 			}
 			if (properties.containsKey(ASSET_DESC_PROP.value())) {
-				this.m_assetDescription = (String) properties.get(ASSET_DESC_PROP.value());
+				this.assetDescription = (String) properties.get(ASSET_DESC_PROP.value());
 			}
 			this.checkChannelAvailability(properties);
 		} catch (final Exception ex) {
@@ -146,7 +146,83 @@ public final class AssetOptions {
 	 * @return the asset configuration
 	 */
 	public AssetConfiguration getAssetConfiguration() {
-		return new AssetConfiguration(this.m_assetDescription, this.m_driverPid, this.m_channels);
+		return new AssetConfiguration(this.assetDescription, this.driverPid, this.channels);
+	}
+
+	/**
+	 * Returns the Channel Type
+	 *
+	 * @param properties
+	 *            the properties to read
+	 * @param channelTypePropertyKey
+	 *            the key to read from the provided properties
+	 * @return the Channel Type
+	 * @throws KuraRuntimeException
+	 *             if any of the arguments is null
+	 */
+	private ChannelType getChannelType(final Map<String, Object> properties, final String channelTypePropertyKey) {
+		checkNull(properties, s_message.propertiesNonNull());
+		checkNull(channelTypePropertyKey, s_message.channelKeyNonNull());
+
+		if (properties.containsKey(channelTypePropertyKey)) {
+			final String channelTypeProp = (String) properties.get(channelTypePropertyKey);
+			if ("READ".equalsIgnoreCase(channelTypeProp)) {
+				return READ;
+			}
+			if ("WRITE".equalsIgnoreCase(channelTypeProp)) {
+				return WRITE;
+			}
+			if ("READ_WRITE".equalsIgnoreCase(channelTypeProp)) {
+				return READ_WRITE;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the Value Type
+	 *
+	 * @param properties
+	 *            the properties to read
+	 * @param channelValueTypePropertyKey
+	 *            the key to read from the provided properties
+	 * @return the Channel Type
+	 * @throws KuraRuntimeException
+	 *             if any of the arguments is null
+	 */
+	private DataType getDataType(final Map<String, Object> properties, final String channelValueTypePropertyKey) {
+		checkNull(properties, s_message.propertiesNonNull());
+		checkNull(channelValueTypePropertyKey, s_message.channelValueTypeNonNull());
+
+		if (properties.containsKey(channelValueTypePropertyKey)) {
+			final String dataTypeProp = (String) properties.get(channelValueTypePropertyKey);
+			if ("INTEGER".equalsIgnoreCase(dataTypeProp)) {
+				return INTEGER;
+			}
+			if ("DOUBLE".equalsIgnoreCase(dataTypeProp)) {
+				return DOUBLE;
+			}
+			if ("SHORT".equalsIgnoreCase(dataTypeProp)) {
+				return SHORT;
+			}
+			if ("LONG".equalsIgnoreCase(dataTypeProp)) {
+				return LONG;
+			}
+			if ("BYTE".equalsIgnoreCase(dataTypeProp)) {
+				return BYTE;
+			}
+			if ("BYTE_ARRAY".equalsIgnoreCase(dataTypeProp)) {
+				return BYTE_ARRAY;
+			}
+			if ("BOOLEAN".equalsIgnoreCase(dataTypeProp)) {
+				return BOOLEAN;
+			}
+			if ("STRING".equalsIgnoreCase(dataTypeProp)) {
+				return STRING;
+			}
+
+		}
+		return null;
 	}
 
 	/**
@@ -171,6 +247,7 @@ public final class AssetOptions {
 		String channelName = null;
 		ChannelType channelType = null;
 		DataType dataType = null;
+		Channel channel = null;
 		final Map<String, Object> channelConfig = CollectionUtil.newConcurrentHashMap();
 
 		// All key names present is the properties
@@ -184,47 +261,9 @@ public final class AssetOptions {
 				channelName = (String) properties.get(channelNamePropertyKey);
 			}
 			final String channelTypePropertyKey = channelKeyFormat + TYPE.value();
-			if (properties.containsKey(channelTypePropertyKey)) {
-				final String channelTypeProp = (String) properties.get(channelTypePropertyKey);
-				if ("READ".equalsIgnoreCase(channelTypeProp)) {
-					channelType = READ;
-				}
-				if ("WRITE".equalsIgnoreCase(channelTypeProp)) {
-					channelType = WRITE;
-				}
-				if ("READ_WRITE".equalsIgnoreCase(channelTypeProp)) {
-					channelType = READ_WRITE;
-				}
-			}
+			channelType = this.getChannelType(properties, channelTypePropertyKey);
 			final String channelValueTypePropertyKey = channelKeyFormat + VALUE_TYPE.value();
-			if (properties.containsKey(channelValueTypePropertyKey)) {
-				final String dataTypeProp = (String) properties.get(channelValueTypePropertyKey);
-				if ("INTEGER".equalsIgnoreCase(dataTypeProp)) {
-					dataType = INTEGER;
-				}
-				if ("DOUBLE".equalsIgnoreCase(dataTypeProp)) {
-					dataType = DOUBLE;
-				}
-				if ("SHORT".equalsIgnoreCase(dataTypeProp)) {
-					dataType = SHORT;
-				}
-				if ("LONG".equalsIgnoreCase(dataTypeProp)) {
-					dataType = LONG;
-				}
-				if ("BYTE".equalsIgnoreCase(dataTypeProp)) {
-					dataType = BYTE;
-				}
-				if ("BYTE_ARRAY".equalsIgnoreCase(dataTypeProp)) {
-					dataType = BYTE_ARRAY;
-				}
-				if ("BOOLEAN".equalsIgnoreCase(dataTypeProp)) {
-					dataType = BOOLEAN;
-				}
-				if ("STRING".equalsIgnoreCase(dataTypeProp)) {
-					dataType = STRING;
-				}
-
-			}
+			dataType = this.getDataType(properties, channelValueTypePropertyKey);
 			for (final Map.Entry<String, Object> entry : properties.entrySet()) {
 				final String key = entry.getKey();
 				final String value = entry.getValue().toString();
@@ -239,7 +278,9 @@ public final class AssetOptions {
 				}
 			}
 		}
-		final Channel channel = new Channel(channelId, channelName, channelType, dataType, channelConfig);
+		if ((channelType != null) && (dataType != null)) {
+			channel = new Channel(channelId, channelName, channelType, dataType, channelConfig);
+		}
 		s_logger.debug(s_message.retrievingChannelDone());
 		return channel;
 	}
@@ -271,8 +312,8 @@ public final class AssetOptions {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return "AssetOptions [Asset Description=" + this.m_assetDescription + ", Channels=" + this.m_channels
-				+ ", Driver ID=" + this.m_driverPid + "]";
+		return "AssetOptions [Asset Description=" + this.assetDescription + ", Channels=" + this.channels
+				+ ", Driver ID=" + this.driverPid + "]";
 	}
 
 	/**

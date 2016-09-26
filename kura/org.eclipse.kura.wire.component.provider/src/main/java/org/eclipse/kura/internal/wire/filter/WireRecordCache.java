@@ -36,16 +36,16 @@ final class WireRecordCache {
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** Cache Maximum Capacity as configured. */
-	private int m_capacity;
+	private int capacity;
 
 	/** Last refreshed time. */
-	private Calendar m_lastRefreshedTime;
+	private Calendar lastRefreshedTime;
 
 	/** DB Wire Record Filter instance. */
-	private final DbWireRecordFilter m_recordFilter;
+	private final DbWireRecordFilter recordFilter;
 
 	/** Refresh duration in seconds. */
-	private int m_refreshDuration;
+	private int refreshDuration;
 
 	/**
 	 * Instantiates a new wire record cache.
@@ -57,7 +57,7 @@ final class WireRecordCache {
 	 */
 	WireRecordCache(final DbWireRecordFilter filter) {
 		checkNull(filter, s_message.dbFilterNonNull());
-		this.m_recordFilter = filter;
+		this.recordFilter = filter;
 	}
 
 	/**
@@ -69,7 +69,7 @@ final class WireRecordCache {
 	 */
 	List<WireRecord> get(final long key) {
 		if (this.refreshCache()) {
-			m_map.put(this.m_lastRefreshedTime.getTimeInMillis(), this.m_recordFilter.filter());
+			m_map.put(this.lastRefreshedTime.getTimeInMillis(), this.recordFilter.filter());
 		}
 		return m_map.get(key);
 	}
@@ -80,7 +80,7 @@ final class WireRecordCache {
 	 * @return the capacity
 	 */
 	public int getCapacity() {
-		return this.m_capacity;
+		return this.capacity;
 	}
 
 	/**
@@ -89,11 +89,11 @@ final class WireRecordCache {
 	 * @return the last refreshed time
 	 */
 	Calendar getLastRefreshedTime() {
-		if (this.m_lastRefreshedTime == null) {
-			this.m_lastRefreshedTime = Calendar.getInstance();
-			return this.m_lastRefreshedTime;
+		if (this.lastRefreshedTime == null) {
+			this.lastRefreshedTime = Calendar.getInstance();
+			return this.lastRefreshedTime;
 		}
-		return this.m_lastRefreshedTime;
+		return this.lastRefreshedTime;
 	}
 
 	/**
@@ -102,7 +102,7 @@ final class WireRecordCache {
 	 * @return the refresh duration
 	 */
 	int getRefreshDuration() {
-		return this.m_refreshDuration;
+		return this.refreshDuration;
 	}
 
 	/**
@@ -116,11 +116,11 @@ final class WireRecordCache {
 	void put(final long key, final List<WireRecord> value) {
 		// clears the map if the size of the map is as same as the max size
 		// expected
-		if (m_map.size() == this.m_capacity) {
+		if (m_map.size() == this.capacity) {
 			m_map.clear();
 		}
 		m_map.put(key, value);
-		this.m_lastRefreshedTime = Calendar.getInstance();
+		this.lastRefreshedTime = Calendar.getInstance();
 	}
 
 	/**
@@ -130,15 +130,15 @@ final class WireRecordCache {
 	 */
 	private boolean refreshCache() {
 		final Calendar now = Calendar.getInstance();
-		final Calendar lastRefreshedTime = Calendar.getInstance(this.m_lastRefreshedTime.getTimeZone());
-		lastRefreshedTime.setTime(this.m_lastRefreshedTime.getTime());
-		lastRefreshedTime.add(Calendar.SECOND, this.m_refreshDuration);
+		final Calendar lastRefreshedTime = Calendar.getInstance(this.lastRefreshedTime.getTimeZone());
+		lastRefreshedTime.setTime(this.lastRefreshedTime.getTime());
+		lastRefreshedTime.add(Calendar.SECOND, this.refreshDuration);
 
 		if (lastRefreshedTime.after(now)) {
 			return false;
 		} else {
 			// Cache expired hence refresh it
-			this.m_lastRefreshedTime = Calendar.getInstance();
+			this.lastRefreshedTime = Calendar.getInstance();
 			return true;
 		}
 	}
@@ -150,7 +150,7 @@ final class WireRecordCache {
 	 *            the new capacity
 	 */
 	public void setCapacity(final int capacity) {
-		this.m_capacity = capacity;
+		this.capacity = capacity;
 	}
 
 	/**
@@ -160,7 +160,7 @@ final class WireRecordCache {
 	 *            the new refresh duration
 	 */
 	void setRefreshDuration(final int refreshDuration) {
-		this.m_refreshDuration = refreshDuration;
+		this.refreshDuration = refreshDuration;
 	}
 
 }

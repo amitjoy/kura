@@ -15,6 +15,7 @@ import static org.eclipse.kura.Preconditions.checkNull;
 import static org.eclipse.kura.wire.SeverityLevel.CONFIG;
 import static org.eclipse.kura.wire.SeverityLevel.ERROR;
 import static org.eclipse.kura.wire.SeverityLevel.INFO;
+import static org.eclipse.kura.wire.SeverityLevel.SEVERE;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,19 +52,19 @@ final class WireSupportImpl implements WireSupport {
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** Event Admin Service */
-	private final EventAdmin m_eventAdmin;
+	private final EventAdmin eventAdmin;
 
 	/** The incoming wires. */
-	private List<Wire> m_incomingWires;
+	private List<Wire> incomingWires;
 
 	/** The outgoing wires. */
-	private List<Wire> m_outgoingWires;
+	private List<Wire> outgoingWires;
 
 	/** The Wire Helper Service. */
-	private final WireHelperService m_wireHelperService;
+	private final WireHelperService wireHelperService;
 
 	/** The supported Wire Component. */
-	private final WireComponent m_wireSupporter;
+	private final WireComponent wireSupporter;
 
 	/**
 	 * Instantiates a new wire support implementation.
@@ -83,33 +84,33 @@ final class WireSupportImpl implements WireSupport {
 		checkNull(wireHelperService, s_message.wireHelperServiceNonNull());
 		checkNull(eventAdmin, s_message.eventAdminNonNull());
 
-		this.m_outgoingWires = CollectionUtil.newArrayList();
-		this.m_incomingWires = CollectionUtil.newArrayList();
-		this.m_wireSupporter = wireSupporter;
-		this.m_wireHelperService = wireHelperService;
-		this.m_eventAdmin = eventAdmin;
+		this.outgoingWires = CollectionUtil.newArrayList();
+		this.incomingWires = CollectionUtil.newArrayList();
+		this.wireSupporter = wireSupporter;
+		this.wireHelperService = wireHelperService;
+		this.eventAdmin = eventAdmin;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public synchronized void consumersConnected(final Wire[] wires) {
-		this.m_outgoingWires = Arrays.asList(wires);
+		this.outgoingWires = Arrays.asList(wires);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public synchronized void emit(final List<WireRecord> wireRecords) {
 		checkNull(wireRecords, s_message.wireRecordsNonNull());
-		if (this.m_wireSupporter instanceof WireEmitter) {
-			final String emitterPid = this.m_wireHelperService.getServicePid(this.m_wireSupporter);
-			final String pid = this.m_wireHelperService.getPid(this.m_wireSupporter);
+		if (this.wireSupporter instanceof WireEmitter) {
+			final String emitterPid = this.wireHelperService.getServicePid(this.wireSupporter);
+			final String pid = this.wireHelperService.getPid(this.wireSupporter);
 			final WireEnvelope wei = new WireEnvelope(emitterPid, wireRecords);
-			for (final Wire wire : this.m_outgoingWires) {
+			for (final Wire wire : this.outgoingWires) {
 				wire.update(wei);
 			}
 			final Map<String, Object> properties = CollectionUtil.newHashMap();
 			properties.put("emitter", pid);
-			this.m_eventAdmin.postEvent(new Event(WireSupport.EMIT_EVENT_TOPIC, properties));
+			this.eventAdmin.postEvent(new Event(WireSupport.EMIT_EVENT_TOPIC, properties));
 		}
 	}
 
@@ -117,21 +118,26 @@ final class WireSupportImpl implements WireSupport {
 	@Override
 	public List<WireRecord> filter(final List<WireRecord> records) {
 		final SeverityLevel level = this.getSeverityLevel();
-		// If the severity level is error, then all wire fields remain
-		if ((level == null) || (level == ERROR)) {
+		// If the severity level is SEVERE, then all wire fields remain
+		if ((level == null) || (level == SEVERE)) {
 			return records;
 		}
 		final List<WireRecord> newRecords = CollectionUtil.newArrayList();
 		final List<WireField> newFields = CollectionUtil.newArrayList();
 		for (final WireRecord wireRecord : records) {
 			for (final WireField wireField : wireRecord.getFields()) {
-				// If the severity level is info, then only info wire fields
+				// If the severity level is INFO, then only info wire fields
 				// will remain
 				final SeverityLevel wireFieldLevel = wireField.getSeverityLevel();
 				if ((wireFieldLevel == INFO) && (level == INFO)) {
 					newFields.add(wireField);
 				}
-				// If the severity level is config, then info and config wire
+				// If the severity level is ERROR, then only ERROR wire fields
+				// will remain
+				if ((wireFieldLevel == ERROR) && (level == ERROR)) {
+					newFields.add(wireField);
+				}
+				// If the severity level is CONFIG, then info and CONFIG wire
 				// fields remain
 				if (((wireFieldLevel == INFO) || (wireFieldLevel == CONFIG)) && (level == CONFIG)) {
 					newFields.add(wireField);
@@ -150,7 +156,7 @@ final class WireSupportImpl implements WireSupport {
 	 * @return the incoming wires
 	 */
 	List<Wire> getIncomingWires() {
-		return Collections.unmodifiableList(this.m_incomingWires);
+		return Collections.unmodifiableList(this.incomingWires);
 	}
 
 	/**
@@ -159,7 +165,7 @@ final class WireSupportImpl implements WireSupport {
 	 * @return the outgoing wires
 	 */
 	List<Wire> getOutgoingWires() {
-		return Collections.unmodifiableList(this.m_outgoingWires);
+		return Collections.unmodifiableList(this.outgoingWires);
 	}
 
 	/**
@@ -174,19 +180,22 @@ final class WireSupportImpl implements WireSupport {
 		String property = null;
 		for (final ServiceReference<WireComponent> ref : refs) {
 			final WireComponent component = context.getService(ref);
-			if (component == this.m_wireSupporter) {
+			if (component == this.wireSupporter) {
 				property = ref.getProperty("severity.level").toString();
 				break;
 			}
 		}
 		if ("INFO".equalsIgnoreCase(property)) {
-			return SeverityLevel.INFO;
+			return INFO;
 		}
 		if ("ERROR".equalsIgnoreCase(property)) {
-			return SeverityLevel.ERROR;
+			return ERROR;
 		}
 		if ("CONFIG".equalsIgnoreCase(property)) {
-			return SeverityLevel.CONFIG;
+			return CONFIG;
+		}
+		if ("SEVERE".equalsIgnoreCase(property)) {
+			return SEVERE;
 		}
 		return null;
 	}
@@ -200,15 +209,15 @@ final class WireSupportImpl implements WireSupport {
 	/** {@inheritDoc} */
 	@Override
 	public void producersConnected(final Wire[] wires) {
-		this.m_incomingWires = Arrays.asList(wires);
+		this.incomingWires = Arrays.asList(wires);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void updated(final Wire wire, final Object value) {
 		checkNull(wire, s_message.wireNonNull());
-		if ((value instanceof WireEnvelope) && (this.m_wireSupporter instanceof WireReceiver)) {
-			((WireReceiver) this.m_wireSupporter).onWireReceive((WireEnvelope) value);
+		if ((value instanceof WireEnvelope) && (this.wireSupporter instanceof WireReceiver)) {
+			((WireReceiver) this.wireSupporter).onWireReceive((WireEnvelope) value);
 		}
 	}
 }

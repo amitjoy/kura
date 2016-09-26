@@ -65,33 +65,33 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** Cache container to store values of SQL view wire records */
-	private final WireRecordCache m_cache;
+	private final WireRecordCache cache;
 
 	/** DB Utility Helper */
-	private DbServiceHelper m_dbHelper;
+	private DbServiceHelper dbHelper;
 
 	/** The DB Service dependency. */
-	private volatile DbService m_dbService;
+	private volatile DbService dbService;
 
 	/** Scheduled Executor Service */
-	private final ScheduledExecutorService m_executorService;
+	private final ScheduledExecutorService executorService;
 
 	/** The DB Filter Options. */
-	private DbWireRecordFilterOptions m_options;
+	private DbWireRecordFilterOptions options;
 
 	/** The future handle of the thread pool executor service. */
-	private ScheduledFuture<?> m_tickHandle;
+	private ScheduledFuture<?> tickHandle;
 
 	/** The Wire Helper Service. */
-	private volatile WireHelperService m_wireHelperService;
+	private volatile WireHelperService wireHelperService;
 
 	/** The Wire Supporter component. */
-	private WireSupport m_wireSupport;
+	private WireSupport wireSupport;
 
 	/** Constructor */
 	public DbWireRecordFilter() {
-		this.m_executorService = Executors.newSingleThreadScheduledExecutor();
-		this.m_cache = new WireRecordCache(this);
+		this.executorService = Executors.newSingleThreadScheduledExecutor();
+		this.cache = new WireRecordCache(this);
 	}
 
 	/**
@@ -105,9 +105,9 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	protected synchronized void activate(final ComponentContext componentContext,
 			final Map<String, Object> properties) {
 		s_logger.debug(s_message.activatingFilter());
-		this.m_options = new DbWireRecordFilterOptions(properties);
-		this.m_dbHelper = DbServiceHelper.getInstance(this.m_dbService);
-		this.m_wireSupport = this.m_wireHelperService.newWireSupport(this);
+		this.options = new DbWireRecordFilterOptions(properties);
+		this.dbHelper = DbServiceHelper.getInstance(this.dbService);
+		this.wireSupport = this.wireHelperService.newWireSupport(this);
 		this.scheduleRefresh();
 		s_logger.debug(s_message.activatingFilterDone());
 	}
@@ -119,8 +119,8 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	 *            the new DB service
 	 */
 	public synchronized void bindDbService(final DbService dbService) {
-		if (this.m_dbService == null) {
-			this.m_dbService = dbService;
+		if (this.dbService == null) {
+			this.dbService = dbService;
 		}
 	}
 
@@ -131,15 +131,15 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	 *            the new Wire Helper Service
 	 */
 	public synchronized void bindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.m_wireHelperService == null) {
-			this.m_wireHelperService = wireHelperService;
+		if (this.wireHelperService == null) {
+			this.wireHelperService = wireHelperService;
 		}
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void consumersConnected(final Wire[] wires) {
-		this.m_wireSupport.consumersConnected(wires);
+		this.wireSupport.consumersConnected(wires);
 	}
 
 	/**
@@ -150,10 +150,10 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	 */
 	protected synchronized void deactivate(final ComponentContext componentContext) {
 		s_logger.debug(s_message.deactivatingFilter());
-		if (this.m_tickHandle != null) {
-			this.m_tickHandle.cancel(true);
+		if (this.tickHandle != null) {
+			this.tickHandle.cancel(true);
 		}
-		this.m_executorService.shutdown();
+		this.executorService.shutdown();
 		s_logger.debug(s_message.deactivatingFilterDone());
 	}
 
@@ -186,19 +186,19 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	public synchronized void onWireReceive(final WireEnvelope wireEnvelope) {
 		checkNull(wireEnvelope, s_message.wireEnvelopeNonNull());
 		s_logger.debug(s_message.wireEnvelopeReceived() + wireEnvelope);
-		this.m_wireSupport.emit(this.m_cache.get(this.m_cache.getLastRefreshedTime().getTimeInMillis()));
+		this.wireSupport.emit(this.cache.get(this.cache.getLastRefreshedTime().getTimeInMillis()));
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public Object polled(final Wire wire) {
-		return this.m_wireSupport.polled(wire);
+		return this.wireSupport.polled(wire);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void producersConnected(final Wire[] wires) {
-		this.m_wireSupport.producersConnected(wires);
+		this.wireSupport.producersConnected(wires);
 	}
 
 	/**
@@ -210,9 +210,9 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet rset = null;
-		final String sqlView = this.m_options.getSqlView();
+		final String sqlView = this.options.getSqlView();
 		try {
-			conn = this.m_dbHelper.getConnection();
+			conn = this.dbHelper.getConnection();
 			stmt = conn.createStatement();
 			rset = stmt.executeQuery(sqlView);
 			if (rset != null) {
@@ -280,9 +280,9 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 		} catch (final SQLException e) {
 			throw e;
 		} finally {
-			this.m_dbHelper.close(rset);
-			this.m_dbHelper.close(stmt);
-			this.m_dbHelper.close(conn);
+			this.dbHelper.close(rset);
+			this.dbHelper.close(stmt);
+			this.dbHelper.close(conn);
 		}
 		return dataRecords;
 	}
@@ -291,20 +291,20 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	 * Schedule refresh of SQL view operation
 	 */
 	private void scheduleRefresh() {
-		final int refreshRate = this.m_options.getRefreshRate();
-		this.m_cache.setRefreshDuration(refreshRate);
-		this.m_cache.setCapacity(this.m_options.getCacheCapacity());
+		final int refreshRate = this.options.getRefreshRate();
+		this.cache.setRefreshDuration(refreshRate);
+		this.cache.setCapacity(this.options.getCacheCapacity());
 		// Cancel the current refresh view handle
-		if (this.m_tickHandle != null) {
-			this.m_tickHandle.cancel(true);
+		if (this.tickHandle != null) {
+			this.tickHandle.cancel(true);
 		}
 		// schedule the new refresh view
 		if (refreshRate != 0) {
-			this.m_tickHandle = this.m_executorService.schedule(new Runnable() {
+			this.tickHandle = this.executorService.schedule(new Runnable() {
 				/** {@inheritDoc} */
 				@Override
 				public void run() {
-					m_cache.put(System.currentTimeMillis(), filter());
+					cache.put(System.currentTimeMillis(), filter());
 				}
 			}, refreshRate, TimeUnit.SECONDS);
 		}
@@ -317,8 +317,8 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	 *            the DB service
 	 */
 	public synchronized void unbindDbService(final DbService dbService) {
-		if (this.m_dbService == dbService) {
-			this.m_dbService = null;
+		if (this.dbService == dbService) {
+			this.dbService = null;
 		}
 	}
 
@@ -329,8 +329,8 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	 *            the new Wire Helper Service
 	 */
 	public synchronized void unbindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.m_wireHelperService == wireHelperService) {
-			this.m_wireHelperService = null;
+		if (this.wireHelperService == wireHelperService) {
+			this.wireHelperService = null;
 		}
 	}
 
@@ -342,7 +342,7 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	 */
 	public synchronized void updated(final Map<String, Object> properties) {
 		s_logger.debug(s_message.updatingFilter() + properties);
-		this.m_options = new DbWireRecordFilterOptions(properties);
+		this.options = new DbWireRecordFilterOptions(properties);
 		this.scheduleRefresh();
 		s_logger.debug(s_message.updatingFilterDone());
 	}
@@ -350,6 +350,6 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
 	/** {@inheritDoc} */
 	@Override
 	public void updated(final Wire wire, final Object value) {
-		this.m_wireSupport.updated(wire, value);
+		this.wireSupport.updated(wire, value);
 	}
 }

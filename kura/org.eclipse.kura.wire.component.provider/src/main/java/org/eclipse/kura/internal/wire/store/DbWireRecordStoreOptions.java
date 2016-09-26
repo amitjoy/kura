@@ -15,8 +15,6 @@ import static org.eclipse.kura.internal.wire.store.DbWireRecordStore.PREFIX;
 
 import java.util.Map;
 
-import org.eclipse.kura.wire.SeverityLevel;
-
 /**
  * The Class DbWireRecordStoreOptions is responsible to contain all the DB Wire
  * Record Store related options
@@ -36,7 +34,7 @@ final class DbWireRecordStoreOptions {
 	private static final String TABLE_NAME = "table.name";
 
 	/** The properties as associated */
-	private final Map<String, Object> m_properties;
+	private final Map<String, Object> properties;
 
 	/**
 	 * Instantiates a new DB wire record store options.
@@ -45,7 +43,7 @@ final class DbWireRecordStoreOptions {
 	 *            the configured properties
 	 */
 	DbWireRecordStoreOptions(final Map<String, Object> properties) {
-		this.m_properties = properties;
+		this.properties = properties;
 	}
 
 	/**
@@ -55,9 +53,9 @@ final class DbWireRecordStoreOptions {
 	 */
 	int getNoOfRecordsToKeep() {
 		int noOfRecords = 0;
-		final Object cleanUp = this.m_properties.get(PERIODIC_CLEANUP_RECORDS_ID);
-		if ((this.m_properties != null) && this.m_properties.containsKey(PERIODIC_CLEANUP_RECORDS_ID)
-				&& (cleanUp != null) && (cleanUp instanceof Integer)) {
+		final Object cleanUp = this.properties.get(PERIODIC_CLEANUP_RECORDS_ID);
+		if ((this.properties != null) && this.properties.containsKey(PERIODIC_CLEANUP_RECORDS_ID) && (cleanUp != null)
+				&& (cleanUp instanceof Integer)) {
 			noOfRecords = (Integer) cleanUp;
 		}
 		return noOfRecords;
@@ -70,36 +68,12 @@ final class DbWireRecordStoreOptions {
 	 */
 	int getPeriodicCleanupRate() {
 		int period = 0;
-		final Object rate = this.m_properties.get(PERIODIC_CLEANUP_ID);
-		if ((this.m_properties != null) && this.m_properties.containsKey(PERIODIC_CLEANUP_ID) && (rate != null)
+		final Object rate = this.properties.get(PERIODIC_CLEANUP_ID);
+		if ((this.properties != null) && this.properties.containsKey(PERIODIC_CLEANUP_ID) && (rate != null)
 				&& (rate instanceof Integer)) {
 			period = (Integer) rate;
 		}
 		return period;
-	}
-
-	/**
-	 * Returns the severity level of accepted wire fields.
-	 *
-	 * @return the severity level
-	 */
-	SeverityLevel getSeverityLevel() {
-		String severityLevel = "ERROR";
-		final Object level = this.m_properties.get(SEVERITY_LEVEL);
-		if ((this.m_properties != null) && this.m_properties.containsKey(SEVERITY_LEVEL) && (level != null)
-				&& (level instanceof String)) {
-			severityLevel = String.valueOf(level);
-		}
-		if ("ERROR".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.ERROR;
-		}
-		if ("INFO".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.INFO;
-		}
-		if ("CONFIG".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.CONFIG;
-		}
-		return SeverityLevel.ERROR;
 	}
 
 	/**
@@ -109,8 +83,8 @@ final class DbWireRecordStoreOptions {
 	 */
 	String getTableName() {
 		String tableName = null;
-		final Object name = this.m_properties.get(TABLE_NAME);
-		if ((this.m_properties != null) && this.m_properties.containsKey(TABLE_NAME) && (name != null)
+		final Object name = this.properties.get(TABLE_NAME);
+		if ((this.properties != null) && this.properties.containsKey(TABLE_NAME) && (name != null)
 				&& (name instanceof String)) {
 			tableName = name.toString();
 		}

@@ -123,7 +123,7 @@ final class OpcUaOptions {
 	private static final String USERNAME = "username";
 
 	/** The properties as associated */
-	private final Map<String, Object> m_properties;
+	private final Map<String, Object> properties;
 
 	/**
 	 * Instantiates a new S7 PLC options.
@@ -133,7 +133,7 @@ final class OpcUaOptions {
 	 */
 	OpcUaOptions(final Map<String, Object> properties) {
 		checkNull(properties, s_message.propertiesNonNull());
-		this.m_properties = properties;
+		this.properties = properties;
 	}
 
 	/**
@@ -143,8 +143,8 @@ final class OpcUaOptions {
 	 */
 	String getApplicationCertificate() {
 		String applicationCert = null;
-		final Object certificate = this.m_properties.get(APPLICATION_CERTIFICATE);
-		if ((this.m_properties != null) && this.m_properties.containsKey(APPLICATION_CERTIFICATE)
+		final Object certificate = this.properties.get(APPLICATION_CERTIFICATE);
+		if ((this.properties != null) && this.properties.containsKey(APPLICATION_CERTIFICATE)
 				&& (certificate != null)) {
 			applicationCert = certificate.toString();
 		}
@@ -158,8 +158,8 @@ final class OpcUaOptions {
 	 */
 	String getApplicationName() {
 		String applicationName = null;
-		final Object appName = this.m_properties.get(APPLICATION_NAME);
-		if ((this.m_properties != null) && this.m_properties.containsKey(APPLICATION_NAME) && (appName != null)) {
+		final Object appName = this.properties.get(APPLICATION_NAME);
+		if ((this.properties != null) && this.properties.containsKey(APPLICATION_NAME) && (appName != null)) {
 			applicationName = appName.toString();
 		}
 		return applicationName;
@@ -172,8 +172,8 @@ final class OpcUaOptions {
 	 */
 	String getApplicationUri() {
 		String applicationUri = null;
-		final Object appUri = this.m_properties.get(APPLICATION_URI);
-		if ((this.m_properties != null) && this.m_properties.containsKey(APPLICATION_URI) && (appUri != null)) {
+		final Object appUri = this.properties.get(APPLICATION_URI);
+		if ((this.properties != null) && this.properties.containsKey(APPLICATION_URI) && (appUri != null)) {
 			applicationUri = appUri.toString();
 		}
 		return applicationUri;
@@ -203,8 +203,8 @@ final class OpcUaOptions {
 	 */
 	String getIp() {
 		String ipAddress = null;
-		final Object ip = this.m_properties.get(IP);
-		if ((this.m_properties != null) && this.m_properties.containsKey(IP) && (ip != null)) {
+		final Object ip = this.properties.get(IP);
+		if ((this.properties != null) && this.properties.containsKey(IP) && (ip != null)) {
 			ipAddress = ip.toString();
 		}
 		return ipAddress;
@@ -217,8 +217,8 @@ final class OpcUaOptions {
 	 */
 	String getKeystoreClientAlias() {
 		String clientAlias = null;
-		final Object alias = this.m_properties.get(KEYSTORE_CLIENT_ALIAS);
-		if ((this.m_properties != null) && this.m_properties.containsKey(KEYSTORE_CLIENT_ALIAS) && (alias != null)) {
+		final Object alias = this.properties.get(KEYSTORE_CLIENT_ALIAS);
+		if ((this.properties != null) && this.properties.containsKey(KEYSTORE_CLIENT_ALIAS) && (alias != null)) {
 			clientAlias = alias.toString();
 		}
 		return clientAlias;
@@ -231,8 +231,8 @@ final class OpcUaOptions {
 	 */
 	String getKeystorePassword() {
 		String password = null;
-		final Object keystorePass = this.m_properties.get(KEYSTORE_PASSWORD);
-		if ((this.m_properties != null) && this.m_properties.containsKey(KEYSTORE_PASSWORD) && (keystorePass != null)) {
+		final Object keystorePass = this.properties.get(KEYSTORE_PASSWORD);
+		if ((this.properties != null) && this.properties.containsKey(KEYSTORE_PASSWORD) && (keystorePass != null)) {
 			password = keystorePass.toString();
 		}
 		return password;
@@ -245,8 +245,8 @@ final class OpcUaOptions {
 	 */
 	String getKeystoreServerAlias() {
 		String serverAlias = null;
-		final Object keystoreServerAlias = this.m_properties.get(KEYSTORE_SERVER_ALIAS);
-		if ((this.m_properties != null) && this.m_properties.containsKey(KEYSTORE_SERVER_ALIAS)
+		final Object keystoreServerAlias = this.properties.get(KEYSTORE_SERVER_ALIAS);
+		if ((this.properties != null) && this.properties.containsKey(KEYSTORE_SERVER_ALIAS)
 				&& (keystoreServerAlias != null)) {
 			serverAlias = keystoreServerAlias.toString();
 		}
@@ -260,8 +260,8 @@ final class OpcUaOptions {
 	 */
 	String getKeystoreType() {
 		String keystoreType = null;
-		final Object type = this.m_properties.get(KEYSTORE_TYPE);
-		if ((this.m_properties != null) && this.m_properties.containsKey(KEYSTORE_TYPE) && (type != null)) {
+		final Object type = this.properties.get(KEYSTORE_TYPE);
+		if ((this.properties != null) && this.properties.containsKey(KEYSTORE_TYPE) && (type != null)) {
 			keystoreType = type.toString();
 		}
 		return keystoreType;
@@ -274,8 +274,8 @@ final class OpcUaOptions {
 	 */
 	String getPassword() {
 		String password = null;
-		final Object pass = this.m_properties.get(PASSWORD);
-		if ((this.m_properties != null) && this.m_properties.containsKey(PASSWORD) && (pass != null)) {
+		final Object pass = this.properties.get(PASSWORD);
+		if ((this.properties != null) && this.properties.containsKey(PASSWORD) && (pass != null)) {
 			password = pass.toString();
 		}
 		return password;
@@ -288,8 +288,8 @@ final class OpcUaOptions {
 	 */
 	int getPort() {
 		int port = 0;
-		final Object endpointPort = this.m_properties.get(PORT);
-		if ((this.m_properties != null) && this.m_properties.containsKey(PORT) && (endpointPort != null)) {
+		final Object endpointPort = this.properties.get(PORT);
+		if ((this.properties != null) && this.properties.containsKey(PORT) && (endpointPort != null)) {
 			port = Integer.valueOf(endpointPort.toString());
 		}
 		return port;
@@ -302,8 +302,8 @@ final class OpcUaOptions {
 	 */
 	long getRequestTimeout() {
 		long requestTimeout = 0;
-		final Object reqTimeout = this.m_properties.get(REQUEST_TIMEOUT);
-		if ((this.m_properties != null) && this.m_properties.containsKey(REQUEST_TIMEOUT) && (reqTimeout != null)) {
+		final Object reqTimeout = this.properties.get(REQUEST_TIMEOUT);
+		if ((this.properties != null) && this.properties.containsKey(REQUEST_TIMEOUT) && (reqTimeout != null)) {
 			requestTimeout = Long.valueOf(reqTimeout.toString());
 		}
 		return requestTimeout * 1000;
@@ -316,8 +316,8 @@ final class OpcUaOptions {
 	 */
 	SecurityPolicy getSecurityPolicy() {
 		int securityPolicy = 0;
-		final Object policy = this.m_properties.get(SECURITY_POLICY);
-		if ((this.m_properties != null) && this.m_properties.containsKey(SECURITY_POLICY) && (policy != null)) {
+		final Object policy = this.properties.get(SECURITY_POLICY);
+		if ((this.properties != null) && this.properties.containsKey(SECURITY_POLICY) && (policy != null)) {
 			securityPolicy = Integer.parseInt(policy.toString());
 		}
 		switch (securityPolicy) {
@@ -339,8 +339,8 @@ final class OpcUaOptions {
 	 */
 	String getServerName() {
 		String serverName = null;
-		final Object name = this.m_properties.get(SERVER_NAME);
-		if ((this.m_properties != null) && this.m_properties.containsKey(SERVER_NAME) && (name != null)) {
+		final Object name = this.properties.get(SERVER_NAME);
+		if ((this.properties != null) && this.properties.containsKey(SERVER_NAME) && (name != null)) {
 			serverName = name.toString();
 		}
 		return serverName;
@@ -353,8 +353,8 @@ final class OpcUaOptions {
 	 */
 	long getSessionTimeout() {
 		long sessionTimeout = 0;
-		final Object timeout = this.m_properties.get(SESSION_TIMEOUT);
-		if ((this.m_properties != null) && this.m_properties.containsKey(SESSION_TIMEOUT) && (timeout != null)) {
+		final Object timeout = this.properties.get(SESSION_TIMEOUT);
+		if ((this.properties != null) && this.properties.containsKey(SESSION_TIMEOUT) && (timeout != null)) {
 			sessionTimeout = Long.valueOf(timeout.toString());
 		}
 		return sessionTimeout * 1000;
@@ -367,8 +367,8 @@ final class OpcUaOptions {
 	 */
 	String getUsername() {
 		String username = null;
-		final Object name = this.m_properties.get(USERNAME);
-		if ((this.m_properties != null) && this.m_properties.containsKey(USERNAME) && (name != null)) {
+		final Object name = this.properties.get(USERNAME);
+		if ((this.properties != null) && this.properties.containsKey(USERNAME) && (name != null)) {
 			username = name.toString();
 		}
 		return username;

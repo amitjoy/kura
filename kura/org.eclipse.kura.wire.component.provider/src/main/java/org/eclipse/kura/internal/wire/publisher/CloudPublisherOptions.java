@@ -16,7 +16,6 @@ import java.util.Map;
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraRuntimeException;
 import org.eclipse.kura.util.base.ThrowableUtil;
-import org.eclipse.kura.wire.SeverityLevel;
 
 /**
  * The Class CloudPublisherOptions is responsible to provide all the required
@@ -123,7 +122,7 @@ final class CloudPublisherOptions {
 	private static final String SEVERITY_LEVEL = "severity.level";
 
 	/** The properties as associated */
-	private final Map<String, Object> m_properties;
+	private final Map<String, Object> properties;
 
 	/**
 	 * Instantiates a new cloud publisher options.
@@ -132,7 +131,7 @@ final class CloudPublisherOptions {
 	 *            the properties
 	 */
 	CloudPublisherOptions(final Map<String, Object> properties) {
-		this.m_properties = properties;
+		this.properties = properties;
 	}
 
 	/**
@@ -142,8 +141,8 @@ final class CloudPublisherOptions {
 	 */
 	AutoConnectMode getAutoConnectMode() {
 		AutoConnectMode autoConnectMode = DEFAULT_AUTOCONNECT_MODE;
-		final Object mode = this.m_properties.get(CONF_AUTOCONNECT_MODE);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_AUTOCONNECT_MODE) && (mode != null)
+		final Object mode = this.properties.get(CONF_AUTOCONNECT_MODE);
+		if ((this.properties != null) && this.properties.containsKey(CONF_AUTOCONNECT_MODE) && (mode != null)
 				&& (mode instanceof String)) {
 			final String autoconnectModeValue = String.valueOf(mode);
 			try {
@@ -162,8 +161,8 @@ final class CloudPublisherOptions {
 	 */
 	int getMessageType() {
 		int messageType = DEFAULT_MESSAGE_TYPE;
-		final Object type = this.m_properties.get(CONF_MESSAGE_TYPE);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_MESSAGE_TYPE) && (type != null)
+		final Object type = this.properties.get(CONF_MESSAGE_TYPE);
+		if ((this.properties != null) && this.properties.containsKey(CONF_MESSAGE_TYPE) && (type != null)
 				&& (type instanceof Integer)) {
 			messageType = (Integer) type;
 		}
@@ -177,8 +176,8 @@ final class CloudPublisherOptions {
 	 */
 	String getPublishingApplication() {
 		String publishingApp = DEFAULT_APPLICATION;
-		final Object app = this.m_properties.get(CONF_APPLICATION);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_APPLICATION) && (app != null)
+		final Object app = this.properties.get(CONF_APPLICATION);
+		if ((this.properties != null) && this.properties.containsKey(CONF_APPLICATION) && (app != null)
 				&& (app instanceof String)) {
 			publishingApp = String.valueOf(app);
 		}
@@ -192,8 +191,8 @@ final class CloudPublisherOptions {
 	 */
 	int getPublishingPriority() {
 		int publishingPriority = DEFAULT_PRIORITY;
-		final Object priority = this.m_properties.get(CONF_PRIORITY);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_PRIORITY) && (priority != null)
+		final Object priority = this.properties.get(CONF_PRIORITY);
+		if ((this.properties != null) && this.properties.containsKey(CONF_PRIORITY) && (priority != null)
 				&& (priority instanceof Integer)) {
 			publishingPriority = (Integer) priority;
 		}
@@ -207,8 +206,8 @@ final class CloudPublisherOptions {
 	 */
 	int getPublishingQos() {
 		int publishingQos = DEFAULT_QOS;
-		final Object qos = this.m_properties.get(CONF_QOS);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_QOS) && (qos != null)
+		final Object qos = this.properties.get(CONF_QOS);
+		if ((this.properties != null) && this.properties.containsKey(CONF_QOS) && (qos != null)
 				&& (qos instanceof Integer)) {
 			publishingQos = (Integer) qos;
 		}
@@ -222,8 +221,8 @@ final class CloudPublisherOptions {
 	 */
 	boolean getPublishingRetain() {
 		boolean publishingRetain = DEFAULT_RETAIN;
-		final Object retain = this.m_properties.get(CONF_RETAIN);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_RETAIN) && (retain != null)
+		final Object retain = this.properties.get(CONF_RETAIN);
+		if ((this.properties != null) && this.properties.containsKey(CONF_RETAIN) && (retain != null)
 				&& (retain instanceof Integer)) {
 			publishingRetain = (Boolean) retain;
 		}
@@ -237,8 +236,8 @@ final class CloudPublisherOptions {
 	 */
 	String getPublishingTopic() {
 		String publishingTopic = DEFAULT_TOPIC;
-		final Object topic = this.m_properties.get(CONF_TOPIC);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_TOPIC) && (topic != null)
+		final Object topic = this.properties.get(CONF_TOPIC);
+		if ((this.properties != null) && this.properties.containsKey(CONF_TOPIC) && (topic != null)
 				&& (topic instanceof String)) {
 			publishingTopic = String.valueOf(topic);
 		}
@@ -252,36 +251,12 @@ final class CloudPublisherOptions {
 	 */
 	int getQuiesceTimeout() {
 		int quieceTimeout = DEFAULT_QUIECE_TIMEOUT;
-		final Object timeout = this.m_properties.get(CONF_QUIESCE_TIMEOUT);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_QUIESCE_TIMEOUT) && (timeout != null)
+		final Object timeout = this.properties.get(CONF_QUIESCE_TIMEOUT);
+		if ((this.properties != null) && this.properties.containsKey(CONF_QUIESCE_TIMEOUT) && (timeout != null)
 				&& (timeout instanceof Integer)) {
 			quieceTimeout = (Integer) timeout;
 		}
 		return quieceTimeout;
-	}
-
-	/**
-	 * Returns the severity level of accepted wire fields.
-	 *
-	 * @return the severity level
-	 */
-	SeverityLevel getSeverityLevel() {
-		String severityLevel = "ERROR";
-		final Object level = this.m_properties.get(SEVERITY_LEVEL);
-		if ((this.m_properties != null) && this.m_properties.containsKey(SEVERITY_LEVEL) && (level != null)
-				&& (level instanceof String)) {
-			severityLevel = String.valueOf(level);
-		}
-		if ("ERROR".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.ERROR;
-		}
-		if ("INFO".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.INFO;
-		}
-		if ("CONFIG".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.CONFIG;
-		}
-		return SeverityLevel.ERROR;
 	}
 
 }

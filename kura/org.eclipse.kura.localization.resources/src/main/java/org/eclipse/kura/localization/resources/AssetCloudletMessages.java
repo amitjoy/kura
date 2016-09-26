@@ -35,6 +35,9 @@ public interface AssetCloudletMessages {
 	@En("Asset has been found by Asset Cloudlet Tracker....==> open")
 	public String assetFoundOpen();
 
+	@En("Asset PID cannot be null")
+	public String assetPidNonNull();
+
 	@En("Asset Record cannot be null")
 	public String assetRecordNonNull();
 
@@ -57,15 +60,15 @@ public interface AssetCloudletMessages {
 	public String channelAsInteger();
 
 	@En("Channel IDs cannot be null")
-	public String channelNameNonNull();
+	public String channelIdNonNull();
 
 	@En("Channel cannot be null")
 	public String channelNonNull();
 
-	@En("List of channel names cannot be empty")
+	@En("List of channel IDs cannot be empty")
 	public String channelsNonEmpty();
 
-	@En("List of channel names cannot be null")
+	@En("List of channel IDs cannot be null")
 	public String channelsNonNull();
 
 	@En("Cloudlet GET Request received on the Asset Cloudlet")

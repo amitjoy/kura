@@ -13,8 +13,6 @@ package org.eclipse.kura.internal.wire.subscriber;
 
 import java.util.Map;
 
-import org.eclipse.kura.wire.SeverityLevel;
-
 /**
  * The Class CloudSubscriberOptions is responsible to provide all the required
  * options for the Cloud Subscriber Wire Component
@@ -37,7 +35,7 @@ final class CloudSubscriberOptions {
 	private static final String SEVERITY_LEVEL = "severity.level";
 
 	/** The properties as associated */
-	private final Map<String, Object> m_properties;
+	private final Map<String, Object> properties;
 
 	/**
 	 * Instantiates a new cloud subscriber options.
@@ -46,31 +44,7 @@ final class CloudSubscriberOptions {
 	 *            the properties
 	 */
 	CloudSubscriberOptions(final Map<String, Object> properties) {
-		this.m_properties = properties;
-	}
-
-	/**
-	 * Returns the severity level of accepted wire fields.
-	 *
-	 * @return the severity level
-	 */
-	SeverityLevel getSeverityLevel() {
-		String severityLevel = "ERROR";
-		final Object level = this.m_properties.get(SEVERITY_LEVEL);
-		if ((this.m_properties != null) && this.m_properties.containsKey(SEVERITY_LEVEL) && (level != null)
-				&& (level instanceof String)) {
-			severityLevel = String.valueOf(level);
-		}
-		if ("ERROR".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.ERROR;
-		}
-		if ("INFO".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.INFO;
-		}
-		if ("CONFIG".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.CONFIG;
-		}
-		return SeverityLevel.ERROR;
+		this.properties = properties;
 	}
 
 	/**
@@ -80,8 +54,8 @@ final class CloudSubscriberOptions {
 	 */
 	int getSubscribingQos() {
 		int subscribingQos = DEFAULT_QOS;
-		final Object qos = this.m_properties.get(CONF_QOS);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_QOS) && (qos != null)
+		final Object qos = this.properties.get(CONF_QOS);
+		if ((this.properties != null) && this.properties.containsKey(CONF_QOS) && (qos != null)
 				&& (qos instanceof Integer)) {
 			subscribingQos = (Integer) qos;
 		}
@@ -95,8 +69,8 @@ final class CloudSubscriberOptions {
 	 */
 	String getSubscribingTopic() {
 		String subscribingTopic = DEFAULT_TOPIC;
-		final Object topic = this.m_properties.get(CONF_TOPIC);
-		if ((this.m_properties != null) && this.m_properties.containsKey(CONF_TOPIC) && (topic != null)
+		final Object topic = this.properties.get(CONF_TOPIC);
+		if ((this.properties != null) && this.properties.containsKey(CONF_TOPIC) && (topic != null)
 				&& (topic instanceof String)) {
 			subscribingTopic = String.valueOf(topic);
 		}

@@ -58,34 +58,31 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 	/** Localization Resource */
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
-	/** The Service Component Context. */
-	private ComponentContext m_ctx;
-
 	/** The Wire Service options. */
-	private WireServiceOptions m_options;
+	private WireServiceOptions options;
 
 	/** The service component properties. */
-	private Map<String, Object> m_properties;
+	private Map<String, Object> properties;
 
 	/** Wire Component Tracker. */
-	private ServiceTracker<WireComponent, WireComponent> m_serviceTracker;
+	private ServiceTracker<WireComponent, WireComponent> serviceTracker;
 
 	/** The service tracker to track all wire components */
-	private WireComponentTrackerCustomizer m_trackerCustomizer;
+	private WireComponentTrackerCustomizer trackerCustomizer;
 
 	/** The Wire Admin dependency. */
-	private volatile WireAdmin m_wireAdmin;
+	private volatile WireAdmin wireAdmin;
 
 	/** The set of wire configurations */
-	private final Set<WireConfiguration> m_wireConfigs;
+	private final Set<WireConfiguration> wireConfigs;
 
 	/** The Wire Helper Service. */
-	private volatile WireHelperService m_wireHelperService;
+	private volatile WireHelperService wireHelperService;
 
 	/** Constructor */
 	public WireServiceImpl() {
 		final Set<WireConfiguration> set = CollectionUtil.newHashSet();
-		this.m_wireConfigs = Collections.synchronizedSet(set);
+		this.wireConfigs = Collections.synchronizedSet(set);
 	}
 
 	/**
@@ -99,13 +96,12 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 	protected synchronized void activate(final ComponentContext componentContext,
 			final Map<String, Object> properties) {
 		s_logger.debug(s_message.activatingWireService());
-		this.m_ctx = componentContext;
 		try {
 			this.extractProperties(properties);
-			this.m_trackerCustomizer = new WireComponentTrackerCustomizer(this.m_ctx.getBundleContext(), this);
-			this.m_serviceTracker = new ServiceTracker<WireComponent, WireComponent>(
-					componentContext.getBundleContext(), WireComponent.class.getName(), this.m_trackerCustomizer);
-			this.m_serviceTracker.open();
+			this.trackerCustomizer = new WireComponentTrackerCustomizer(componentContext.getBundleContext(), this);
+			this.serviceTracker = new ServiceTracker<WireComponent, WireComponent>(componentContext.getBundleContext(),
+					WireComponent.class.getName(), this.trackerCustomizer);
+			this.serviceTracker.open();
 			this.createWires();
 		} catch (final Exception exception) {
 			s_logger.error(ThrowableUtil.stackTraceAsString(exception));
@@ -120,8 +116,8 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 	 *            the new wire admin service dependency
 	 */
 	public synchronized void bindWireAdmin(final WireAdmin wireAdmin) {
-		if (this.m_wireAdmin == null) {
-			this.m_wireAdmin = wireAdmin;
+		if (this.wireAdmin == null) {
+			this.wireAdmin = wireAdmin;
 		}
 	}
 
@@ -132,8 +128,8 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 	 *            the new Wire Helper Service
 	 */
 	public synchronized void bindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.m_wireHelperService == null) {
-			this.m_wireHelperService = wireHelperService;
+		if (this.wireHelperService == null) {
+			this.wireHelperService = wireHelperService;
 		}
 	}
 
@@ -147,19 +143,19 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 		s_logger.info(s_message.creatingWire(emitterPid, receiverPid));
 		WireConfiguration conf = null;
 		if (!emitterPid.equals(receiverPid)) {
-			final String emitterServicePid = this.m_wireHelperService.getServicePid(emitterPid);
-			final String receiverServicePid = this.m_wireHelperService.getServicePid(receiverPid);
+			final String emitterServicePid = this.wireHelperService.getServicePid(emitterPid);
+			final String receiverServicePid = this.wireHelperService.getServicePid(receiverPid);
 			if ((emitterServicePid == null) || (receiverServicePid == null)) {
 				throw new KuraException(KuraErrorCode.INTERNAL_ERROR, s_message.componentPidsNull());
 			}
-			if (!(this.m_wireHelperService.isEmitter(emitterPid) || this.m_wireHelperService.isReceiver(receiverPid))) {
+			if (!(this.wireHelperService.isEmitter(emitterPid) || this.wireHelperService.isReceiver(receiverPid))) {
 				throw new KuraException(KuraErrorCode.INTERNAL_ERROR, s_message.componentsNotApplicable());
 			}
 			conf = new WireConfiguration(emitterPid, receiverPid, null);
-			final Wire wire = this.m_wireAdmin.createWire(emitterServicePid, receiverServicePid, null);
+			final Wire wire = this.wireAdmin.createWire(emitterServicePid, receiverServicePid, null);
 			if (wire != null) {
 				conf.setWire(wire);
-				this.m_wireConfigs.add(conf);
+				this.wireConfigs.add(conf);
 			}
 			s_logger.info(s_message.creatingWireDone(emitterPid, receiverPid));
 		}
@@ -177,23 +173,23 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 	synchronized void createWires() throws KuraException {
 		s_logger.debug(s_message.creatingWires());
 		final List<WireConfiguration> cloned = CollectionUtil.newArrayList();
-		for (final WireConfiguration wc : this.m_wireConfigs) {
+		for (final WireConfiguration wc : this.wireConfigs) {
 			cloned.add(new WireConfiguration(wc.getEmitterPid(), wc.getReceiverPid(), wc.getFilter()));
 		}
 		for (final WireConfiguration conf : cloned) {
 			final String emitterPid = conf.getEmitterPid();
 			final String receiverPid = conf.getReceiverPid();
 
-			final boolean emitterFound = this.m_trackerCustomizer.getWireEmitters().contains(emitterPid);
-			final boolean receiverFound = this.m_trackerCustomizer.getWireReceivers().contains(receiverPid);
+			final boolean emitterFound = this.trackerCustomizer.getWireEmitters().contains(emitterPid);
+			final boolean receiverFound = this.trackerCustomizer.getWireReceivers().contains(receiverPid);
 			if (emitterFound && receiverFound) {
 				s_logger.info(s_message.creatingWire(emitterPid, receiverPid));
-				final String emitterServicePid = this.m_wireHelperService.getServicePid(emitterPid);
-				final String receiverServicePid = this.m_wireHelperService.getServicePid(receiverPid);
+				final String emitterServicePid = this.wireHelperService.getServicePid(emitterPid);
+				final String receiverServicePid = this.wireHelperService.getServicePid(receiverPid);
 				if ((emitterServicePid != null) && (receiverServicePid != null)) {
 					if (conf.getWire() == null) {
 						try {
-							final Wire[] wires = this.m_wireAdmin.getWires(null);
+							final Wire[] wires = this.wireAdmin.getWires(null);
 							boolean found = false;
 							if (wires != null) {
 								for (final Wire w : wires) {
@@ -205,7 +201,7 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 								}
 							}
 							if (!found) {
-								final Wire wire = this.m_wireAdmin.createWire(emitterServicePid, receiverServicePid,
+								final Wire wire = this.wireAdmin.createWire(emitterServicePid, receiverServicePid,
 										null);
 								conf.setWire(wire);
 							}
@@ -227,8 +223,8 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 	 */
 	protected synchronized void deactivate(final ComponentContext componentContext) {
 		s_logger.debug(s_message.deactivatingWireService());
-		this.m_serviceTracker.close();
-		for (final WireConfiguration wireConfiguration : this.m_wireConfigs) {
+		this.serviceTracker.close();
+		for (final WireConfiguration wireConfiguration : this.wireConfigs) {
 			this.deleteWireConfiguration(wireConfiguration);
 		}
 		s_logger.debug(s_message.deactivatingWireServiceDone());
@@ -240,26 +236,26 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 		checkNull(wireConfiguration, s_message.wireConfigurationNonNull());
 		s_logger.info(s_message.removingWires());
 		try {
-			final Wire[] wiresList = this.m_wireAdmin.getWires(null);
+			final Wire[] wiresList = this.wireAdmin.getWires(null);
 			if (wiresList != null) {
 				for (final Wire wire : wiresList) {
 					final String producerPid = wire.getProperties().get(WIREADMIN_PRODUCER_PID).toString();
 					final String consumerPid = wire.getProperties().get(WIREADMIN_CONSUMER_PID).toString();
-					final String emitterFactoryPid = this.m_wireHelperService
+					final String emitterFactoryPid = this.wireHelperService
 							.getServicePid(wireConfiguration.getEmitterPid());
-					final String receiverFactoryPid = this.m_wireHelperService
+					final String receiverFactoryPid = this.wireHelperService
 							.getServicePid(wireConfiguration.getReceiverPid());
 					if ((emitterFactoryPid != null) && (receiverFactoryPid != null)
 							&& producerPid.equals(emitterFactoryPid) && consumerPid.equals(receiverFactoryPid)) {
 						// just to make sure the deletion does not incur
 						// ConcurrentModification exception
-						synchronized (this.m_wireConfigs) {
-							for (final Iterator<WireConfiguration> iter = this.m_wireConfigs.iterator(); iter
+						synchronized (this.wireConfigs) {
+							for (final Iterator<WireConfiguration> iter = this.wireConfigs.iterator(); iter
 									.hasNext();) {
 								final WireConfiguration configuration = iter.next();
 								if (configuration.equals(wireConfiguration)) {
 									iter.remove();
-									this.m_wireAdmin.deleteWire(wire);
+									this.wireAdmin.deleteWire(wire);
 									break;
 								}
 							}
@@ -285,16 +281,14 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 		checkNull(properties, s_message.propertiesNonNull());
 		s_logger.debug(s_message.exectractingProp());
 		// clear the configurations first
-		if (this.m_options != null) {
-			final List<WireConfiguration> list = this.m_options.getWireConfigurations();
+		if (this.options != null) {
+			final List<WireConfiguration> list = this.options.getWireConfigurations();
 			list.clear();
 		}
-		this.m_options = WireServiceOptions.getInstance(properties);
-		this.m_properties = properties;
-
-		for (final WireConfiguration conf : this.m_options.getWireConfigurations()) {
-
-			this.m_wireConfigs.add(conf);
+		this.options = WireServiceOptions.getInstance(properties);
+		this.properties = properties;
+		for (final WireConfiguration conf : this.options.getWireConfigurations()) {
+			this.wireConfigs.add(conf);
 		}
 		s_logger.debug(s_message.exectractingPropDone());
 	}
@@ -308,14 +302,14 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 		wiresOCD.setDescription(s_message.description());
 
 		final Map<String, Object> props = CollectionUtil.newHashMap();
-		for (final Map.Entry<String, Object> entry : this.m_properties.entrySet()) {
+		for (final Map.Entry<String, Object> entry : this.properties.entrySet()) {
 			if (!(entry.getKey().endsWith("emitter") || entry.getKey().endsWith("receiver")
 					|| entry.getKey().endsWith("filter"))) {
 				props.put(entry.getKey(), entry.getValue());
 			}
 		}
 		int i = 0;
-		for (final WireConfiguration wireConfiguration : this.m_wireConfigs) {
+		for (final WireConfiguration wireConfiguration : this.wireConfigs) {
 			final String emitterKey = String.valueOf(++i) + ".emitter";
 			final String receiverKey = String.valueOf(i) + ".receiver";
 			final String filterKey = String.valueOf(i) + ".filter";
@@ -329,7 +323,7 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 	/** {@inheritDoc} */
 	@Override
 	public Set<WireConfiguration> getWireConfigurations() {
-		return this.m_wireConfigs;
+		return this.wireConfigs;
 	}
 
 	/**
@@ -339,8 +333,8 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 	 *            the wire admin
 	 */
 	public synchronized void unbindWireAdmin(final WireAdmin wireAdmin) {
-		if (this.m_wireAdmin == wireAdmin) {
-			this.m_wireAdmin = null;
+		if (this.wireAdmin == wireAdmin) {
+			this.wireAdmin = null;
 		}
 	}
 
@@ -351,8 +345,8 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 	 *            the new Wire Helper Service
 	 */
 	public synchronized void unbindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.m_wireHelperService == wireHelperService) {
-			this.m_wireHelperService = null;
+		if (this.wireHelperService == wireHelperService) {
+			this.wireHelperService = null;
 		}
 	}
 

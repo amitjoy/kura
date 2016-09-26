@@ -254,6 +254,9 @@ public interface WireMessages {
 	@En("Driver Name")
 	public String driverName();
 
+	@En("emitter")
+	public String emitter();
+
 	@En("Emitter PID cannot be null")
 	public String emitterPidNonNull();
 
@@ -319,6 +322,9 @@ public interface WireMessages {
 
 	@En("Factory PID cannot be null")
 	public String factoryPidNonNull();
+
+	@En("filter")
+	public String filter();
 
 	@En("Wire record filtering started...")
 	public String filteringStarted();
@@ -403,6 +409,9 @@ public interface WireMessages {
 
 	@En("READ_WRITE")
 	public String readWrite();
+
+	@En("receiver")
+	public String receiver();
 
 	@En("Receiver PID cannot be null")
 	public String receiverPidNonNull();

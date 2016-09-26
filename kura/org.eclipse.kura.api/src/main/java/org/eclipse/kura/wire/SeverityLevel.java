@@ -18,7 +18,16 @@ package org.eclipse.kura.wire;
  * <br/>
  * <br/>
  *
- * The priority of the Severity Levels are as follows: ERROR > CONFIG > INFO
+ * <p>
+ * The Severity levels in descending order are:
+ * <ul>
+ * <li>SEVERE (highest value)
+ * <li>CONFIG
+ * <li>INFO or ERROR (lowest value)
+ * </ul>
+ *
+ * The priority of the Severity Levels are as follows: SEVERE > CONFIG > (INFO
+ * or ERROR)
  */
 public enum SeverityLevel {
 
@@ -26,18 +35,13 @@ public enum SeverityLevel {
 	 * CONFIG is a Wire Field level for notifying configuration oriented status.
 	 * <p>
 	 * CONFIG Wire Fields are intended to provide a variety of configuration
-	 * information, for instance, {@code TimerWireField} is a configuration
+	 * information, for instance, {@code Timer} Wire Field is a configuration
 	 * oriented Wire Field
 	 */
 	CONFIG,
 
 	/**
-	 * ERROR is a Wire Field level indicating a serious failure or exception.
-	 * <p>
-	 * In general SEVERE messages should describe events that are of
-	 * considerable importance and which will prevent normal program execution.
-	 * They should be reasonably intelligible to end users and to system
-	 * administrators.
+	 * ERROR is a Wire Field level indicating a failure or exception.
 	 */
 	ERROR,
 
@@ -47,6 +51,15 @@ public enum SeverityLevel {
 	 * Typically INFO messages will be delegated to the connected wire
 	 * components
 	 */
-	INFO
+	INFO,
+
+	/**
+	 * SEVERE is a Wire Field level indicating a serious failure or exception.
+	 * <p>
+	 * In general SEVERE messages should describe events that are of most
+	 * importance and which will prevent normal program execution. They should
+	 * be reasonably intelligible to end users and to system administrators.
+	 */
+	SEVERE
 
 }

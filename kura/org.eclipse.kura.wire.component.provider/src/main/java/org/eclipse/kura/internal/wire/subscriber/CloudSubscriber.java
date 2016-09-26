@@ -62,22 +62,22 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** The cloud service. */
-	private volatile CloudService m_cloudService;
+	private volatile CloudService cloudService;
 
 	/** The data service. */
-	private volatile DataService m_dataService;
+	private volatile DataService dataService;
 
 	/** The cloud subscriber options. */
-	private CloudSubscriberOptions m_options;
+	private CloudSubscriberOptions options;
 
 	/** The subscribed topic */
-	private String m_topic;
+	private String topic;
 
 	/** The Wire Helper Service. */
-	private volatile WireHelperService m_wireHelperService;
+	private volatile WireHelperService wireHelperService;
 
 	/** The wire supporter component. */
-	private WireSupport m_wireSupport;
+	private WireSupport wireSupport;
 
 	/**
 	 * OSGi Service Component callback for activation.
@@ -90,10 +90,10 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	protected synchronized void activate(final ComponentContext componentContext,
 			final Map<String, Object> properties) {
 		s_logger.debug(s_message.activatingCloudSubscriber());
-		this.m_wireSupport = this.m_wireHelperService.newWireSupport(this);
-		this.m_options = new CloudSubscriberOptions(properties);
-		this.m_topic = this.m_options.getSubscribingTopic();
-		this.m_dataService.addDataServiceListener(this);
+		this.wireSupport = this.wireHelperService.newWireSupport(this);
+		this.options = new CloudSubscriberOptions(properties);
+		this.topic = this.options.getSubscribingTopic();
+		this.dataService.addDataServiceListener(this);
 		s_logger.debug(s_message.activatingCloudSubscriberDone());
 	}
 
@@ -104,8 +104,8 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	 *            the new cloud service
 	 */
 	public synchronized void bindCloudService(final CloudService cloudService) {
-		if (this.m_cloudService == null) {
-			this.m_cloudService = cloudService;
+		if (this.cloudService == null) {
+			this.cloudService = cloudService;
 		}
 	}
 
@@ -116,8 +116,8 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	 *            the new data service
 	 */
 	public synchronized void bindDataService(final DataService dataService) {
-		if (this.m_dataService == null) {
-			this.m_dataService = dataService;
+		if (this.dataService == null) {
+			this.dataService = dataService;
 		}
 	}
 
@@ -128,8 +128,8 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	 *            the new Wire Helper Service
 	 */
 	public synchronized void bindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.m_wireHelperService == null) {
-			this.m_wireHelperService = wireHelperService;
+		if (this.wireHelperService == null) {
+			this.wireHelperService = wireHelperService;
 		}
 	}
 
@@ -197,7 +197,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	/** {@inheritDoc} */
 	@Override
 	public void consumersConnected(final Wire[] wires) {
-		this.m_wireSupport.consumersConnected(wires);
+		this.wireSupport.consumersConnected(wires);
 	}
 
 	/**
@@ -211,7 +211,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 		// close the client
 		try {
 			this.unsubsribe();
-			this.m_dataService.removeDataServiceListener(this);
+			this.dataService.removeDataServiceListener(this);
 		} catch (final KuraException e) {
 			s_logger.error(ThrowableUtil.stackTraceAsString(e));
 		}
@@ -223,8 +223,8 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	@Override
 	public void onConnectionEstablished() {
 		try {
-			if (this.m_topic != null) {
-				this.m_dataService.subscribe(this.m_topic, this.m_options.getSubscribingQos());
+			if (this.topic != null) {
+				this.dataService.subscribe(this.topic, this.options.getSubscribingQos());
 			}
 		} catch (final KuraException e) {
 			s_logger.error(s_message.errorCreatingCloudClinet() + e);
@@ -254,13 +254,13 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	public void onMessageArrived(final String topic, final byte[] payload, final int qos, final boolean retained) {
 		KuraPayload kuraPayload = null;
 		try {
-			kuraPayload = ((CloudPayloadProtoBufDecoder) this.m_cloudService).buildFromByteArray(payload);
+			kuraPayload = ((CloudPayloadProtoBufDecoder) this.cloudService).buildFromByteArray(payload);
 		} catch (final KuraException e) {
 			s_logger.error(ThrowableUtil.stackTraceAsString(e));
 		}
 		if (payload != null) {
 			final WireRecord record = this.buildWireRecord(kuraPayload);
-			this.m_wireSupport.emit(Arrays.asList(record));
+			this.wireSupport.emit(Arrays.asList(record));
 		}
 	}
 
@@ -279,7 +279,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	/** {@inheritDoc} */
 	@Override
 	public Object polled(final Wire wires) {
-		return this.m_wireSupport.polled(wires);
+		return this.wireSupport.polled(wires);
 	}
 
 	/**
@@ -289,8 +289,8 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	 *            the cloud service
 	 */
 	public synchronized void unbindCloudService(final CloudService cloudService) {
-		if (this.m_cloudService == cloudService) {
-			this.m_cloudService = null;
+		if (this.cloudService == cloudService) {
+			this.cloudService = null;
 		}
 	}
 
@@ -301,8 +301,8 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	 *            the data service
 	 */
 	public synchronized void unbindDataService(final DataService dataService) {
-		if (this.m_dataService == dataService) {
-			this.m_dataService = null;
+		if (this.dataService == dataService) {
+			this.dataService = null;
 		}
 	}
 
@@ -313,8 +313,8 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	 *            the new Wire Helper Service
 	 */
 	public synchronized void unbindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.m_wireHelperService == wireHelperService) {
-			this.m_wireHelperService = null;
+		if (this.wireHelperService == wireHelperService) {
+			this.wireHelperService = null;
 		}
 	}
 
@@ -325,10 +325,10 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	 *             if couln't unsubscribe
 	 */
 	private void unsubsribe() throws KuraException {
-		if (this.m_topic != null) {
-			this.m_dataService.unsubscribe(this.m_topic);
+		if (this.topic != null) {
+			this.dataService.unsubscribe(this.topic);
 		}
-		this.m_topic = this.m_options.getSubscribingTopic();
+		this.topic = this.options.getSubscribingTopic();
 	}
 
 	/**
@@ -346,7 +346,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 			s_logger.error(ThrowableUtil.stackTraceAsString(e));
 		}
 		// Update properties
-		this.m_options = new CloudSubscriberOptions(properties);
+		this.options = new CloudSubscriberOptions(properties);
 		s_logger.debug(s_message.updatingCloudSubscriberDone());
 	}
 

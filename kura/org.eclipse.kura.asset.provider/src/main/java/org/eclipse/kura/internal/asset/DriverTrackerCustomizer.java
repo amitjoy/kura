@@ -41,13 +41,13 @@ public final class DriverTrackerCustomizer implements ServiceTrackerCustomizer<D
 	private static final AssetMessages s_message = LocalizationAdapter.adapt(AssetMessages.class);
 
 	/** The Asset Instance */
-	private final Asset m_asset;
+	private final Asset asset;
 
 	/** Bundle Context */
-	private final BundleContext m_context;
+	private final BundleContext context;
 
 	/** The Driver Identifier */
-	private final String m_driverId;
+	private final String driverId;
 
 	/**
 	 * Instantiates a new driver tracker.
@@ -69,18 +69,18 @@ public final class DriverTrackerCustomizer implements ServiceTrackerCustomizer<D
 		checkNull(asset, s_message.assetNonNull());
 		checkNull(driverId, s_message.driverPidNonNull());
 
-		this.m_driverId = driverId;
-		this.m_asset = asset;
-		this.m_context = context;
+		this.driverId = driverId;
+		this.asset = asset;
+		this.context = context;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public Driver addingService(final ServiceReference<Driver> reference) {
-		final Driver driver = this.m_context.getService(reference);
-		if (reference.getProperty(DRIVER_PID.value()).equals(this.m_driverId)) {
+		final Driver driver = this.context.getService(reference);
+		if (reference.getProperty(DRIVER_PID.value()).equals(this.driverId)) {
 			s_logger.info(s_message.driverFoundAdding());
-			((BaseAsset) this.m_asset).m_driver = driver;
+			((BaseAsset) this.asset).driver = driver;
 		}
 		return driver;
 	}
@@ -95,10 +95,10 @@ public final class DriverTrackerCustomizer implements ServiceTrackerCustomizer<D
 	/** {@inheritDoc} */
 	@Override
 	public void removedService(final ServiceReference<Driver> reference, final Driver service) {
-		this.m_context.ungetService(reference);
-		if (reference.getProperty(DRIVER_PID.value()).equals(this.m_driverId)) {
+		this.context.ungetService(reference);
+		if (reference.getProperty(DRIVER_PID.value()).equals(this.driverId)) {
 			s_logger.info(s_message.driverRemoved() + service);
-			((BaseAsset) this.m_asset).m_driver = null;
+			((BaseAsset) this.asset).driver = null;
 		}
 	}
 

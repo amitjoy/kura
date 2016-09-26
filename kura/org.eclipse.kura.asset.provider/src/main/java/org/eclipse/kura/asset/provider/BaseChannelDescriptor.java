@@ -65,13 +65,13 @@ public final class BaseChannelDescriptor implements ChannelDescriptor {
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** The default elements. */
-	private final List<Tad> m_defaultElements;
+	private final List<Tad> defaultElements;
 
 	/**
 	 * Instantiates a new base asset channel descriptor.
 	 */
 	public BaseChannelDescriptor() {
-		this.m_defaultElements = CollectionUtil.newArrayList();
+		this.defaultElements = CollectionUtil.newArrayList();
 
 		final Tad name = new Tad();
 		name.setId(NAME.value());
@@ -82,7 +82,7 @@ public final class BaseChannelDescriptor implements ChannelDescriptor {
 		name.setCardinality(0);
 		name.setRequired(true);
 
-		this.m_defaultElements.add(name);
+		this.defaultElements.add(name);
 
 		final Tad type = new Tad();
 		type.setName(TYPE.value());
@@ -107,7 +107,7 @@ public final class BaseChannelDescriptor implements ChannelDescriptor {
 		oReadWrite.setLabel(s_message.readWrite());
 		type.getOption().add(oReadWrite);
 
-		this.m_defaultElements.add(type);
+		this.defaultElements.add(type);
 
 		final Tad valueType = new Tad();
 		valueType.setName(VALUE_TYPE.value());
@@ -157,13 +157,13 @@ public final class BaseChannelDescriptor implements ChannelDescriptor {
 		oString.setLabel(s_message.string());
 		valueType.getOption().add(oString);
 
-		this.m_defaultElements.add(valueType);
+		this.defaultElements.add(valueType);
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public Object getDescriptor() {
-		return this.m_defaultElements;
+		return this.defaultElements;
 	}
 
 }

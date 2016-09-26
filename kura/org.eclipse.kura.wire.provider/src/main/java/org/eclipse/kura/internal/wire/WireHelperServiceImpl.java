@@ -38,7 +38,7 @@ public final class WireHelperServiceImpl implements WireHelperService {
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** Event Admin Service */
-	private volatile EventAdmin m_eventAdmin;
+	private volatile EventAdmin eventAdmin;
 
 	/**
 	 * Binds the Event Admin Service.
@@ -47,8 +47,8 @@ public final class WireHelperServiceImpl implements WireHelperService {
 	 *            the new Event Admin Service
 	 */
 	public synchronized void bindEventAdmin(final EventAdmin eventAdmin) {
-		if (this.m_eventAdmin == null) {
-			this.m_eventAdmin = eventAdmin;
+		if (this.eventAdmin == null) {
+			this.eventAdmin = eventAdmin;
 		}
 	}
 
@@ -143,7 +143,7 @@ public final class WireHelperServiceImpl implements WireHelperService {
 	/** {@inheritDoc} */
 	@Override
 	public WireSupport newWireSupport(final WireComponent wireComponent) {
-		return new WireSupportImpl(wireComponent, this, this.m_eventAdmin);
+		return new WireSupportImpl(wireComponent, this, this.eventAdmin);
 	}
 
 	/**
@@ -153,8 +153,8 @@ public final class WireHelperServiceImpl implements WireHelperService {
 	 *            the new Event Admin Service
 	 */
 	public synchronized void unbindEventAdmin(final EventAdmin eventAdmin) {
-		if (this.m_eventAdmin == eventAdmin) {
-			this.m_eventAdmin = null;
+		if (this.eventAdmin == eventAdmin) {
+			this.eventAdmin = null;
 		}
 	}
 

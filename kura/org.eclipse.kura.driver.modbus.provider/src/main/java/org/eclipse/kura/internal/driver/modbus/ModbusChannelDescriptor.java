@@ -38,13 +38,10 @@ public final class ModbusChannelDescriptor implements ChannelDescriptor {
 	/** Localization Resource. */
 	private static final ModbusDriverMessages s_message = LocalizationAdapter.adapt(ModbusDriverMessages.class);
 
-	/** The descriptor elements. */
-	private List<Tad> m_elements;
-
 	/** {@inheritDoc} */
 	@Override
 	public Object getDescriptor() {
-		this.m_elements = CollectionUtil.newArrayList();
+		final List<Tad> elements = CollectionUtil.newArrayList();
 
 		final Tad unitId = new Tad();
 		unitId.setId(s_message.unitId());
@@ -57,7 +54,7 @@ public final class ModbusChannelDescriptor implements ChannelDescriptor {
 		unitId.setCardinality(0);
 		unitId.setRequired(true);
 
-		this.m_elements.add(unitId);
+		elements.add(unitId);
 
 		final Tad primaryTable = new Tad();
 		primaryTable.setName(s_message.primaryTable());
@@ -87,7 +84,7 @@ public final class ModbusChannelDescriptor implements ChannelDescriptor {
 		holdingRegister.setLabel(s_message.holdingRegs());
 		primaryTable.getOption().add(holdingRegister);
 
-		this.m_elements.add(primaryTable);
+		elements.add(primaryTable);
 
 		final Tad address = new Tad();
 		address.setName(s_message.memoryAddr());
@@ -99,9 +96,9 @@ public final class ModbusChannelDescriptor implements ChannelDescriptor {
 		address.setMin("1");
 		address.setMax("65536");
 
-		this.m_elements.add(address);
+		elements.add(address);
 
-		return this.m_elements;
+		return elements;
 	}
 
 }

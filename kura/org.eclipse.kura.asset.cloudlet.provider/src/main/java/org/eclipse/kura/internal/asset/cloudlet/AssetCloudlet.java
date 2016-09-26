@@ -56,9 +56,9 @@ import org.slf4j.LoggerFactory;
  * asset PID
  * <li>/assets/asset_pid/channel_id</li> : to retrieve the value of the
  * specified channel from the provided asset PID
- * <li>/assets/asset_pid/channel_id1,channel_id2,channel_id3</li> : to retrieve
+ * <li>/assets/asset_pid/channel_id1-channel_id2-channel_id3</li> : to retrieve
  * the value of the several channels from the provided asset PID. Any number of
- * channels can be provided as well. Also note that {@code ","} delimiter must
+ * channels can be provided as well. Also note that {@code "-"} delimiter must
  * be used to separate the channel IDs.
  * </ul>
  *
@@ -103,16 +103,16 @@ public final class AssetCloudlet extends Cloudlet {
 	private static final AssetCloudletMessages s_message = LocalizationAdapter.adapt(AssetCloudletMessages.class);
 
 	/** The map of assets present in the OSGi service registry. */
-	private Map<String, Asset> m_assets;
+	private Map<String, Asset> assets;
 
 	/** The Asset Service dependency. */
-	private volatile AssetService m_assetService;
+	private volatile AssetService assetService;
 
 	/** Asset Tracker Customizer */
-	private AssetTrackerCustomizer m_assetTrackerCustomizer;
+	private AssetTrackerCustomizer assetTrackerCustomizer;
 
 	/** Asset Tracker. */
-	private ServiceTracker<Asset, Asset> m_serviceTracker;
+	private ServiceTracker<Asset, Asset> serviceTracker;
 
 	/**
 	 * Instantiates a new asset cloudlet.
@@ -127,11 +127,11 @@ public final class AssetCloudlet extends Cloudlet {
 		s_logger.debug(s_message.activating());
 		super.activate(componentContext);
 		try {
-			this.m_assetTrackerCustomizer = new AssetTrackerCustomizer(componentContext.getBundleContext(),
-					this.m_assetService);
-			this.m_serviceTracker = new ServiceTracker<Asset, Asset>(componentContext.getBundleContext(),
-					Asset.class.getName(), this.m_assetTrackerCustomizer);
-			this.m_serviceTracker.open();
+			this.assetTrackerCustomizer = new AssetTrackerCustomizer(componentContext.getBundleContext(),
+					this.assetService);
+			this.serviceTracker = new ServiceTracker<Asset, Asset>(componentContext.getBundleContext(),
+					Asset.class.getName(), this.assetTrackerCustomizer);
+			this.serviceTracker.open();
 		} catch (final InvalidSyntaxException e) {
 			s_logger.error(s_message.activationFailed(e));
 		}
@@ -145,8 +145,8 @@ public final class AssetCloudlet extends Cloudlet {
 	 *            the asset service dependency
 	 */
 	protected synchronized void bindAssetService(final AssetService assetService) {
-		if (this.m_assetService == null) {
-			this.m_assetService = assetService;
+		if (this.assetService == null) {
+			this.assetService = assetService;
 		}
 	}
 
@@ -167,7 +167,7 @@ public final class AssetCloudlet extends Cloudlet {
 	protected synchronized void deactivate(final ComponentContext componentContext) {
 		s_logger.debug(s_message.deactivating());
 		super.deactivate(componentContext);
-		this.m_serviceTracker.close();
+		this.serviceTracker.close();
 		s_logger.debug(s_message.deactivatingDone());
 	}
 
@@ -180,60 +180,19 @@ public final class AssetCloudlet extends Cloudlet {
 			// perform a search operation at the beginning
 			this.findAssets();
 			if (reqTopic.getResources().length == 1) {
-				int i = 0;
-				for (final Map.Entry<String, Asset> assetEntry : this.m_assets.entrySet()) {
-					respPayload.addMetric((++i) + ". ", assetEntry.getKey());
-				}
+				this.getAllAssets(respPayload);
 			}
 			// Checks if the name of the asset is provided
 			if (reqTopic.getResources().length == 2) {
 				final String assetPid = reqTopic.getResources()[1];
-				final Asset asset = this.m_assets.get(assetPid);
-				final AssetConfiguration configuration = asset.getAssetConfiguration();
-				final Map<Long, Channel> assetConfiguredChannels = configuration.getAssetChannels();
-				for (final Map.Entry<Long, Channel> entry : assetConfiguredChannels.entrySet()) {
-					final Channel channel = entry.getValue();
-					respPayload.addMetric(String.valueOf(channel.getId()), channel.getName());
-				}
+				this.getAllChannelsByAssetPid(respPayload, assetPid);
 			}
 			// Checks if the name of the asset and the name of the channel are
 			// provided
 			if (reqTopic.getResources().length == 3) {
 				final String assetPid = reqTopic.getResources()[1];
 				final String channelId = reqTopic.getResources()[2];
-				final String channelDelim = ",";
-				Set<String> channelIds = null;
-				if (channelId.contains(channelDelim)) {
-					channelIds = CollectionUtil.newHashSet(Arrays.asList(channelId.split(channelDelim)));
-					channelIds.removeAll(Collections.singleton(""));
-				}
-				final Asset asset = this.m_assets.get(assetPid);
-				final AssetConfiguration configuration = asset.getAssetConfiguration();
-				final Map<Long, Channel> assetConfiguredChannels = configuration.getAssetChannels();
-
-				final List<Long> channelIdsToRead = CollectionUtil.newArrayList();
-				long id;
-				if (channelIds == null) {
-					id = Long.parseLong(channelId);
-					channelIdsToRead.add(id);
-				} else {
-					for (final String chId : channelIds) {
-						id = Long.parseLong(chId);
-						channelIdsToRead.add(id);
-					}
-				}
-				if (assetConfiguredChannels != null) {
-					List<AssetRecord> assetRecords = null;
-					try {
-						assetRecords = asset.read(channelIdsToRead);
-					} catch (final KuraException e) {
-						// if connection exception occurs
-						respPayload.addMetric(s_message.errorMessage(), s_message.connectionException());
-					}
-					if (assetRecords != null) {
-						this.prepareResponse(respPayload, assetRecords);
-					}
-				}
+				this.readChannelsByIds(respPayload, assetPid, channelId);
 			}
 		}
 		s_logger.info(s_message.cloudGETReqReceived());
@@ -251,7 +210,7 @@ public final class AssetCloudlet extends Cloudlet {
 			this.findAssets();
 			final String assetPid = reqTopic.getResources()[1];
 			final String channelId = reqTopic.getResources()[2];
-			final Asset asset = this.m_assets.get(assetPid);
+			final Asset asset = this.assets.get(assetPid);
 			final AssetConfiguration configuration = asset.getAssetConfiguration();
 			final Map<Long, Channel> assetConfiguredChannels = configuration.getAssetChannels();
 			final long id = Long.parseLong(channelId);
@@ -288,7 +247,46 @@ public final class AssetCloudlet extends Cloudlet {
 	 * Searches for all the currently available assets in the service registry
 	 */
 	private void findAssets() {
-		this.m_assets = this.m_assetTrackerCustomizer.getRegisteredAssets();
+		this.assets = this.assetTrackerCustomizer.getRegisteredAssets();
+	}
+
+	/**
+	 * Get all assets
+	 *
+	 * @param respPayload
+	 *            the response to prepare
+	 * @throws KuraRuntimeException
+	 *             if the argument is null
+	 */
+	private void getAllAssets(final KuraResponsePayload respPayload) {
+		checkNull(respPayload, s_message.respPayloadNonNull());
+		int i = 0;
+		for (final Map.Entry<String, Asset> assetEntry : this.assets.entrySet()) {
+			respPayload.addMetric(String.valueOf(++i), assetEntry.getKey());
+		}
+	}
+
+	/**
+	 * Get all channels by the provided Asset PID
+	 *
+	 * @param respPayload
+	 *            the response to prepare
+	 * @param assetPid
+	 *            the provided Asset PID
+	 * @throws KuraRuntimeException
+	 *             if any of the argument is null
+	 */
+	private void getAllChannelsByAssetPid(final KuraResponsePayload respPayload, final String assetPid) {
+		checkNull(respPayload, s_message.respPayloadNonNull());
+		checkNull(assetPid, s_message.assetPidNonNull());
+
+		final Asset asset = this.assets.get(assetPid);
+		final AssetConfiguration configuration = asset.getAssetConfiguration();
+		final Map<Long, Channel> assetConfiguredChannels = configuration.getAssetChannels();
+		for (final Map.Entry<Long, Channel> entry : assetConfiguredChannels.entrySet()) {
+			final Channel channel = entry.getValue();
+			respPayload.addMetric(String.valueOf(channel.getId()), channel.getName());
+		}
 	}
 
 	/**
@@ -327,14 +325,67 @@ public final class AssetCloudlet extends Cloudlet {
 	}
 
 	/**
+	 * Read channels based on provided Asset PID
+	 *
+	 * @param respPayload
+	 *            the response paylaod to be prepared
+	 * @param assetPid
+	 *            the Asset PID
+	 * @param channelId
+	 *            the channel ID (might contain {@code -} for multiple reads)
+	 * @throws KuraRuntimeException
+	 *             if any of the arguments is null
+	 */
+	private void readChannelsByIds(final KuraResponsePayload respPayload, final String assetPid,
+			final String channelId) {
+		checkNull(respPayload, s_message.respPayloadNonNull());
+		checkNull(assetPid, s_message.assetPidNonNull());
+		checkNull(channelId, s_message.channelIdNonNull());
+
+		final String channelDelim = ",";
+		Set<String> channelIds = null;
+		if (channelId.contains(channelDelim)) {
+			channelIds = CollectionUtil.newHashSet(Arrays.asList(channelId.split(channelDelim)));
+			channelIds.removeAll(Collections.singleton(""));
+		}
+		final Asset asset = this.assets.get(assetPid);
+		final AssetConfiguration configuration = asset.getAssetConfiguration();
+		final Map<Long, Channel> assetConfiguredChannels = configuration.getAssetChannels();
+
+		final List<Long> channelIdsToRead = CollectionUtil.newArrayList();
+		long id;
+		if (channelIds == null) {
+			id = Long.parseLong(channelId);
+			channelIdsToRead.add(id);
+		} else {
+			for (final String chId : channelIds) {
+				id = Long.parseLong(chId);
+				channelIdsToRead.add(id);
+			}
+		}
+		if (assetConfiguredChannels != null) {
+			List<AssetRecord> assetRecords = null;
+			try {
+				assetRecords = asset.read(channelIdsToRead);
+			} catch (final KuraException e) {
+				// if connection exception occurs
+				respPayload.addMetric(s_message.errorMessage(), s_message.connectionException());
+			}
+			if (assetRecords != null) {
+				this.prepareResponse(respPayload, assetRecords);
+			}
+		}
+	}
+
+	/**
 	 * Asset Service deregistration callback
 	 *
 	 * @param assetService
 	 *            the asset service dependency
 	 */
 	protected synchronized void unbindAssetService(final AssetService assetService) {
-		if (this.m_assetService == assetService) {
-			this.m_assetService = null;
+		if (this.assetService == assetService) {
+			this.assetService = null;
 		}
 	}
 
@@ -362,6 +413,8 @@ public final class AssetCloudlet extends Cloudlet {
 	 *            the type to use
 	 * @throws KuraRuntimeException
 	 *             if any of the provided arguments is null
+	 * @throws NumberFormatException
+	 *             if the provided value cannot be parsed
 	 */
 	private void wrapValue(final AssetRecord assetRecord, final String userValue, final String userType) {
 		checkNull(assetRecord, s_message.assetRecordNonNull());

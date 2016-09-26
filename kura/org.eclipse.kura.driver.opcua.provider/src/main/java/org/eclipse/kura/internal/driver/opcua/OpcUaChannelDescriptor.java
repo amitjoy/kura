@@ -35,13 +35,10 @@ public final class OpcUaChannelDescriptor implements ChannelDescriptor {
 	/** Localization Resource. */
 	private static final OpcUaMessages s_message = LocalizationAdapter.adapt(OpcUaMessages.class);
 
-	/** The descriptor elements. */
-	private List<Tad> m_elements;
-
 	/** {@inheritDoc} */
 	@Override
 	public Object getDescriptor() {
-		this.m_elements = CollectionUtil.newArrayList();
+		final List<Tad> elements = CollectionUtil.newArrayList();
 
 		final Tad nodeId = new Tad();
 		nodeId.setName(s_message.nodeId());
@@ -50,7 +47,7 @@ public final class OpcUaChannelDescriptor implements ChannelDescriptor {
 		nodeId.setType(Tscalar.STRING);
 		nodeId.setRequired(true);
 		nodeId.setDefault("MyNode");
-		this.m_elements.add(nodeId);
+		elements.add(nodeId);
 
 		final Tad namespaceIndex = new Tad();
 		namespaceIndex.setName(s_message.nodeNamespaceIndex());
@@ -60,8 +57,8 @@ public final class OpcUaChannelDescriptor implements ChannelDescriptor {
 		namespaceIndex.setRequired(true);
 		namespaceIndex.setDefault("2");
 
-		this.m_elements.add(namespaceIndex);
-		return this.m_elements;
+		elements.add(namespaceIndex);
+		return elements;
 	}
 
 }

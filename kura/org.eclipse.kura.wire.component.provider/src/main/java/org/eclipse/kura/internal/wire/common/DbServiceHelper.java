@@ -40,7 +40,7 @@ public final class DbServiceHelper {
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** The dependent DB service instance. */
-	private final DbService m_dbService;
+	private final DbService dbService;
 
 	/**
 	 * Instantiates a new DB Service Helper.
@@ -52,7 +52,7 @@ public final class DbServiceHelper {
 	 */
 	private DbServiceHelper(final DbService dbService) {
 		checkNull(dbService, s_message.dbServiceNonNull());
-		this.m_dbService = dbService;
+		this.dbService = dbService;
 	}
 
 	/**
@@ -66,7 +66,7 @@ public final class DbServiceHelper {
 	public void close(final Connection conn) {
 		checkNull(conn, s_message.connectionNonNull());
 		s_logger.debug(s_message.closingConnection() + conn);
-		this.m_dbService.close(conn);
+		this.dbService.close(conn);
 		s_logger.debug(s_message.closingConnectionDone());
 	}
 
@@ -78,7 +78,7 @@ public final class DbServiceHelper {
 	 */
 	public void close(final ResultSet... rss) {
 		s_logger.debug(s_message.closingResultSet() + Arrays.toString(rss));
-		this.m_dbService.close(rss);
+		this.dbService.close(rss);
 		s_logger.debug(s_message.closingResultSetDone());
 	}
 
@@ -90,7 +90,7 @@ public final class DbServiceHelper {
 	 */
 	public void close(final Statement... stmts) {
 		s_logger.debug(s_message.closingStatement() + Arrays.toString(stmts));
-		this.m_dbService.close(stmts);
+		this.dbService.close(stmts);
 		s_logger.debug(s_message.closingStatementDone());
 	}
 
@@ -137,7 +137,7 @@ public final class DbServiceHelper {
 	 *             the SQL exception
 	 */
 	public Connection getConnection() throws SQLException {
-		return this.m_dbService.getConnection();
+		return this.dbService.getConnection();
 	}
 
 	/**
@@ -151,7 +151,7 @@ public final class DbServiceHelper {
 	public void rollback(final Connection conn) {
 		checkNull(conn, s_message.connectionNonNull());
 		s_logger.debug(s_message.rollback() + conn);
-		this.m_dbService.rollback(conn);
+		this.dbService.rollback(conn);
 		s_logger.debug(s_message.rollbackDone());
 	}
 

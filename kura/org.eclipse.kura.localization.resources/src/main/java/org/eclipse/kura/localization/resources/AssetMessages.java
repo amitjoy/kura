@@ -60,6 +60,9 @@ public interface AssetMessages {
 	@En("Channel ID cannot be zero or less")
 	public String channelIdNotLessThanZero();
 
+	@En("Channel Key cannot be null")
+	public String channelKeyNonNull();
+
 	@En("channel_name")
 	public String channelName();
 
@@ -86,6 +89,9 @@ public interface AssetMessages {
 
 	@En("Channel not available")
 	public String channelUnavailable();
+
+	@En("Channel Value Type cannot be null")
+	public String channelValueTypeNonNull();
 
 	@En("CONFIG")
 	public String config();
@@ -200,6 +206,9 @@ public interface AssetMessages {
 
 	@En("Retrieving configurations from the properties...Done")
 	public String retrievingConfDone();
+
+	@En("SEVERE")
+	public String severe();
 
 	@En("It signifies severity level of Wire Fields to be accepted by this Wire Component")
 	public String severityLevelDesc();

@@ -13,8 +13,6 @@ package org.eclipse.kura.internal.wire.filter;
 
 import java.util.Map;
 
-import org.eclipse.kura.wire.SeverityLevel;
-
 /**
  * The Class DbWireRecordFilterOptions is responsible to contain all the Db Wire
  * Record related filter options
@@ -37,7 +35,7 @@ final class DbWireRecordFilterOptions {
 	private static final String SEVERITY_LEVEL = "severity.level";
 
 	/** The properties as associated */
-	private final Map<String, Object> m_properties;
+	private final Map<String, Object> properties;
 
 	/**
 	 * Instantiates a new DB wire record filter options.
@@ -46,7 +44,7 @@ final class DbWireRecordFilterOptions {
 	 *            the provided properties
 	 */
 	DbWireRecordFilterOptions(final Map<String, Object> properties) {
-		this.m_properties = properties;
+		this.properties = properties;
 	}
 
 	/**
@@ -56,8 +54,8 @@ final class DbWireRecordFilterOptions {
 	 */
 	int getCacheCapacity() {
 		int cacheSize = 0;
-		final Object cacheCapacity = this.m_properties.get(CONF_CACHE_CAPACITY);
-		if ((this.m_properties != null) && (this.m_properties.containsKey(CONF_CACHE_CAPACITY))
+		final Object cacheCapacity = this.properties.get(CONF_CACHE_CAPACITY);
+		if ((this.properties != null) && (this.properties.containsKey(CONF_CACHE_CAPACITY))
 				&& (cacheCapacity instanceof String)) {
 			cacheSize = (Integer) cacheCapacity;
 		}
@@ -71,8 +69,8 @@ final class DbWireRecordFilterOptions {
 	 */
 	int getCacheInterval() {
 		int cacheInterval = 0;
-		final Object cacheInt = this.m_properties.get(CONF_CACHE_INTERVAL);
-		if ((this.m_properties != null) && (this.m_properties.containsKey(CONF_CACHE_INTERVAL))
+		final Object cacheInt = this.properties.get(CONF_CACHE_INTERVAL);
+		if ((this.properties != null) && (this.properties.containsKey(CONF_CACHE_INTERVAL))
 				&& (cacheInt instanceof String)) {
 			cacheInterval = (Integer) cacheInt;
 		}
@@ -86,36 +84,12 @@ final class DbWireRecordFilterOptions {
 	 */
 	int getRefreshRate() {
 		int refreshRate = 0;
-		final Object cacheRefreshRate = this.m_properties.get(CONF_REFRESH_RATE);
-		if ((this.m_properties != null) && (this.m_properties.containsKey(CONF_REFRESH_RATE))
+		final Object cacheRefreshRate = this.properties.get(CONF_REFRESH_RATE);
+		if ((this.properties != null) && (this.properties.containsKey(CONF_REFRESH_RATE))
 				&& (cacheRefreshRate instanceof Integer)) {
 			refreshRate = (Integer) cacheRefreshRate;
 		}
 		return refreshRate;
-	}
-
-	/**
-	 * Returns the severity level of accepted wire fields.
-	 *
-	 * @return the severity level
-	 */
-	SeverityLevel getSeverityLevel() {
-		String severityLevel = "ERROR";
-		final Object level = this.m_properties.get(SEVERITY_LEVEL);
-		if ((this.m_properties != null) && this.m_properties.containsKey(SEVERITY_LEVEL) && (level != null)
-				&& (level instanceof String)) {
-			severityLevel = String.valueOf(level);
-		}
-		if ("ERROR".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.ERROR;
-		}
-		if ("INFO".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.INFO;
-		}
-		if ("CONFIG".equalsIgnoreCase(severityLevel)) {
-			return SeverityLevel.CONFIG;
-		}
-		return SeverityLevel.ERROR;
 	}
 
 	/**
@@ -125,8 +99,8 @@ final class DbWireRecordFilterOptions {
 	 */
 	String getSqlView() {
 		String sqlView = null;
-		final Object view = this.m_properties.get(CONF_SQL_VIEW);
-		if ((this.m_properties != null) && (this.m_properties.containsKey(CONF_SQL_VIEW)) && (view instanceof String)) {
+		final Object view = this.properties.get(CONF_SQL_VIEW);
+		if ((this.properties != null) && (this.properties.containsKey(CONF_SQL_VIEW)) && (view instanceof String)) {
 			sqlView = String.valueOf(view);
 		}
 		return sqlView;

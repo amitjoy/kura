@@ -8,7 +8,6 @@
      http://www.eclipse.org/legal/epl-v10.html
 
     Contributors:
-      Eurotech
       Amit Kumar Mondal (admin@amitinside.com)
 -->
 <MetaData xmlns="http://www.osgi.org/xmlns/metatype/v1.2.0" localization="en_us">
@@ -49,10 +48,11 @@
             type="String"
             cardinality="0"
             required="true"
-            default="ERROR"
+            default="SEVERE"
             description="It signifies severity level of Wire Fields to be accepted by this Wire Component">
-            <Option label="ERROR" value="ERROR" />
+            <Option label="SEVERE" value="SEVERE" />
             <Option label="CONFIG" value="CONFIG" />
+            <Option label="ERROR" value="ERROR" />
             <Option label="INFO" value="INFO" />
         </AD>
 

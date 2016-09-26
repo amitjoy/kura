@@ -40,10 +40,10 @@ public final class DbDataTypeMapper {
 	public static class JdbcType {
 
 		/** The JDBC type represented as integer. */
-		private final int m_type;
+		private final int type;
 
 		/** The JDBC type represented as string. */
-		private final String m_typeStr;
+		private final String typeStr;
 
 		/**
 		 * Instantiates a new JDBC type.
@@ -54,8 +54,8 @@ public final class DbDataTypeMapper {
 		 *            the type string
 		 */
 		JdbcType(final int type, final String typeStr) {
-			this.m_type = type;
-			this.m_typeStr = typeStr;
+			this.type = type;
+			this.typeStr = typeStr;
 		}
 
 		/**
@@ -64,7 +64,7 @@ public final class DbDataTypeMapper {
 		 * @return the type
 		 */
 		int getType() {
-			return this.m_type;
+			return this.type;
 		}
 
 		/**
@@ -73,7 +73,7 @@ public final class DbDataTypeMapper {
 		 * @return the type string
 		 */
 		String getTypeString() {
-			return this.m_typeStr;
+			return this.typeStr;
 		}
 	}
 
@@ -81,31 +81,31 @@ public final class DbDataTypeMapper {
 	 * The map containing key-value pairs of the Kura Datatype and the JDBC
 	 * datatype
 	 */
-	private static Map<DataType, JdbcType> s_dataTypeMap = CollectionUtil.newHashMap();
+	private static Map<DataType, JdbcType> dataTypeMap = CollectionUtil.newHashMap();
 
 	/** The JDBC Type Holder map. */
-	private static Map<Integer, DataType> s_jdbcTypeMap = CollectionUtil.newHashMap();
+	private static Map<Integer, DataType> jdbcTypeMap = CollectionUtil.newHashMap();
 
 	static {
-		s_dataTypeMap.put(BYTE, new JdbcType(Types.TINYINT, "TINYINT"));
-		s_dataTypeMap.put(SHORT, new JdbcType(Types.SMALLINT, "SMALLINT"));
-		s_dataTypeMap.put(INTEGER, new JdbcType(Types.INTEGER, "INTEGER"));
-		s_dataTypeMap.put(LONG, new JdbcType(Types.BIGINT, "BIGINT"));
-		s_dataTypeMap.put(DOUBLE, new JdbcType(Types.DOUBLE, "DOUBLE"));
-		s_dataTypeMap.put(BOOLEAN, new JdbcType(Types.BOOLEAN, "BOOLEAN"));
-		s_dataTypeMap.put(BYTE_ARRAY, new JdbcType(Types.BINARY, "BINARY"));
-		s_dataTypeMap.put(STRING, new JdbcType(Types.VARCHAR, "VARCHAR(102400)"));
+		dataTypeMap.put(BYTE, new JdbcType(Types.TINYINT, "TINYINT"));
+		dataTypeMap.put(SHORT, new JdbcType(Types.SMALLINT, "SMALLINT"));
+		dataTypeMap.put(INTEGER, new JdbcType(Types.INTEGER, "INTEGER"));
+		dataTypeMap.put(LONG, new JdbcType(Types.BIGINT, "BIGINT"));
+		dataTypeMap.put(DOUBLE, new JdbcType(Types.DOUBLE, "DOUBLE"));
+		dataTypeMap.put(BOOLEAN, new JdbcType(Types.BOOLEAN, "BOOLEAN"));
+		dataTypeMap.put(BYTE_ARRAY, new JdbcType(Types.BINARY, "BINARY"));
+		dataTypeMap.put(STRING, new JdbcType(Types.VARCHAR, "VARCHAR(102400)"));
 	}
 
 	static {
-		s_jdbcTypeMap.put(Types.TINYINT, DataType.BYTE);
-		s_jdbcTypeMap.put(Types.SMALLINT, DataType.SHORT);
-		s_jdbcTypeMap.put(Types.INTEGER, DataType.INTEGER);
-		s_jdbcTypeMap.put(Types.BIGINT, DataType.LONG);
-		s_jdbcTypeMap.put(Types.DOUBLE, DataType.DOUBLE);
-		s_jdbcTypeMap.put(Types.BOOLEAN, DataType.BOOLEAN);
-		s_jdbcTypeMap.put(Types.BINARY, DataType.BYTE_ARRAY);
-		s_jdbcTypeMap.put(Types.VARCHAR, DataType.STRING);
+		jdbcTypeMap.put(Types.TINYINT, DataType.BYTE);
+		jdbcTypeMap.put(Types.SMALLINT, DataType.SHORT);
+		jdbcTypeMap.put(Types.INTEGER, DataType.INTEGER);
+		jdbcTypeMap.put(Types.BIGINT, DataType.LONG);
+		jdbcTypeMap.put(Types.DOUBLE, DataType.DOUBLE);
+		jdbcTypeMap.put(Types.BOOLEAN, DataType.BOOLEAN);
+		jdbcTypeMap.put(Types.BINARY, DataType.BYTE_ARRAY);
+		jdbcTypeMap.put(Types.VARCHAR, DataType.STRING);
 	}
 
 	/**
@@ -119,11 +119,11 @@ public final class DbDataTypeMapper {
 	 * Gets the data type.
 	 *
 	 * @param jdbcType
-	 *            the jdbc type
+	 *            the JDBC type
 	 * @return the data type
 	 */
 	public static DataType getDataType(final int jdbcType) {
-		return s_jdbcTypeMap.get(jdbcType);
+		return jdbcTypeMap.get(jdbcType);
 	}
 
 	/**
@@ -134,7 +134,7 @@ public final class DbDataTypeMapper {
 	 * @return the JDBC type
 	 */
 	public static JdbcType getJdbcType(final DataType dataType) {
-		return s_dataTypeMap.get(dataType);
+		return dataTypeMap.get(dataType);
 	}
 
 }

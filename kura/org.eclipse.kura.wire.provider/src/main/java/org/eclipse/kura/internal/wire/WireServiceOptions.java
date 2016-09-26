@@ -36,7 +36,7 @@ final class WireServiceOptions {
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** The list of wire configurations. */
-	private final List<WireConfiguration> m_wireConfigurations;
+	private final List<WireConfiguration> wireConfigurations;
 
 	/**
 	 * Instantiates a new wire service options.
@@ -48,9 +48,22 @@ final class WireServiceOptions {
 	 */
 	private WireServiceOptions(final List<WireConfiguration> configurations) {
 		checkNull(configurations, s_message.configurationNonNull());
-		checkNull(configurations, s_message.wireHelperServiceNonNull());
+		this.wireConfigurations = configurations;
+	}
 
-		this.m_wireConfigurations = configurations;
+	/**
+	 * Gets the wire configurations.
+	 *
+	 * @return the wire configurations
+	 */
+	List<WireConfiguration> getWireConfigurations() {
+		return this.wireConfigurations;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public String toString() {
+		return "WireServiceOptions [m_wireConfigurations=" + this.wireConfigurations + "]";
 	}
 
 	/**
@@ -90,13 +103,13 @@ final class WireServiceOptions {
 					continue;
 				}
 				if ((key.startsWith(String.format(PATTERN, wireConfId)))) {
-					if (key.contains("emitter")) {
+					if (key.contains(s_message.emitter())) {
 						emitterPid = value;
 					}
-					if (key.contains("receiver")) {
+					if (key.contains(s_message.receiver())) {
 						receiverPid = value;
 					}
-					if (key.contains("filter")) {
+					if (key.contains(s_message.filter())) {
 						filter = value;
 					}
 				}
@@ -105,21 +118,6 @@ final class WireServiceOptions {
 			wireConfs.add(configuration);
 		}
 		return new WireServiceOptions(wireConfs);
-	}
-
-	/**
-	 * Gets the wire configurations.
-	 *
-	 * @return the wire configurations
-	 */
-	List<WireConfiguration> getWireConfigurations() {
-		return this.m_wireConfigurations;
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "WireServiceOptions [m_wireConfigurations=" + this.m_wireConfigurations + "]";
 	}
 
 }

@@ -98,13 +98,13 @@ public final class ModbusDriver implements Driver {
 	private static final String UNIT_ID = "unit.id";
 
 	/** flag to check if the driver is connected. */
-	private boolean m_isConnected;
+	private boolean isConnected;
 
 	/** Modbus RTU Connection. */
-	private AbstractModbusMaster m_modbusMaster;
+	private AbstractModbusMaster modbusMaster;
 
 	/** Modbus Configuration Options. */
-	private ModbusOptions m_options;
+	private ModbusOptions options;
 
 	/**
 	 * OSGi service component callback while activation.
@@ -126,13 +126,13 @@ public final class ModbusDriver implements Driver {
 	public void connect() throws ConnectionException {
 		s_logger.debug(s_message.connectingModbus());
 		try {
-			this.m_modbusMaster.connect();
+			this.modbusMaster.connect();
 		} catch (final Exception e) {
 			s_logger.error(s_message.connectionProblem() + ThrowableUtil.stackTraceAsString(e));
 			throw new ConnectionException(s_message.connectionProblem() + ThrowableUtil.stackTraceAsString(e));
 		}
 		s_logger.debug(s_message.connectingModbusDone());
-		this.m_isConnected = true;
+		this.isConnected = true;
 	}
 
 	/**
@@ -154,17 +154,17 @@ public final class ModbusDriver implements Driver {
 	/** {@inheritDoc} */
 	@Override
 	public void disconnect() throws ConnectionException {
-		this.m_options.getType();
-		if (this.m_isConnected) {
+		this.options.getType();
+		if (this.isConnected) {
 			s_logger.debug(s_message.disconnectingModbus());
 			try {
-				this.m_modbusMaster.disconnect();
+				this.modbusMaster.disconnect();
 			} catch (final Exception e) {
 				s_logger.error(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 				throw new ConnectionException(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
 			}
 			s_logger.debug(s_message.disconnectingModbusDone());
-			this.m_isConnected = false;
+			this.isConnected = false;
 		}
 	}
 
@@ -176,20 +176,20 @@ public final class ModbusDriver implements Driver {
 	 */
 	private void extractProperties(final Map<String, Object> properties) {
 		checkNull(properties, s_message.propertiesNonNull());
-		this.m_options = new ModbusOptions(properties);
-		switch (this.m_options.getType()) {
+		this.options = new ModbusOptions(properties);
+		switch (this.options.getType()) {
 		case TCP:
-			this.m_modbusMaster = new ModbusTCPMaster(this.m_options.getIp(), this.m_options.getPort());
+			this.modbusMaster = new ModbusTCPMaster(this.options.getIp(), this.options.getPort());
 			break;
 		case UDP:
-			this.m_modbusMaster = new ModbusUDPMaster(this.m_options.getIp(), this.m_options.getPort());
+			this.modbusMaster = new ModbusUDPMaster(this.options.getIp(), this.options.getPort());
 			break;
 		case RTU:
-			final SerialParameters parameters = new SerialParameters(this.m_options.getRtuPortName(),
-					this.m_options.getBaudrate(), this.m_options.getFlowControlIn(), this.m_options.getFlowControlOut(),
-					this.m_options.getDatabits(), this.m_options.getStopbits(), this.m_options.getParity(), false);
-			parameters.setEncoding(this.m_options.getEncoding());
-			this.m_modbusMaster = new ModbusSerialMaster(parameters);
+			final SerialParameters parameters = new SerialParameters(this.options.getRtuPortName(),
+					this.options.getBaudrate(), this.options.getFlowControlIn(), this.options.getFlowControlOut(),
+					this.options.getDatabits(), this.options.getStopbits(), this.options.getParity(), false);
+			parameters.setEncoding(this.options.getEncoding());
+			this.modbusMaster = new ModbusSerialMaster(parameters);
 			break;
 		default:
 			break;
@@ -294,7 +294,7 @@ public final class ModbusDriver implements Driver {
 	/** {@inheritDoc} */
 	@Override
 	public List<DriverRecord> read(final List<DriverRecord> records) throws ConnectionException {
-		if (!this.m_isConnected) {
+		if (!this.isConnected) {
 			this.connect();
 		}
 		for (final DriverRecord record : records) {
@@ -364,7 +364,7 @@ public final class ModbusDriver implements Driver {
 			}
 			try {
 				// always read single register
-				final Object response = this.readRequest(unitId, this.m_modbusMaster, functionCode, memoryAddr, 1);
+				final Object response = this.readRequest(unitId, this.modbusMaster, functionCode, memoryAddr, 1);
 				final TypedValue<?> value = this.getValue(response, record);
 				if (value == null) {
 					record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
@@ -493,7 +493,7 @@ public final class ModbusDriver implements Driver {
 	/** {@inheritDoc} */
 	@Override
 	public List<DriverRecord> write(final List<DriverRecord> records) throws ConnectionException {
-		if (!this.m_isConnected) {
+		if (!this.isConnected) {
 			this.connect();
 		}
 		for (final DriverRecord record : records) {
@@ -589,7 +589,7 @@ public final class ModbusDriver implements Driver {
 						continue;
 					}
 				}
-				this.writeRequest(unitId, this.m_modbusMaster, functionCode, memoryAddr, valueToWrite);
+				this.writeRequest(unitId, this.modbusMaster, functionCode, memoryAddr, valueToWrite);
 				record.setDriverStatus(new DriverStatus(WRITE_SUCCESSFUL));
 			} catch (final ModbusException e) {
 				record.setDriverStatus(new DriverStatus(WRITE_FAILURE, null, e));

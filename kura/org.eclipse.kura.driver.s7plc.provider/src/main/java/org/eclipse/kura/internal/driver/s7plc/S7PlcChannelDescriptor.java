@@ -35,13 +35,10 @@ public final class S7PlcChannelDescriptor implements ChannelDescriptor {
 	/** Localization Resource. */
 	private static final S7PlcMessages s_message = LocalizationAdapter.adapt(S7PlcMessages.class);
 
-	/** The descriptor elements. */
-	private List<Tad> m_elements;
-
 	/** {@inheritDoc} */
 	@Override
 	public Object getDescriptor() {
-		this.m_elements = CollectionUtil.newArrayList();
+		final List<Tad> elements = CollectionUtil.newArrayList();
 
 		final Tad areaNo = new Tad();
 		areaNo.setName(s_message.areaNo());
@@ -51,7 +48,7 @@ public final class S7PlcChannelDescriptor implements ChannelDescriptor {
 		areaNo.setRequired(true);
 		areaNo.setDefault("0");
 
-		this.m_elements.add(areaNo);
+		elements.add(areaNo);
 
 		final Tad offset = new Tad();
 		offset.setName(s_message.offset());
@@ -61,7 +58,7 @@ public final class S7PlcChannelDescriptor implements ChannelDescriptor {
 		offset.setRequired(true);
 		offset.setDefault("0");
 
-		this.m_elements.add(offset);
+		elements.add(offset);
 
 		final Tad byteCount = new Tad();
 		byteCount.setName(s_message.byteCount());
@@ -71,9 +68,9 @@ public final class S7PlcChannelDescriptor implements ChannelDescriptor {
 		byteCount.setRequired(true);
 		byteCount.setDefault("0");
 
-		this.m_elements.add(byteCount);
+		elements.add(byteCount);
 
-		return this.m_elements;
+		return elements;
 	}
 
 }

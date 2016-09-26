@@ -97,10 +97,10 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** The Wire Helper Service. */
-	private volatile WireHelperService m_wireHelperService;
+	private volatile WireHelperService wireHelperService;
 
 	/** Wire Supporter Component. */
-	private WireSupport m_wireSupport;
+	private WireSupport wireSupport;
 
 	/**
 	 * OSGi service component callback while activation.
@@ -115,7 +115,7 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 			final Map<String, Object> properties) {
 		s_logger.debug(s_message.activatingWireAsset());
 		super.activate(componentContext, properties);
-		this.m_wireSupport = this.m_wireHelperService.newWireSupport(this);
+		this.wireSupport = this.wireHelperService.newWireSupport(this);
 		s_logger.debug(s_message.activatingWireAssetDone());
 	}
 
@@ -126,15 +126,15 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 	 *            the new Wire Helper Service
 	 */
 	public synchronized void bindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.m_wireHelperService == null) {
-			this.m_wireHelperService = wireHelperService;
+		if (this.wireHelperService == null) {
+			this.wireHelperService = wireHelperService;
 		}
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void consumersConnected(final Wire[] wires) {
-		this.m_wireSupport.consumersConnected(wires);
+		this.wireSupport.consumersConnected(wires);
 	}
 
 	/**
@@ -178,7 +178,7 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 			}
 			final WireField channelIdWireField = new WireField(s_message.channelId(),
 					TypedValues.newLongValue(channelId), level);
-			final String channelName = this.m_assetConfiguration.getAssetChannels().get(channelId).getName();
+			final String channelName = this.assetConfiguration.getAssetChannels().get(channelId).getName();
 			final WireField channelNameWireField = new WireField(s_message.channelName(),
 					TypedValues.newStringValue(channelName), level);
 			final WireField assetFlagWireField = new WireField(s_message.assetFlag(),
@@ -211,7 +211,7 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 			}
 			wireRecords.add(wireRecord);
 		}
-		this.m_wireSupport.emit(wireRecords);
+		this.wireSupport.emit(wireRecords);
 	}
 
 	/** {@inheritDoc} */
@@ -240,13 +240,13 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 	@Override
 	public void onWireReceive(final WireEnvelope wireEnvelope) {
 		checkNull(wireEnvelope, s_message.wireEnvelopeNonNull());
-		s_logger.debug(s_message.wireEnvelopeReceived() + this.m_wireSupport);
+		s_logger.debug(s_message.wireEnvelopeReceived() + this.wireSupport);
 
 		// filtering list of wire records based on the provided severity level
-		final List<WireRecord> records = this.m_wireSupport.filter(wireEnvelope.getRecords());
+		final List<WireRecord> records = this.wireSupport.filter(wireEnvelope.getRecords());
 		final List<AssetRecord> assetRecordsToWriteChannels = CollectionUtil.newArrayList();
 		final List<Long> channelsToRead = CollectionUtil.newArrayList();
-		final Map<Long, Channel> channels = this.m_assetConfiguration.getAssetChannels();
+		final Map<Long, Channel> channels = this.assetConfiguration.getAssetChannels();
 
 		// determining channels to read
 		for (final Map.Entry<Long, Channel> channelEntry : channels.entrySet()) {
@@ -300,7 +300,7 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 	/** {@inheritDoc} */
 	@Override
 	public Object polled(final Wire wire) {
-		return this.m_wireSupport.polled(wire);
+		return this.wireSupport.polled(wire);
 	}
 
 	/**
@@ -326,7 +326,7 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 	/** {@inheritDoc} */
 	@Override
 	public void producersConnected(final Wire[] wires) {
-		this.m_wireSupport.producersConnected(wires);
+		this.wireSupport.producersConnected(wires);
 	}
 
 	/**
@@ -336,8 +336,8 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 	 *            the new Wire Helper Service
 	 */
 	public synchronized void unbindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.m_wireHelperService == wireHelperService) {
-			this.m_wireHelperService = null;
+		if (this.wireHelperService == wireHelperService) {
+			this.wireHelperService = null;
 		}
 	}
 
@@ -357,7 +357,7 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 	/** {@inheritDoc} */
 	@Override
 	public void updated(final Wire wire, final Object value) {
-		this.m_wireSupport.updated(wire, value);
+		this.wireSupport.updated(wire, value);
 	}
 
 }

@@ -80,13 +80,13 @@ public final class S7PlcDriver implements Driver {
 	private static final S7PlcMessages s_message = LocalizationAdapter.adapt(S7PlcMessages.class);
 
 	/** Connector instance */
-	private S7Connector m_connector;
+	private S7Connector connector;
 
 	/** flag to check if the driver is connected. */
-	private boolean m_isConnected;
+	private boolean isConnected;
 
 	/** S7 PLC Configuration Options. */
-	private S7PlcOptions m_options;
+	private S7PlcOptions options;
 
 	/**
 	 * OSGi service component callback while activation.
@@ -106,11 +106,11 @@ public final class S7PlcDriver implements Driver {
 	/** {@inheritDoc} */
 	@Override
 	public void connect() throws ConnectionException {
-		if (!this.m_isConnected) {
+		if (!this.isConnected) {
 			s_logger.debug(s_message.connecting());
-			this.m_connector = S7ConnectorFactory.buildTCPConnector().withHost(this.m_options.getIp())
-					.withRack(this.m_options.getRack()).withSlot(this.m_options.getSlot()).build();
-			this.m_isConnected = true;
+			this.connector = S7ConnectorFactory.buildTCPConnector().withHost(this.options.getIp())
+					.withRack(this.options.getRack()).withSlot(this.options.getSlot()).build();
+			this.isConnected = true;
 			s_logger.debug(s_message.connectingDone());
 		}
 	}
@@ -128,18 +128,18 @@ public final class S7PlcDriver implements Driver {
 		} catch (final ConnectionException e) {
 			s_logger.error(s_message.errorDisconnecting() + ThrowableUtil.stackTraceAsString(e));
 		}
-		this.m_connector = null;
+		this.connector = null;
 		s_logger.debug(s_message.deactivatingDone());
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void disconnect() throws ConnectionException {
-		if (this.m_isConnected) {
+		if (this.isConnected) {
 			try {
 				s_logger.debug(s_message.disconnecting());
-				this.m_connector.close();
-				this.m_isConnected = false;
+				this.connector.close();
+				this.isConnected = false;
 				s_logger.debug(s_message.disconnectingDone());
 			} catch (final IOException e) {
 				s_logger.error(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
@@ -156,7 +156,7 @@ public final class S7PlcDriver implements Driver {
 	 */
 	private void extractProperties(final Map<String, Object> properties) {
 		checkNull(properties, s_message.propertiesNonNull());
-		this.m_options = new S7PlcOptions(properties);
+		this.options = new S7PlcOptions(properties);
 	}
 
 	/** {@inheritDoc} */
@@ -168,7 +168,7 @@ public final class S7PlcDriver implements Driver {
 	/** {@inheritDoc} */
 	@Override
 	public List<DriverRecord> read(final List<DriverRecord> records) throws ConnectionException {
-		if (!this.m_isConnected) {
+		if (!this.isConnected) {
 			this.connect();
 		}
 		for (final DriverRecord record : records) {
@@ -222,7 +222,7 @@ public final class S7PlcDriver implements Driver {
 				record.setTimestamp(System.currentTimeMillis());
 				continue;
 			}
-			final byte[] value = this.m_connector.read(DaveArea.DB, areaNo, byteCount, offset);
+			final byte[] value = this.connector.read(DaveArea.DB, areaNo, byteCount, offset);
 			if (value != null) {
 				record.setDriverStatus(new DriverStatus(READ_SUCCESSFUL));
 				record.setValue(TypedValues.newByteArrayValue(value));
@@ -260,7 +260,7 @@ public final class S7PlcDriver implements Driver {
 	/** {@inheritDoc} */
 	@Override
 	public List<DriverRecord> write(final List<DriverRecord> records) throws ConnectionException {
-		if (!this.m_isConnected) {
+		if (!this.isConnected) {
 			this.connect();
 		}
 		for (final DriverRecord record : records) {
@@ -314,7 +314,7 @@ public final class S7PlcDriver implements Driver {
 				continue;
 			}
 			final byte[] value = ((ByteArrayValue) recordValue).getValue();
-			this.m_connector.write(DaveArea.DB, areaNo, offset, value);
+			this.connector.write(DaveArea.DB, areaNo, offset, value);
 			record.setDriverStatus(new DriverStatus(WRITE_SUCCESSFUL));
 			record.setTimestamp(System.currentTimeMillis());
 		}

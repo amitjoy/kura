@@ -40,16 +40,16 @@ final class CloudPublisherDisconnectManager {
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
 	/** The data service dependency. */
-	private final DataService m_dataService;
+	private final DataService dataService;
 
 	/** Schedule Executor Service **/
-	private ScheduledExecutorService m_executorService;
+	private ScheduledExecutorService executorService;
 
 	/** The quiesce timeout. */
-	private long m_quiesceTimeout;
+	private long quiesceTimeout;
 
 	/** The future handle of the thread pool executor service. */
-	private ScheduledFuture<?> m_tickHandle;
+	private ScheduledFuture<?> tickHandle;
 
 	/**
 	 * Instantiates a new cloud publisher disconnect manager.
@@ -63,9 +63,9 @@ final class CloudPublisherDisconnectManager {
 	 */
 	CloudPublisherDisconnectManager(final DataService dataService, final long quiesceTimeout) {
 		checkNull(dataService, s_message.dataServiceNonNull());
-		this.m_dataService = dataService;
-		this.m_quiesceTimeout = quiesceTimeout;
-		this.m_executorService = Executors.newScheduledThreadPool(5);
+		this.dataService = dataService;
+		this.quiesceTimeout = quiesceTimeout;
+		this.executorService = Executors.newScheduledThreadPool(5);
 	}
 
 	/**
@@ -90,7 +90,7 @@ final class CloudPublisherDisconnectManager {
 	 * @return the quiesce timeout
 	 */
 	long getQuiesceTimeout() {
-		return this.m_quiesceTimeout;
+		return this.quiesceTimeout;
 	}
 
 	/**
@@ -106,20 +106,20 @@ final class CloudPublisherDisconnectManager {
 	private void schedule(final long delay, final boolean isForceUpdate) {
 		checkCondition(delay < 0, s_message.delayNonNegative());
 		// cancel existing timer
-		if (this.m_tickHandle != null) {
+		if (this.tickHandle != null) {
 			// if it is a force update then cancel existing scheduler
 			if (isForceUpdate) {
-				this.m_tickHandle.cancel(true);
+				this.tickHandle.cancel(true);
 			} else {
 				return;
 			}
 		}
-		this.m_tickHandle = this.m_executorService.scheduleAtFixedRate(new Runnable() {
+		this.tickHandle = this.executorService.scheduleAtFixedRate(new Runnable() {
 			/** {@inheritDoc} */
 			@Override
 			public void run() {
 				try {
-					m_dataService.disconnect(m_quiesceTimeout);
+					dataService.disconnect(quiesceTimeout);
 				} catch (final Exception exception) {
 					s_logger.error(
 							s_message.errorDisconnectingCloudPublisher() + ThrowableUtil.stackTraceAsString(exception));
@@ -136,7 +136,7 @@ final class CloudPublisherDisconnectManager {
 	 *            the new quiesce timeout
 	 */
 	void setQuiesceTimeout(final long quiesceTimeout) {
-		this.m_quiesceTimeout = quiesceTimeout;
+		this.quiesceTimeout = quiesceTimeout;
 	}
 
 	/**
@@ -144,13 +144,13 @@ final class CloudPublisherDisconnectManager {
 	 */
 	synchronized void stop() {
 		s_logger.info(s_message.schedulerStopping());
-		if (this.m_tickHandle != null) {
-			this.m_tickHandle.cancel(true);
+		if (this.tickHandle != null) {
+			this.tickHandle.cancel(true);
 		}
-		if (this.m_executorService != null) {
-			this.m_executorService.shutdown();
+		if (this.executorService != null) {
+			this.executorService.shutdown();
 		}
-		this.m_executorService = null;
+		this.executorService = null;
 		s_logger.info(s_message.schedulerStopped());
 	}
 }
