@@ -23,13 +23,10 @@ import org.eclipse.kura.util.collection.CollectionUtil;
  */
 public class StubChannelDescriptor implements ChannelDescriptor {
 
-	/** The m elements. */
-	private List<Tad> m_elements;
-
 	/** {@inheritDoc} */
 	@Override
 	public Object getDescriptor() {
-		this.m_elements = CollectionUtil.newArrayList();
+		final List<Tad> elements = CollectionUtil.newArrayList();
 		final Tad unitId = new Tad();
 		unitId.setId("unit.id");
 		unitId.setName("unit.id");
@@ -39,8 +36,8 @@ public class StubChannelDescriptor implements ChannelDescriptor {
 		unitId.setCardinality(0);
 		unitId.setRequired(true);
 
-		this.m_elements.add(unitId);
-		return this.m_elements;
+		elements.add(unitId);
+		return elements;
 	}
 
 }

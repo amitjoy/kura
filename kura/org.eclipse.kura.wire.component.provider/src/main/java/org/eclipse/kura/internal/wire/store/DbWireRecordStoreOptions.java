@@ -27,9 +27,6 @@ final class DbWireRecordStoreOptions {
 	/** The Constant denotes the number of records in the table to keep. */
 	private static final String PERIODIC_CLEANUP_RECORDS_ID = "periodic.cleanup.records.keep";
 
-	/** The Constant denoting severity level. */
-	private static final String SEVERITY_LEVEL = "severity.level";
-
 	/** The Constant denotes the name of the table to perform operations on. */
 	private static final String TABLE_NAME = "table.name";
 

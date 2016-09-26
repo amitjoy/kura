@@ -13,6 +13,7 @@ package org.eclipse.kura.internal.wire.asset;
 
 import static org.eclipse.kura.Preconditions.checkCondition;
 import static org.eclipse.kura.Preconditions.checkNull;
+import static org.eclipse.kura.asset.AssetFlag.FAILURE;
 import static org.eclipse.kura.asset.ChannelType.READ;
 import static org.eclipse.kura.asset.ChannelType.READ_WRITE;
 import static org.eclipse.kura.asset.ChannelType.WRITE;
@@ -167,7 +168,7 @@ public final class WireAsset extends BaseAsset implements WireEmitter, WireRecei
 		for (final AssetRecord assetRecord : assetRecords) {
 			final AssetStatus assetStatus = assetRecord.getAssetStatus();
 			final AssetFlag assetFlag = assetStatus.getAssetFlag();
-			final SeverityLevel level = (assetFlag == AssetFlag.FAILURE) ? ERROR : INFO;
+			final SeverityLevel level = (assetFlag == FAILURE) ? ERROR : INFO;
 			final long channelId = assetRecord.getChannelId();
 			WireField assetPidWireField = new WireField(s_message.assetName(), TypedValues.newStringValue(""), level);
 			try {

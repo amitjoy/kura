@@ -66,4 +66,24 @@ public final class ServiceUtil {
 		}
 	}
 
+	/**
+	 * Resets all the service reference counters
+	 *
+	 * @param bundleContext
+	 *            OSGi bundle context
+	 * @param refs
+	 *            the array of all service references
+	 * @throws KuraRuntimeException
+	 *             if any of the arguments is null
+	 */
+	public static void ungetServiceReferences(final BundleContext bundleContext, final ServiceReference<?>[] refs) {
+		checkNull(bundleContext, s_message.bundleContextNonNull());
+		checkNull(bundleContext, s_message.referencesNonNull());
+
+		for (final ServiceReference<?> ref : refs) {
+			bundleContext.ungetService(ref);
+		}
+
+	}
+
 }

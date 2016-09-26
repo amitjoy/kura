@@ -180,18 +180,18 @@ public class PropertiesUi extends Composite {
 			@Override
 			public void onClick(final ClickEvent event) {
 				final GwtChannelInfo ci = new GwtChannelInfo();
-				ci.setId(String.valueOf(PropertiesUi.this.findNextChannelId()));
+				ci.setId(String.valueOf(findNextChannelId()));
 				ci.setName("Channel " + ci.getId());
 				ci.setType("READ");
 				ci.setValueType("INTEGER");
-				for (final GwtConfigParameter param : PropertiesUi.this.m_driverDescriptor.getParameters()) {
+				for (final GwtConfigParameter param : m_driverDescriptor.getParameters()) {
 					ci.set(param.getName(), param.getDefault());
 				}
 
-				PropertiesUi.this.channelsDataProvider.getList().add(ci);
-				PropertiesUi.this.channelsDataProvider.refresh();
-				PropertiesUi.this.channelPager.lastPage();
-				PropertiesUi.this.setDirty(true);
+				channelsDataProvider.getList().add(ci);
+				channelsDataProvider.refresh();
+				channelPager.lastPage();
+				setDirty(true);
 			}
 		});
 
@@ -199,11 +199,11 @@ public class PropertiesUi extends Composite {
 
 			@Override
 			public void onClick(final ClickEvent event) {
-				final GwtChannelInfo ci = PropertiesUi.this.selectionModel.getSelectedObject();
-				PropertiesUi.this.channelsDataProvider.getList().remove(ci);
-				PropertiesUi.this.channelsDataProvider.refresh();
-				PropertiesUi.this.btn_remove.setEnabled(false);
-				PropertiesUi.this.setDirty(true);
+				final GwtChannelInfo ci = selectionModel.getSelectedObject();
+				channelsDataProvider.getList().remove(ci);
+				channelsDataProvider.refresh();
+				btn_remove.setEnabled(false);
+				setDirty(true);
 			}
 		});
 
@@ -211,7 +211,7 @@ public class PropertiesUi extends Composite {
 
 			@Override
 			public void onSelectionChange(final SelectionChangeEvent event) {
-				PropertiesUi.this.btn_remove.setEnabled(PropertiesUi.this.selectionModel.getSelectedObject() != null);
+				btn_remove.setEnabled(selectionModel.getSelectedObject() != null);
 			}
 		});
 
@@ -230,19 +230,18 @@ public class PropertiesUi extends Composite {
 
 			@Override
 			public void onSuccess(final GwtXSRFToken result) {
-				PropertiesUi.this.gwtWireService.getGwtBaseChannelDescriptor(result,
-						new AsyncCallback<GwtConfigComponent>() {
+				gwtWireService.getGwtBaseChannelDescriptor(result, new AsyncCallback<GwtConfigComponent>() {
 
-							@Override
-							public void onFailure(final Throwable caught) {
-								FailureHandler.handle(caught);
-							}
+					@Override
+					public void onFailure(final Throwable caught) {
+						FailureHandler.handle(caught);
+					}
 
-							@Override
-							public void onSuccess(final GwtConfigComponent result) {
-								PropertiesUi.this.m_baseDriverDescriptor = result;
-							}
-						});
+					@Override
+					public void onSuccess(final GwtConfigComponent result) {
+						m_baseDriverDescriptor = result;
+					}
+				});
 			}
 		});
 
@@ -277,7 +276,7 @@ public class PropertiesUi extends Composite {
 			@Override
 			public void update(final int index, final GwtChannelInfo object, final String value) {
 				object.setName(value);
-				PropertiesUi.this.setDirty(true);
+				setDirty(true);
 			}
 		});
 
@@ -299,7 +298,7 @@ public class PropertiesUi extends Composite {
 			@Override
 			public void update(final int index, final GwtChannelInfo object, final String value) {
 				object.setType(value);
-				PropertiesUi.this.setDirty(true);
+				setDirty(true);
 			}
 		});
 		this.channelTable.addColumn(c2, new TextHeader("type"));
@@ -321,7 +320,7 @@ public class PropertiesUi extends Composite {
 			@Override
 			public void update(final int index, final GwtChannelInfo object, final String value) {
 				object.setValueType(value);
-				PropertiesUi.this.setDirty(true);
+				setDirty(true);
 			}
 		});
 		this.channelTable.addColumn(c3, new TextHeader("value type"));
@@ -437,22 +436,21 @@ public class PropertiesUi extends Composite {
 			@Override
 			public void update(final int index, final GwtChannelInfo object, final String value) {
 				ValidationData viewData = null;
-				if ((!PropertiesUi.this.invalidateType(type, value))
-						|| ((max != null) && PropertiesUi.this.invalidateMax(value, max))
-						|| ((min != null) && PropertiesUi.this.invalidateMin(value, min))) {
+				if ((!invalidateType(type, value)) || ((max != null) && invalidateMax(value, max))
+						|| ((min != null) && invalidateMin(value, min))) {
 					viewData = cell.getViewData(object);
 					viewData.setInvalid(true);
-					PropertiesUi.this.nonValidatedCells.add(object.getId());
-					PropertiesUi.this.setNonValidated(true);
+					nonValidatedCells.add(object.getId());
+					setNonValidated(true);
 					// We only modified the cell, so do a local redraw.
-					PropertiesUi.this.channelTable.redraw();
+					channelTable.redraw();
 					return;
 				}
-				PropertiesUi.this.nonValidatedCells.remove(object.getId());
-				PropertiesUi.this.setNonValidated(false);
-				PropertiesUi.this.setDirty(true);
+				nonValidatedCells.remove(object.getId());
+				setNonValidated(false);
+				setDirty(true);
 				viewData.setValue(value);
-				PropertiesUi.this.channelTable.redraw();
+				channelTable.redraw();
 				object.set(param.getId(), value);
 			}
 		});
@@ -478,7 +476,7 @@ public class PropertiesUi extends Composite {
 
 			@Override
 			public void update(final int index, final GwtChannelInfo object, final String value) {
-				PropertiesUi.this.setDirty(true);
+				setDirty(true);
 				object.set(param.getId(), value);
 			}
 		});
@@ -716,7 +714,7 @@ public class PropertiesUi extends Composite {
 		radioTrue.addValueChangeHandler(new ValueChangeHandler() {
 			@Override
 			public void onValueChange(final ValueChangeEvent event) {
-				PropertiesUi.this.setDirty(true);
+				setDirty(true);
 				final InlineRadio box = (InlineRadio) event.getSource();
 				if (box.getValue()) {
 					param.setValue(String.valueOf(true));
@@ -726,7 +724,7 @@ public class PropertiesUi extends Composite {
 		radioFalse.addValueChangeHandler(new ValueChangeHandler() {
 			@Override
 			public void onValueChange(final ValueChangeEvent event) {
-				PropertiesUi.this.setDirty(true);
+				setDirty(true);
 				final InlineRadio box = (InlineRadio) event.getSource();
 				if (box.getValue()) {
 					param.setValue(String.valueOf(false));
@@ -762,32 +760,32 @@ public class PropertiesUi extends Composite {
 		final ListBox listBox = new ListBox();
 
 		Map<String, String> oMap = param.getOptions();
-        int i = 0;
-        boolean valueFound = false;
-        for(Map.Entry<String, String> entry : oMap.entrySet()){
-        	listBox.addItem(entry.getKey());
-        	
-        	boolean hasDefault = param.getDefault() != null;
-        	boolean setDefault = param.getDefault().equals(entry.getValue());
-        	boolean hasValue = param.getValue() != null;
-        	boolean setValue = param.getValue().equals(entry.getValue());
-        	
-        	if(!valueFound){
-	        	if(hasDefault && setDefault){
-	        		listBox.setSelectedIndex(i);
-	        	} else if(hasValue && setValue){
-	        		listBox.setSelectedIndex(i);
-	        		valueFound = true;
-	        	}
-        	}
-        	
-        	i++;
-        }
+		int i = 0;
+		boolean valueFound = false;
+		for (Map.Entry<String, String> entry : oMap.entrySet()) {
+			listBox.addItem(entry.getKey());
+
+			boolean hasDefault = param.getDefault() != null;
+			boolean setDefault = param.getDefault().equals(entry.getValue());
+			boolean hasValue = param.getValue() != null;
+			boolean setValue = param.getValue().equals(entry.getValue());
+
+			if (!valueFound) {
+				if (hasDefault && setDefault) {
+					listBox.setSelectedIndex(i);
+				} else if (hasValue && setValue) {
+					listBox.setSelectedIndex(i);
+					valueFound = true;
+				}
+			}
+
+			i++;
+		}
 
 		listBox.addChangeHandler(new ChangeHandler() {
 			@Override
 			public void onChange(final ChangeEvent event) {
-				PropertiesUi.this.setDirty(true);
+				setDirty(true);
 				final ListBox box = (ListBox) event.getSource();
 				param.setValue(box.getSelectedItemText());
 			}
@@ -852,8 +850,7 @@ public class PropertiesUi extends Composite {
 
 				@Override
 				public void onSuccess(final GwtXSRFToken result) {
-					PropertiesUi.this.gwtWireService.getGwtChannelDescriptor(result,
-							PropertiesUi.this.m_configurableComponent.get("driver.pid").toString(),
+					gwtWireService.getGwtChannelDescriptor(result, m_configurableComponent.get("driver.pid").toString(),
 							new AsyncCallback<GwtConfigComponent>() {
 
 								@Override
@@ -863,49 +860,42 @@ public class PropertiesUi extends Composite {
 
 								@Override
 								public void onSuccess(final GwtConfigComponent result) {
-									PropertiesUi.this.m_driverDescriptor = result;
-									PropertiesUi.this.addDefaultColumns();
+									m_driverDescriptor = result;
+									addDefaultColumns();
 									for (final GwtConfigParameter param : result.getParameters()) {
-										PropertiesUi.this.channelTable.addColumn(
-												PropertiesUi.this.getColumnFromParam(param),
+										channelTable.addColumn(getColumnFromParam(param),
 												new TextHeader(param.getName()));
 									}
 
-									PropertiesUi.this.gwtXSRFService
-											.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
+									gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
 
-												@Override
-												public void onFailure(final Throwable caught) {
-													FailureHandler.handle(caught);
-												}
+										@Override
+										public void onFailure(final Throwable caught) {
+											FailureHandler.handle(caught);
+										}
 
-												@Override
-												public void onSuccess(final GwtXSRFToken result) {
-													PropertiesUi.this.gwtWireService.getGwtChannels(result,
-															PropertiesUi.this.m_driverDescriptor,
-															PropertiesUi.this.m_configurableComponent,
-															new AsyncCallback<List<GwtChannelInfo>>() {
+										@Override
+										public void onSuccess(final GwtXSRFToken result) {
+											gwtWireService.getGwtChannels(result, m_driverDescriptor,
+													m_configurableComponent, new AsyncCallback<List<GwtChannelInfo>>() {
 
-																@Override
-																public void onFailure(final Throwable caught) {
-																	FailureHandler.handle(caught);
-																}
+														@Override
+														public void onFailure(final Throwable caught) {
+															FailureHandler.handle(caught);
+														}
 
-																@Override
-																public void onSuccess(
-																		final List<GwtChannelInfo> result) {
-																	PropertiesUi.this.channelsDataProvider.getList()
-																			.clear();
-																	PropertiesUi.this.channelsDataProvider.getList()
-																			.addAll(result);
-																	PropertiesUi.this.channelsDataProvider.refresh();
+														@Override
+														public void onSuccess(final List<GwtChannelInfo> result) {
+															channelsDataProvider.getList().clear();
+															channelsDataProvider.getList().addAll(result);
+															channelsDataProvider.refresh();
 
-																	PropertiesUi.this.channelPanel.setVisible(true);
+															channelPanel.setVisible(true);
 
-																}
-															});
-												}
-											});
+														}
+													});
+										}
+									});
 								}
 							});
 				}
@@ -972,7 +962,7 @@ public class PropertiesUi extends Composite {
 		input.addValueChangeHandler(new ValueChangeHandler<String>() {
 			@Override
 			public void onValueChange(final ValueChangeEvent<String> event) {
-				PropertiesUi.this.setDirty(true);
+				setDirty(true);
 				final Input box = (Input) event.getSource();
 				final FormGroup group = (FormGroup) box.getParent();
 				// Validation
@@ -980,12 +970,12 @@ public class PropertiesUi extends Composite {
 					// null in required field
 					group.setValidationState(ValidationState.ERROR);
 					box.setPlaceholder("Field is required");
-					PropertiesUi.this.valid.put(param.getName(), false);
+					valid.put(param.getName(), false);
 				} else {
 					group.setValidationState(ValidationState.NONE);
 					box.setPlaceholder("");
 					param.setValue(box.getText());
-					PropertiesUi.this.valid.put(param.getName(), true);
+					valid.put(param.getName(), true);
 				}
 			}
 		});
@@ -1078,10 +1068,10 @@ public class PropertiesUi extends Composite {
 		textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
 			@Override
 			public void onValueChange(final ValueChangeEvent<String> event) {
-				PropertiesUi.this.setDirty(true);
+				setDirty(true);
 				final TextBox box = (TextBox) event.getSource();
 				final FormGroup group = (FormGroup) box.getParent();
-				PropertiesUi.this.validate(param, box, group);
+				validate(param, box, group);
 			}
 		});
 		this.fields.add(formGroup);

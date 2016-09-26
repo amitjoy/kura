@@ -42,10 +42,14 @@ public final class DriverServiceImpl implements DriverService {
 		checkNull(driverId, s_message.driverPidNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 		final ServiceReference<Driver>[] refs = ServiceUtil.getServiceReferences(context, Driver.class, null);
-		for (final ServiceReference<Driver> ref : refs) {
-			if (ref.getProperty(DRIVER_PID.value()).equals(driverId)) {
-				return context.getService(ref);
+		try {
+			for (final ServiceReference<Driver> ref : refs) {
+				if (ref.getProperty(DRIVER_PID.value()).equals(driverId)) {
+					return context.getService(ref);
+				}
 			}
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return null;
 	}
@@ -56,11 +60,15 @@ public final class DriverServiceImpl implements DriverService {
 		checkNull(driver, s_message.driverNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 		final ServiceReference<Driver>[] refs = ServiceUtil.getServiceReferences(context, Driver.class, null);
-		for (final ServiceReference<Driver> ref : refs) {
-			final Driver driverRef = context.getService(ref);
-			if (driverRef == driver) {
-				return ref.getProperty(ASSET_DRIVER_PROP.value()).toString();
+		try {
+			for (final ServiceReference<Driver> ref : refs) {
+				final Driver driverRef = context.getService(ref);
+				if (driverRef == driver) {
+					return ref.getProperty(ASSET_DRIVER_PROP.value()).toString();
+				}
 			}
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return null;
 	}
@@ -71,9 +79,13 @@ public final class DriverServiceImpl implements DriverService {
 		final List<Driver> drivers = CollectionUtil.newArrayList();
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 		final ServiceReference<Driver>[] refs = ServiceUtil.getServiceReferences(context, Driver.class, null);
-		for (final ServiceReference<Driver> ref : refs) {
-			final Driver driverRef = context.getService(ref);
-			drivers.add(driverRef);
+		try {
+			for (final ServiceReference<Driver> ref : refs) {
+				final Driver driverRef = context.getService(ref);
+				drivers.add(driverRef);
+			}
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return drivers;
 	}

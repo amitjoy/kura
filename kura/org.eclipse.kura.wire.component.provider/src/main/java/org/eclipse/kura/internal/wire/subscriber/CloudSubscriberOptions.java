@@ -31,9 +31,6 @@ final class CloudSubscriberOptions {
 	/** The Constant denoting default MQTT topic. */
 	private static final String DEFAULT_TOPIC = "EVENT";
 
-	/** The Constant denoting severity level. */
-	private static final String SEVERITY_LEVEL = "severity.level";
-
 	/** The properties as associated */
 	private final Map<String, Object> properties;
 

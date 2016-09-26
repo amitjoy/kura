@@ -40,12 +40,6 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
 	/** Localization Resource */
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
-	/** The Constant denoting severity level. */
-	private static final String SEVERITY_LEVEL = "severity.level";
-
-	/** The properties as associated */
-	private Map<String, Object> properties;
-
 	/** The Wire Helper Service. */
 	private volatile WireHelperService wireHelperService;
 
@@ -64,7 +58,6 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
 			final Map<String, Object> properties) {
 		s_logger.debug(s_message.activatingLogger());
 		this.wireSupport = this.wireHelperService.newWireSupport(this);
-		this.properties = properties;
 		s_logger.debug(s_message.activatingLoggerDone());
 	}
 
@@ -88,7 +81,7 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
 	 */
 	protected synchronized void deactivate(final ComponentContext componentContext) {
 		s_logger.debug(s_message.deactivatingLogger());
-
+		// remained for debug purposes
 		s_logger.debug(s_message.deactivatingLoggerDone());
 	}
 
@@ -99,7 +92,7 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
 		s_logger.info(s_message.wireEnvelopeReceived(wireEnvelope.getEmitterPid()));
 		// filtering list of wire records based on the provided severity level
 		final List<WireRecord> records = this.wireSupport.filter(wireEnvelope.getRecords());
-		s_logger.info("Filtered Wire Envelope ==>" + records);
+		s_logger.info(s_message.loggerReceive(records.toString()));
 	}
 
 	/** {@inheritDoc} */
@@ -129,7 +122,7 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
 	 */
 	public synchronized void updated(final Map<String, Object> properties) {
 		s_logger.debug(s_message.updatingLogger());
-		this.properties = properties;
+		// remained for debug purposes
 		s_logger.debug(s_message.updatingLoggerDone());
 	}
 

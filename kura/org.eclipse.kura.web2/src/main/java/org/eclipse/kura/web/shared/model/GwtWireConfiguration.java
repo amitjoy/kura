@@ -14,8 +14,8 @@ package org.eclipse.kura.web.shared.model;
 import java.io.Serializable;
 
 /**
- * The Class GwtWireConfiguration represents a POJO for every Wire
- * Configurations present in the system
+ * The Class GwtWireConfiguration represents a POJO for every Wire Configuration
+ * present in the system
  */
 public final class GwtWireConfiguration extends GwtBaseModel implements Serializable {
 

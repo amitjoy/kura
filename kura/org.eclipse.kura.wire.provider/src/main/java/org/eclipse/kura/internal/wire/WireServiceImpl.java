@@ -12,10 +12,12 @@
 package org.eclipse.kura.internal.wire;
 
 import static org.eclipse.kura.Preconditions.checkNull;
+import static org.eclipse.kura.internal.wire.WireServiceOptions.SEPARATOR;
 import static org.osgi.service.wireadmin.WireConstants.WIREADMIN_CONSUMER_PID;
 import static org.osgi.service.wireadmin.WireConstants.WIREADMIN_PRODUCER_PID;
 
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -100,7 +102,7 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 			this.extractProperties(properties);
 			this.trackerCustomizer = new WireComponentTrackerCustomizer(componentContext.getBundleContext(), this);
 			this.serviceTracker = new ServiceTracker<WireComponent, WireComponent>(componentContext.getBundleContext(),
-					WireComponent.class.getName(), this.trackerCustomizer);
+					WireComponent.class, this.trackerCustomizer);
 			this.serviceTracker.open();
 			this.createWires();
 		} catch (final Exception exception) {
@@ -239,8 +241,9 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 			final Wire[] wiresList = this.wireAdmin.getWires(null);
 			if (wiresList != null) {
 				for (final Wire wire : wiresList) {
-					final String producerPid = wire.getProperties().get(WIREADMIN_PRODUCER_PID).toString();
-					final String consumerPid = wire.getProperties().get(WIREADMIN_CONSUMER_PID).toString();
+					final Dictionary<?, ?> props = wire.getProperties();
+					final String producerPid = props.get(WIREADMIN_PRODUCER_PID).toString();
+					final String consumerPid = props.get(WIREADMIN_CONSUMER_PID).toString();
 					final String emitterFactoryPid = this.wireHelperService
 							.getServicePid(wireConfiguration.getEmitterPid());
 					final String receiverFactoryPid = this.wireHelperService
@@ -303,16 +306,18 @@ public final class WireServiceImpl implements SelfConfiguringComponent, WireServ
 
 		final Map<String, Object> props = CollectionUtil.newHashMap();
 		for (final Map.Entry<String, Object> entry : this.properties.entrySet()) {
-			if (!(entry.getKey().endsWith("emitter") || entry.getKey().endsWith("receiver")
-					|| entry.getKey().endsWith("filter"))) {
-				props.put(entry.getKey(), entry.getValue());
+			final String key = entry.getKey();
+			final boolean isNotWireConfigurationProperty = !(key.endsWith(s_message.emitter())
+					|| key.endsWith(s_message.receiver()) || key.endsWith(s_message.filter()));
+			if (isNotWireConfigurationProperty) {
+				props.put(key, entry.getValue());
 			}
 		}
 		int i = 0;
 		for (final WireConfiguration wireConfiguration : this.wireConfigs) {
-			final String emitterKey = String.valueOf(++i) + ".emitter";
-			final String receiverKey = String.valueOf(i) + ".receiver";
-			final String filterKey = String.valueOf(i) + ".filter";
+			final String emitterKey = String.valueOf(++i) + SEPARATOR + s_message.emitter();
+			final String receiverKey = String.valueOf(i) + SEPARATOR + s_message.receiver();
+			final String filterKey = String.valueOf(i) + SEPARATOR + s_message.filter();
 			props.put(emitterKey, wireConfiguration.getEmitterPid());
 			props.put(receiverKey, wireConfiguration.getReceiverPid());
 			props.put(filterKey, wireConfiguration.getFilter());

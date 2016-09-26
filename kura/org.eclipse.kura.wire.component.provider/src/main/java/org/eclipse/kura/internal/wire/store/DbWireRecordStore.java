@@ -439,7 +439,7 @@ public final class DbWireRecordStore implements WireEmitter, WireReceiver, Confi
 				/** {@inheritDoc} */
 				@Override
 				public void run() {
-					DbWireRecordStore.this.clear(noOfRecordsToKeep);
+					clear(noOfRecordsToKeep);
 				}
 			}, cleanUpRate, TimeUnit.SECONDS);
 		}

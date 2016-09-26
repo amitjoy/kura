@@ -41,10 +41,14 @@ public final class AssetServiceImpl implements AssetService {
 		checkNull(assetPid, s_message.assetPidNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 		final ServiceReference<Asset>[] refs = ServiceUtil.getServiceReferences(context, Asset.class, null);
-		for (final ServiceReference<Asset> ref : refs) {
-			if (ref.getProperty(ASSET_PID.value()).equals(assetPid)) {
-				return context.getService(ref);
+		try {
+			for (final ServiceReference<Asset> ref : refs) {
+				if (ref.getProperty(ASSET_PID.value()).equals(assetPid)) {
+					return context.getService(ref);
+				}
 			}
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return null;
 	}
@@ -55,11 +59,15 @@ public final class AssetServiceImpl implements AssetService {
 		checkNull(asset, s_message.assetNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 		final ServiceReference<Asset>[] refs = ServiceUtil.getServiceReferences(context, Asset.class, null);
-		for (final ServiceReference<Asset> ref : refs) {
-			final Asset assetRef = context.getService(ref);
-			if (assetRef == asset) {
-				return ref.getProperty(ASSET_PID.value()).toString();
+		try {
+			for (final ServiceReference<Asset> ref : refs) {
+				final Asset assetRef = context.getService(ref);
+				if (assetRef == asset) {
+					return ref.getProperty(ASSET_PID.value()).toString();
+				}
 			}
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return null;
 	}
@@ -70,9 +78,13 @@ public final class AssetServiceImpl implements AssetService {
 		final List<Asset> assets = CollectionUtil.newArrayList();
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 		final ServiceReference<Asset>[] refs = ServiceUtil.getServiceReferences(context, Asset.class, null);
-		for (final ServiceReference<Asset> ref : refs) {
-			final Asset assetRef = context.getService(ref);
-			assets.add(assetRef);
+		try {
+			for (final ServiceReference<Asset> ref : refs) {
+				final Asset assetRef = context.getService(ref);
+				assets.add(assetRef);
+			}
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return assets;
 	}

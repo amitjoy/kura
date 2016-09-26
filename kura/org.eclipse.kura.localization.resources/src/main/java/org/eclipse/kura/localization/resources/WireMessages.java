@@ -353,6 +353,9 @@ public interface WireMessages {
 	@En("latitude")
 	public String latitude();
 
+	@En("Filtered Wire Envelope ==> {0}")
+	public String loggerReceive(String envelope);
+
 	@En("longitude")
 	public String longitude();
 

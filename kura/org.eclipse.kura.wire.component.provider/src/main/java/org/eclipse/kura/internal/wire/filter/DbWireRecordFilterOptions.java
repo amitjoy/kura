@@ -31,9 +31,6 @@ final class DbWireRecordFilterOptions {
 	/** The Constant denotes SQL view. */
 	private static final String CONF_SQL_VIEW = "sql.view";
 
-	/** The Constant denoting severity level. */
-	private static final String SEVERITY_LEVEL = "severity.level";
-
 	/** The properties as associated */
 	private final Map<String, Object> properties;
 

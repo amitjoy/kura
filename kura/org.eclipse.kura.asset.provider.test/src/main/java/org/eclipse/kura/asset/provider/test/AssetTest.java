@@ -57,13 +57,13 @@ public final class AssetTest {
 	private static final Logger s_logger = LoggerFactory.getLogger(AssetTest.class);
 
 	/** The Device Configuration instance. */
-	public AssetConfiguration m_configuration;
+	public AssetConfiguration configuration;
 
 	/** The properties to be parsed as Device Configuration. */
-	public Map<String, Object> m_properties;
+	public Map<String, Object> properties;
 
 	/** The Channel Configuration */
-	public Map<String, Object> m_sampleChannelConfig;
+	public Map<String, Object> sampleChannelConfig;
 
 	/**
 	 * Initializes asset data

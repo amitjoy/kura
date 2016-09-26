@@ -12,7 +12,12 @@
 package org.eclipse.kura.internal.wire.subscriber;
 
 import static org.eclipse.kura.Preconditions.checkNull;
+import static org.eclipse.kura.wire.SeverityLevel.CONFIG;
+import static org.eclipse.kura.wire.SeverityLevel.ERROR;
+import static org.eclipse.kura.wire.SeverityLevel.INFO;
+import static org.eclipse.kura.wire.SeverityLevel.SEVERE;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +35,7 @@ import org.eclipse.kura.message.KuraPayload;
 import org.eclipse.kura.type.TypedValue;
 import org.eclipse.kura.type.TypedValues;
 import org.eclipse.kura.util.base.ThrowableUtil;
+import org.eclipse.kura.util.base.TypeUtil;
 import org.eclipse.kura.util.collection.CollectionUtil;
 import org.eclipse.kura.wire.SeverityLevel;
 import org.eclipse.kura.wire.WireEmitter;
@@ -139,10 +145,12 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 	 * @param payload
 	 *            the payload
 	 * @return the Wire Record
+	 * @throws IOException
+	 *             if the byte array conversion fails
 	 * @throws KuraRuntimeException
 	 *             if the payload provided is null
 	 */
-	private WireRecord buildWireRecord(final KuraPayload payload) {
+	private WireRecord buildWireRecord(final KuraPayload payload) throws IOException {
 		checkNull(payload, s_message.payloadNonNull());
 		final List<WireField> wireFields = CollectionUtil.newArrayList();
 
@@ -154,9 +162,9 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 				final boolean value = Boolean.parseBoolean(String.valueOf(metricValue));
 				val = TypedValues.newBooleanValue(value);
 			}
-			if (metricValue instanceof Boolean) {
-				final boolean value = Boolean.parseBoolean(String.valueOf(metricValue));
-				val = TypedValues.newBooleanValue(value);
+			if (metricValue instanceof Byte) {
+				final byte value = Byte.parseByte(String.valueOf(metricValue));
+				val = TypedValues.newByteValue(value);
 			}
 			if (metricValue instanceof Long) {
 				final long value = Long.parseLong(String.valueOf(metricValue));
@@ -178,15 +186,19 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 				final String value = String.valueOf(metricValue);
 				val = TypedValues.newStringValue(value);
 			}
+			if (metricValue instanceof byte[]) {
+				final byte[] value = TypeUtil.objectToByteArray(metricValue);
+				val = TypedValues.newByteArrayValue(value);
+			}
 			SeverityLevel level = null;
 			if ("ERROR".equalsIgnoreCase(String.valueOf(metricValue))) {
-				level = SeverityLevel.ERROR;
-			}
-			if ("TIMER".equalsIgnoreCase(String.valueOf(metricValue))) {
-				level = SeverityLevel.CONFIG;
-			}
-			if (level == null) {
-				level = SeverityLevel.INFO;
+				level = ERROR;
+			} else if ("SEVERE".equalsIgnoreCase(String.valueOf(metricValue))) {
+				level = SEVERE;
+			} else if ("CONFIG".equalsIgnoreCase(String.valueOf(metricValue))) {
+				level = CONFIG;
+			} else if ("INFO".equalsIgnoreCase(String.valueOf(metricValue))) {
+				level = INFO;
 			}
 			final WireField wireField = new WireField(metric, val, level);
 			wireFields.add(wireField);
@@ -259,8 +271,15 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
 			s_logger.error(ThrowableUtil.stackTraceAsString(e));
 		}
 		if (payload != null) {
-			final WireRecord record = this.buildWireRecord(kuraPayload);
-			this.wireSupport.emit(Arrays.asList(record));
+			WireRecord record = null;
+			try {
+				record = this.buildWireRecord(kuraPayload);
+			} catch (final IOException e) {
+				s_logger.error(ThrowableUtil.stackTraceAsString(e));
+			}
+			if (record != null) {
+				this.wireSupport.emit(Arrays.asList(record));
+			}
 		}
 	}
 

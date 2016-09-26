@@ -347,9 +347,9 @@ final class OpcUaOptions {
 	}
 
 	/**
-	 * Returns OPC-UA Session Timeout
+	 * Returns OPC-UA Session Timeout (in milliseconds)
 	 *
-	 * @return the OPC-UA Session Timeout
+	 * @return the OPC-UA Session Timeout (in milliseconds)
 	 */
 	long getSessionTimeout() {
 		long sessionTimeout = 0;

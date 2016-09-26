@@ -161,8 +161,7 @@ public final class DbServiceHelper {
 	 * while still protecting users from SQL injection on the table names and
 	 * column names.
 	 *
-	 * (' --> '_') (" --> _) (\ --> (remove backslashes)) (. --> _) ( (space)
-	 * --> _)
+	 * (any disallowed character --> '_')
 	 *
 	 * @param string
 	 *            the string to be sanitized
@@ -175,7 +174,7 @@ public final class DbServiceHelper {
 		s_logger.debug(s_message.sanitize() + string);
 		return string.replaceAll("(?=[]\\[+&|!(){}^\"~*?:\\\\-])", "_");
 	}
-	
+
 	/**
 	 * Gets the single instance of DB Service Helper.
 	 *

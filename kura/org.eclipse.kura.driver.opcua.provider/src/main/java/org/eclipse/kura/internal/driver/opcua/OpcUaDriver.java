@@ -223,6 +223,7 @@ public final class OpcUaDriver implements Driver {
 				try {
 					return TypedValues.newByteArrayValue(TypeUtil.objectToByteArray(value));
 				} catch (final IOException e) {
+					s_logger.error(ThrowableUtil.stackTraceAsString(e));
 					return null;
 				}
 			default:

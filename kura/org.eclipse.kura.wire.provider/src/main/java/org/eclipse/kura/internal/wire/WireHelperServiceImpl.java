@@ -58,12 +58,15 @@ public final class WireHelperServiceImpl implements WireHelperService {
 		checkNull(wireComponent, s_message.wireComponentNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 		final ServiceReference<?>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class, null);
-		for (final ServiceReference<?> ref : refs) {
-			final WireComponent wc = (WireComponent) context.getService(ref);
-			if (wc == wireComponent) {
-				return ref.getProperty(KURA_SERVICE_PID).toString();
+		try {
+			for (final ServiceReference<?> ref : refs) {
+				final WireComponent wc = (WireComponent) context.getService(ref);
+				if (wc == wireComponent) {
+					return String.valueOf(ref.getProperty(KURA_SERVICE_PID));
+				}
 			}
-			context.ungetService(ref);
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return null;
 	}
@@ -74,10 +77,14 @@ public final class WireHelperServiceImpl implements WireHelperService {
 		checkNull(wireComponentPid, s_message.wireComponentPidNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 		final ServiceReference<?>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class, null);
-		for (final ServiceReference<?> ref : refs) {
-			if (ref.getProperty(KURA_SERVICE_PID).equals(wireComponentPid)) {
-				return ref.getProperty(SERVICE_PID).toString();
+		try {
+			for (final ServiceReference<?> ref : refs) {
+				if (ref.getProperty(KURA_SERVICE_PID).equals(wireComponentPid)) {
+					return String.valueOf(ref.getProperty(SERVICE_PID));
+				}
 			}
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return null;
 	}
@@ -88,12 +95,15 @@ public final class WireHelperServiceImpl implements WireHelperService {
 		checkNull(wireComponent, s_message.wireComponentNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 		final ServiceReference<?>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class, null);
-		for (final ServiceReference<?> ref : refs) {
-			final WireComponent wc = (WireComponent) context.getService(ref);
-			if (wc == wireComponent) {
-				return ref.getProperty(SERVICE_PID).toString();
+		try {
+			for (final ServiceReference<?> ref : refs) {
+				final WireComponent wc = (WireComponent) context.getService(ref);
+				if (wc == wireComponent) {
+					return String.valueOf(ref.getProperty(SERVICE_PID));
+				}
 			}
-			context.ungetService(ref);
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return null;
 	}
@@ -104,17 +114,17 @@ public final class WireHelperServiceImpl implements WireHelperService {
 		checkNull(wireComponentPid, s_message.wireComponentPidNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(WireHelperServiceImpl.class).getBundleContext();
 		final ServiceReference<?>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class, null);
-		for (final ServiceReference<?> ref : refs) {
-			WireComponent wc;
-			if (ref.getProperty(KURA_SERVICE_PID).equals(wireComponentPid)) {
-				wc = (WireComponent) context.getService(ref);
-			} else {
-				continue;
+		try {
+			for (final ServiceReference<?> ref : refs) {
+				if (ref.getProperty(KURA_SERVICE_PID).equals(wireComponentPid)) {
+					final WireComponent wc = (WireComponent) context.getService(ref);
+					if (wc instanceof WireEmitter) {
+						return true;
+					}
+				}
 			}
-			context.ungetService(ref);
-			if (wc instanceof WireEmitter) {
-				return true;
-			}
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return false;
 	}
@@ -125,17 +135,17 @@ public final class WireHelperServiceImpl implements WireHelperService {
 		checkNull(wireComponentPid, s_message.wireComponentPidNonNull());
 		final BundleContext context = FrameworkUtil.getBundle(WireHelperServiceImpl.class).getBundleContext();
 		final ServiceReference<?>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class, null);
-		for (final ServiceReference<?> ref : refs) {
-			WireComponent wc;
-			if (ref.getProperty(KURA_SERVICE_PID).equals(wireComponentPid)) {
-				wc = (WireComponent) context.getService(ref);
-			} else {
-				continue;
+		try {
+			for (final ServiceReference<?> ref : refs) {
+				if (ref.getProperty(KURA_SERVICE_PID).equals(wireComponentPid)) {
+					final WireComponent wc = (WireComponent) context.getService(ref);
+					if (wc instanceof WireReceiver) {
+						return true;
+					}
+				}
 			}
-			context.ungetService(ref);
-			if (wc instanceof WireReceiver) {
-				return true;
-			}
+		} finally {
+			ServiceUtil.ungetServiceReferences(context, refs);
 		}
 		return false;
 	}

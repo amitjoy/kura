@@ -49,7 +49,7 @@ final class S7PlcOptions {
 	private static final String SLOT = "slot";
 
 	/** The properties as associated */
-	private final Map<String, Object> m_properties;
+	private final Map<String, Object> properties;
 
 	/**
 	 * Instantiates a new S7 PLC options.
@@ -59,7 +59,7 @@ final class S7PlcOptions {
 	 */
 	S7PlcOptions(final Map<String, Object> properties) {
 		checkNull(properties, s_message.propertiesNonNull());
-		this.m_properties = properties;
+		this.properties = properties;
 	}
 
 	/**
@@ -69,8 +69,8 @@ final class S7PlcOptions {
 	 */
 	String getIp() {
 		String ipAddress = null;
-		if ((this.m_properties != null) && this.m_properties.containsKey(IP) && (this.m_properties.get(IP) != null)) {
-			ipAddress = this.m_properties.get(IP).toString();
+		if ((this.properties != null) && this.properties.containsKey(IP) && (this.properties.get(IP) != null)) {
+			ipAddress = this.properties.get(IP).toString();
 		}
 		return ipAddress;
 	}
@@ -82,9 +82,9 @@ final class S7PlcOptions {
 	 */
 	int getPort() {
 		int port = 0;
-		if ((this.m_properties != null) && this.m_properties.containsKey(PORT)
-				&& (this.m_properties.get(PORT) != null)) {
-			port = Integer.valueOf(this.m_properties.get(PORT).toString());
+		if ((this.properties != null) && this.properties.containsKey(PORT)
+				&& (this.properties.get(PORT) != null)) {
+			port = Integer.valueOf(this.properties.get(PORT).toString());
 		}
 		return port;
 	}
@@ -96,9 +96,9 @@ final class S7PlcOptions {
 	 */
 	int getRack() {
 		int rack = 0;
-		if ((this.m_properties != null) && this.m_properties.containsKey(RACK)
-				&& (this.m_properties.get(RACK) != null)) {
-			rack = Integer.valueOf(this.m_properties.get(RACK).toString());
+		if ((this.properties != null) && this.properties.containsKey(RACK)
+				&& (this.properties.get(RACK) != null)) {
+			rack = Integer.valueOf(this.properties.get(RACK).toString());
 		}
 		return rack;
 	}
@@ -110,9 +110,9 @@ final class S7PlcOptions {
 	 */
 	int getSlot() {
 		int slot = 0;
-		if ((this.m_properties != null) && this.m_properties.containsKey(SLOT)
-				&& (this.m_properties.get(SLOT) != null)) {
-			slot = Integer.valueOf(this.m_properties.get(SLOT).toString());
+		if ((this.properties != null) && this.properties.containsKey(SLOT)
+				&& (this.properties.get(SLOT) != null)) {
+			slot = Integer.valueOf(this.properties.get(SLOT).toString());
 		}
 		return slot;
 	}

@@ -76,7 +76,7 @@ final class CloudPublisherDisconnectManager {
 	 * @param isForceUpdate
 	 *            checks if the scheduling needs to be updated forcefully
 	 * @throws KuraRuntimeException
-	 *             if argument passed is negative
+	 *             if minutes argument is negative
 	 */
 	synchronized void disconnectInMinutes(final int minutes, final boolean isForceUpdate) {
 		checkCondition(minutes < 0, s_message.minutesNonNegative());

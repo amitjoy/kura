@@ -35,6 +35,12 @@ final class WireServiceOptions {
 	/** Localization Resource */
 	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
+	/**
+	 * The separator to be used for storing Wire Configuration properties in a
+	 * flat style
+	 */
+	public static final String SEPARATOR = ".";
+
 	/** The list of wire configurations. */
 	private final List<WireConfiguration> wireConfigurations;
 
@@ -81,11 +87,10 @@ final class WireServiceOptions {
 		checkNull(properties, s_message.wireServicePropNonNull());
 		final List<WireConfiguration> wireConfs = CollectionUtil.newCopyOnWriteArrayList();
 		final Set<Long> wireIds = CollectionUtil.newHashSet();
-		final String separator = ".";
 		for (final Map.Entry<String, Object> entry : properties.entrySet()) {
 			final String key = entry.getKey();
-			if (key.contains(separator) && Character.isDigit(key.charAt(0))) {
-				final Long wireConfId = Long.parseLong(key.substring(0, key.indexOf(separator)));
+			if (key.contains(SEPARATOR) && Character.isDigit(key.charAt(0))) {
+				final Long wireConfId = Long.parseLong(key.substring(0, key.indexOf(SEPARATOR)));
 				wireIds.add(wireConfId);
 			}
 		}
@@ -99,7 +104,7 @@ final class WireServiceOptions {
 				final String key = entry.getKey();
 				final String value = String.valueOf(entry.getValue());
 
-				if (!key.contains(separator)) {
+				if (!key.contains(SEPARATOR)) {
 					continue;
 				}
 				if ((key.startsWith(String.format(PATTERN, wireConfId)))) {

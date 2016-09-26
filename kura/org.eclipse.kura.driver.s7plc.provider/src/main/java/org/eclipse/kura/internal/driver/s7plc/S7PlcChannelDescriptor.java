@@ -69,7 +69,6 @@ public final class S7PlcChannelDescriptor implements ChannelDescriptor {
 		byteCount.setDefault("0");
 
 		elements.add(byteCount);
-
 		return elements;
 	}
 

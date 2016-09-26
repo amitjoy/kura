@@ -109,14 +109,14 @@ public class BaseAsset implements Asset, SelfConfiguringComponent {
 	/** The Driver instance. */
 	public volatile Driver driver;
 
+	/** Synchronization Monitor for driver specific operations. */
+	private final Lock monitor;
+
 	/** The configurable properties of this asset. */
 	private Map<String, Object> properties;
 
 	/** Asset Driver Tracker. */
 	private ServiceTracker<Driver, Driver> serviceTracker;
-
-	/** Synchronization Monitor for driver specific operations. */
-	private final Lock monitor;
 
 	/**
 	 * Instantiates a new asset instance.
@@ -216,7 +216,7 @@ public class BaseAsset implements Asset, SelfConfiguringComponent {
 	 * OSGi service component callback while deactivation.
 	 *
 	 * @param context
-	 *            the context
+	 *            the component context
 	 */
 	protected synchronized void deactivate(final ComponentContext context) {
 		s_logger.debug(s_message.deactivating());

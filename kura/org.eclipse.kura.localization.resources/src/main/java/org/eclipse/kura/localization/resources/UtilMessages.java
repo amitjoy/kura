@@ -41,6 +41,9 @@ public interface UtilMessages {
 	@En("Map cannot be null")
 	public String mapNonNull();
 
+	@En("Service References cannot be null")
+	public String referencesNonNull();
+
 	@En("Value cannot be null")
 	public String valueNonNull();
 
