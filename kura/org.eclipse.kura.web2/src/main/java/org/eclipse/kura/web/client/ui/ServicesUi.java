@@ -405,13 +405,12 @@ public class ServicesUi extends Composite {
             logger.fine("Widget: " + fg.getClass());
 
             if (fg.getWidget(i) instanceof FormLabel) {
-            	 String id = ((FormLabel) fg.getWidget(i)).getText();
-            	 param = m_configurableComponent.getParameter(id.trim().replaceAll("\\*$", ""));
-                logger.fine("Param: " + fg.getTitle() + " -> " + param);
+                String id = ((FormLabel) fg.getWidget(i)).getText();
+                param = m_configurableComponent.getParameter(id.trim().replaceAll("\\*$", ""));
 
             } else if (fg.getWidget(i) instanceof ListBox || fg.getWidget(i) instanceof Input || fg.getWidget(i) instanceof TextBoxBase) {
-            	
-            	String value = getUpdatedFieldConfiguration(param, fg.getWidget(i));
+
+                String value = getUpdatedFieldConfiguration(param, fg.getWidget(i));
                 if (value == null) {
                     continue;
                 }
