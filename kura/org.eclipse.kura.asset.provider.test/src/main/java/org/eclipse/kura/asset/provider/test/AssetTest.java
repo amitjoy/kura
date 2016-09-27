@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates
+ * Copyright (c) 2016 Eurotech and/or its affiliates
  *
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
@@ -64,45 +64,6 @@ public final class AssetTest {
 
 	/** The Channel Configuration */
 	public Map<String, Object> sampleChannelConfig;
-
-	/**
-	 * Initializes asset data
-	 */
-	private static void init() {
-		final Map<String, Object> channels = CollectionUtil.newHashMap();
-		channels.put(AssetConstants.ASSET_DESC_PROP.value(), "sample.asset.desc");
-		channels.put(AssetConstants.ASSET_DRIVER_PROP.value(), "org.eclipse.kura.asset.stub.driver");
-		channels.put("1.CH.name", "sample.channel1.name");
-		channels.put("1.CH.type", "READ");
-		channels.put("1.CH.value.type", "INTEGER");
-		channels.put("1.CH.DRIVER.modbus.register", "sample.channel1.modbus.register");
-		channels.put("1.CH.DRIVER.modbus.FC", "sample.channel1.modbus.FC");
-		channels.put("2.CH.name", "sample.channel2.name");
-		channels.put("2.CH.type", "WRITE");
-		channels.put("2.CH.value.type", "BOOLEAN");
-		channels.put("2.CH.DRIVER.modbus.register", "sample.channel2.modbus.register");
-		channels.put("2.CH.DRIVER.modbus.DUMMY.NN", "sample.channel2.modbus.FC");
-		((BaseAsset) asset).updated(channels);
-	}
-
-	/**
-	 * JUnit Callback to be triggered before creating the instance of this suite
-	 *
-	 * @throws Exception
-	 *             if the dependent services are null
-	 */
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-		// Wait for OSGi dependencies
-		s_logger.info("Setting Up The Testcase....");
-		try {
-			dependencyLatch.await(10, TimeUnit.SECONDS);
-		} catch (final InterruptedException e) {
-			fail("OSGi dependencies unfulfilled");
-		}
-		asset = new BaseAsset();
-		init();
-	}
 
 	/**
 	 * Test generic asset properties.
@@ -198,6 +159,45 @@ public final class AssetTest {
 	public void testWriteChannelNotWritable() throws KuraException {
 		final AssetRecord assetRecord = new AssetRecord(1L);
 		asset.write(Arrays.asList(assetRecord));
+	}
+
+	/**
+	 * Initializes asset data
+	 */
+	private static void init() {
+		final Map<String, Object> channels = CollectionUtil.newHashMap();
+		channels.put(AssetConstants.ASSET_DESC_PROP.value(), "sample.asset.desc");
+		channels.put(AssetConstants.ASSET_DRIVER_PROP.value(), "org.eclipse.kura.asset.stub.driver");
+		channels.put("1.CH.name", "sample.channel1.name");
+		channels.put("1.CH.type", "READ");
+		channels.put("1.CH.value.type", "INTEGER");
+		channels.put("1.CH.DRIVER.modbus.register", "sample.channel1.modbus.register");
+		channels.put("1.CH.DRIVER.modbus.FC", "sample.channel1.modbus.FC");
+		channels.put("2.CH.name", "sample.channel2.name");
+		channels.put("2.CH.type", "WRITE");
+		channels.put("2.CH.value.type", "BOOLEAN");
+		channels.put("2.CH.DRIVER.modbus.register", "sample.channel2.modbus.register");
+		channels.put("2.CH.DRIVER.modbus.DUMMY.NN", "sample.channel2.modbus.FC");
+		((BaseAsset) asset).updated(channels);
+	}
+
+	/**
+	 * JUnit Callback to be triggered before creating the instance of this suite
+	 *
+	 * @throws Exception
+	 *             if the dependent services are null
+	 */
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		// Wait for OSGi dependencies
+		s_logger.info("Setting Up The Testcase....");
+		try {
+			dependencyLatch.await(10, TimeUnit.SECONDS);
+		} catch (final InterruptedException e) {
+			fail("OSGi dependencies unfulfilled");
+		}
+		asset = new BaseAsset();
+		init();
 	}
 
 }

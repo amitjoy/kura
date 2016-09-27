@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates
+ * Copyright (c) 2016 Eurotech and/or its affiliates
  *
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
@@ -82,8 +82,7 @@ final class S7PlcOptions {
 	 */
 	int getPort() {
 		int port = 0;
-		if ((this.properties != null) && this.properties.containsKey(PORT)
-				&& (this.properties.get(PORT) != null)) {
+		if ((this.properties != null) && this.properties.containsKey(PORT) && (this.properties.get(PORT) != null)) {
 			port = Integer.valueOf(this.properties.get(PORT).toString());
 		}
 		return port;
@@ -96,8 +95,7 @@ final class S7PlcOptions {
 	 */
 	int getRack() {
 		int rack = 0;
-		if ((this.properties != null) && this.properties.containsKey(RACK)
-				&& (this.properties.get(RACK) != null)) {
+		if ((this.properties != null) && this.properties.containsKey(RACK) && (this.properties.get(RACK) != null)) {
 			rack = Integer.valueOf(this.properties.get(RACK).toString());
 		}
 		return rack;
@@ -110,8 +108,7 @@ final class S7PlcOptions {
 	 */
 	int getSlot() {
 		int slot = 0;
-		if ((this.properties != null) && this.properties.containsKey(SLOT)
-				&& (this.properties.get(SLOT) != null)) {
+		if ((this.properties != null) && this.properties.containsKey(SLOT) && (this.properties.get(SLOT) != null)) {
 			slot = Integer.valueOf(this.properties.get(SLOT).toString());
 		}
 		return slot;

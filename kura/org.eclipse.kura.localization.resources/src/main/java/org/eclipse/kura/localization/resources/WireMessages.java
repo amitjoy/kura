@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates
+ * Copyright (c) 2016 Eurotech and/or its affiliates
  *
  *  All rights reserved. This program and the accompanying materials
  *  are made available under the terms of the Eclipse Public License v1.0
@@ -106,6 +106,9 @@ public interface WireMessages {
 
 	@En("channel_name")
 	public String channelName();
+
+	@En("Name of the Channel")
+	public String channelNameDesc();
 
 	@En("Channel cannot be null")
 	public String channelNonNull();
@@ -395,9 +398,6 @@ public interface WireMessages {
 	@En("Wire Component PID cannot be null")
 	public String pidNonNull();
 
-	@En("Name of the Channel")
-	public String channelNameDesc();
-
 	@En("position")
 	public String position();
 
@@ -551,11 +551,11 @@ public interface WireMessages {
 	@En("Type of the channel")
 	public String type();
 
-	@En("typed_value")
-	public String typedValue();
-
 	@En("Value type of the channel")
 	public String typeChannel();
+
+	@En("typed_value")
+	public String typedValue();
 
 	@En("Updating Cloud Publisher Wire Component...")
 	public String updatingCloudPublisher();

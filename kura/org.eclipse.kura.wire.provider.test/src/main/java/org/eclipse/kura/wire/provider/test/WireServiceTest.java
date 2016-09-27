@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 Eurotech and/or its affiliates
+ * Copyright (c) 2016 Eurotech and/or its affiliates
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -53,23 +53,6 @@ public final class WireServiceTest {
 
 	/** Configuration Service Reference */
 	private static WireService s_wireService;
-
-	/**
-	 * JUnit Callback to be triggered before creating the instance of this suite
-	 *
-	 * @throws Exception
-	 *             if the dependent services are null
-	 */
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-		// Wait for OSGi dependencies
-		s_logger.info("Setting Up The Testcase....");
-		try {
-			dependencyLatch.await(10, TimeUnit.SECONDS);
-		} catch (final InterruptedException e) {
-			fail("OSGi dependencies unfulfilled");
-		}
-	}
 
 	/**
 	 * Binds the configuration service dependency
@@ -166,6 +149,23 @@ public final class WireServiceTest {
 	public void unbindWireService(final WireService wireService) {
 		if (s_wireService == wireService) {
 			s_wireService = null;
+		}
+	}
+
+	/**
+	 * JUnit Callback to be triggered before creating the instance of this suite
+	 *
+	 * @throws Exception
+	 *             if the dependent services are null
+	 */
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		// Wait for OSGi dependencies
+		s_logger.info("Setting Up The Testcase....");
+		try {
+			dependencyLatch.await(10, TimeUnit.SECONDS);
+		} catch (final InterruptedException e) {
+			fail("OSGi dependencies unfulfilled");
 		}
 	}
 }
