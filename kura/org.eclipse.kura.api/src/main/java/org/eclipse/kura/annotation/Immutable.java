@@ -19,24 +19,21 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * The existence of this annotation indicates that the author believes the class
- * to be immutable and hence inherently thread-safe. An immutable class is one
- * where the state of an instance cannot be <i>seen</i> to change. As a result
+ * This annotation denotes that the annotated type is immutable and eventually
+ * it becomes thread-safe. By definition, a class is considered to be an
+ * immutable class in which the state of its instance cannot be <i>observed</i>
+ * to be changed. So, inherently this implies that,
  * <ul>
- * <li>All public fields must be {@code final}</li>
- * <li>All public final reference fields are either {@code null} or refer to
- * other immutable objects</li>
- * <li>Constructors and methods do not publish references to any potentially
+ * <li>All of its public fields must be declared as {@code final}</li>
+ * <li>All of its public final reference fields are either {@code null} or refer
+ * to other immutable objects</li>
+ * <li>Constructors and methods do not contain references to any potentially
  * mutable internal state.</li>
  * </ul>
- * Performance optimization may mean that instances of an immutable class may
- * have mutable internal state. The critical point is that callers cannot tell
- * the difference. For example {@link String} is an immutable class, despite
- * having an internal integer that is non-final but used as a cache for
- * {@link String#hashCode()}.
  * <p/>
- * Immutable objects are inherently thread-safe; they may be passed between
- * threads or published without synchronization.
+ * In addition, the immutable objects are inherently thread-safe and that is the
+ * reason, they can be passed between threads or published without explicit
+ * synchronization or locks.
  */
 @Documented
 @Target(TYPE)

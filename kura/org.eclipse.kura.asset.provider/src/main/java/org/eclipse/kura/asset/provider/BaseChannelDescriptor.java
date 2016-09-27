@@ -78,7 +78,7 @@ public final class BaseChannelDescriptor implements ChannelDescriptor {
 		name.setName(NAME.value());
 		name.setType(Tscalar.STRING);
 		name.setDefault(s_message.string());
-		name.setDescription(s_message.pointName());
+		name.setDescription(s_message.channelNameDesc());
 		name.setCardinality(0);
 		name.setRequired(true);
 
@@ -112,7 +112,7 @@ public final class BaseChannelDescriptor implements ChannelDescriptor {
 		final Tad valueType = new Tad();
 		valueType.setName(VALUE_TYPE.value());
 		valueType.setId(VALUE_TYPE.value());
-		valueType.setDescription(s_message.typePoint());
+		valueType.setDescription(s_message.typeChannel());
 		valueType.setType(Tscalar.STRING);
 		valueType.setRequired(true);
 		valueType.setDefault(s_message.string());

@@ -396,7 +396,7 @@ public interface WireMessages {
 	public String pidNonNull();
 
 	@En("Name of the Channel")
-	public String pointName();
+	public String channelNameDesc();
 
 	@En("position")
 	public String position();
@@ -555,7 +555,7 @@ public interface WireMessages {
 	public String typedValue();
 
 	@En("Value type of the channel")
-	public String typePoint();
+	public String typeChannel();
 
 	@En("Updating Cloud Publisher Wire Component...")
 	public String updatingCloudPublisher();

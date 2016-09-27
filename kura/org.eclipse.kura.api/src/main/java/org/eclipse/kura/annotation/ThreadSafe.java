@@ -19,12 +19,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * The existence of this annotation indicates that the author believes the
- * annotated class to be thread-safe. As such, there should be no sequence of
- * accessing the public methods or fields that could put an instance of this
- * class into an invalid state, irrespective of any rearrangement of those
- * operations by the Java Runtime and without introducing any requirements for
- * synchronization or coordination by the caller.
+ * This annotation denotes that the annotated type is thread-safe. This
+ * inherently means that there should not be any sequence of operations followed
+ * which could potentially render the instance of the annotated type into an
+ * invalid state.
  */
 @Documented
 @Target(TYPE)

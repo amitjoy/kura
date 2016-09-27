@@ -19,11 +19,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * The existence of this annotation indicates that the author believes the class
- * is not thread-safe. The absence of this annotation does not indicate that the
- * class is thread-safe, instead this annotation is for cases where a naive
- * assumption could be easily made that the class is thread-safe. In general, it
- * is a bad plan to assume a class is thread safe without any good reason.
+ * This annotation denotes that the annotated type is not thread-safe. On the
+ * contrary, if any type is not annotated with this annotation, does not
+ * necessarily indicate that the type in consideration is thread-safe. The
+ * motive of this annotation is to inform consumers of the annotated type that
+ * consumers must not make any abrupt assumption that the type is thread-safe.
+ * If the author of the type believes that the consumer can make such
+ * assumptions of thread-safety for types even though the types are not, it is
+ * better to annotate the type with this annotation.
  */
 @Documented
 @Target(TYPE)
