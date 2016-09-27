@@ -17,7 +17,7 @@ package org.eclipse.kura.internal.driver.modbus;
  */
 public enum ModbusType {
 
-	/** The Serial Access. */
+	/** The Serial Mode. */
 	RTU,
 	/** The TCP Mode. */
 	TCP,

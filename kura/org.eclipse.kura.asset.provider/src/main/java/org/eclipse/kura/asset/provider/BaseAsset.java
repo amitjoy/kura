@@ -40,6 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.eclipse.kura.KuraErrorCode;
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.KuraRuntimeException;
+import org.eclipse.kura.annotation.Extensible;
 import org.eclipse.kura.asset.Asset;
 import org.eclipse.kura.asset.AssetConfiguration;
 import org.eclipse.kura.asset.AssetEvent;
@@ -83,6 +84,7 @@ import org.slf4j.LoggerFactory;
  * @see AssetOptions
  * @see AssetConfiguration
  */
+@Extensible
 public class BaseAsset implements Asset, SelfConfiguringComponent {
 
 	/** Configuration PID Property. */
@@ -360,8 +362,9 @@ public class BaseAsset implements Asset, SelfConfiguringComponent {
 					channelConfiguration.addAll(driverSpecificChannelConfiguration);
 				}
 				for (final Tad attribute : channelConfiguration) {
-					for (final String prefix : this
-							.retrieveChannelPrefixes(this.assetConfiguration.getAssetChannels())) {
+					final Set<String> channelPrefixes = this
+							.retrieveChannelPrefixes(this.assetConfiguration.getAssetChannels());
+					for (final String prefix : channelPrefixes) {
 						final Tad newAttribute = this.cloneAd(attribute, prefix);
 						mainOcd.addAD(newAttribute);
 					}
@@ -447,7 +450,6 @@ public class BaseAsset implements Asset, SelfConfiguringComponent {
 	@Override
 	public List<AssetRecord> read(final List<Long> channelIds) throws KuraException {
 		checkNull(this.driver, s_message.driverNonNull());
-
 		s_logger.debug(s_message.readingChannels());
 		final List<AssetRecord> assetRecords = CollectionUtil.newArrayList();
 		final List<DriverRecord> driverRecords = CollectionUtil.newArrayList();
@@ -660,7 +662,6 @@ public class BaseAsset implements Asset, SelfConfiguringComponent {
 	@Override
 	public List<AssetRecord> write(final List<AssetRecord> assetRecords) throws KuraException {
 		checkNull(this.driver, s_message.driverNonNull());
-
 		s_logger.debug(s_message.writing());
 		final List<DriverRecord> driverRecords = CollectionUtil.newArrayList();
 		final Map<Long, Channel> channels = this.assetConfiguration.getAssetChannels();
