@@ -84,7 +84,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class EntryClassUi extends Composite {
 	
-	private static final String WIRE_SERVICE = "org.eclipse.kura.wire.WireService";
 	private static final String SELECT_COMPONENT = "--- Select Component ---";
 
 	interface EntryClassUIUiBinder extends UiBinder<Widget, EntryClassUi> {
@@ -424,7 +423,7 @@ public class EntryClassUi extends Composite {
 					public void onSuccess(List<GwtConfigComponent> result) {
 						servicesMenu.clear();
 						for (GwtConfigComponent pair : result) {
-							if (!pair.isWireComponent() && !pair.getComponentId().equalsIgnoreCase(WIRE_SERVICE)) {
+							if (!pair.isWireComponent()) {
 								servicesMenu.add(new ServicesAnchorListItem(pair, ui));
 							}
 						}
