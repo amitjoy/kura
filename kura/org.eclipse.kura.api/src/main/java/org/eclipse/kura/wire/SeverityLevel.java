@@ -31,7 +31,7 @@ package org.eclipse.kura.wire;
  * <br/>
  * <br/>
  *
- * Also note that, INFO and ERROR have the same priority level.
+ * Also note that, {@code INFO} and {@code ERROR} have the same priority level.
  */
 public enum SeverityLevel {
 
