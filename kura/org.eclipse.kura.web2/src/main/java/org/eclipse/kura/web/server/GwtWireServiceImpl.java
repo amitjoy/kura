@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.asset.provider.BaseChannelDescriptor;
@@ -314,7 +315,8 @@ public final class GwtWireServiceImpl extends OsgiRemoteServiceServlet implement
 			// don't consider the "wires" JSON
 			final int length = jWireGraph.length() - 1;
 			// Delete wires
-			Iterator<WireConfiguration> iterator = wireService.getWireConfigurations().iterator();
+			Set<WireConfiguration> set = new CopyOnWriteArraySet<WireConfiguration>(wireService.getWireConfigurations());
+			Iterator<WireConfiguration> iterator = set.iterator();
 			while (iterator.hasNext()) {
 				final WireConfiguration wireConfiguration = iterator.next();
 				// check if jObj is an empty JSON. It means all the existing
