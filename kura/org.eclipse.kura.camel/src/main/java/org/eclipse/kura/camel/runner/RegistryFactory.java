@@ -8,9 +8,11 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-/**
- * Old Camel API of Kura
- * 
- * @deprecated For alternatives see the deprecation note of {@link CamelRouter}
- */
-package org.eclipse.kura.camel.router;
+package org.eclipse.kura.camel.runner;
+
+import org.apache.camel.spi.Registry;
+
+public interface RegistryFactory {
+
+    public Registry createRegistry();
+}

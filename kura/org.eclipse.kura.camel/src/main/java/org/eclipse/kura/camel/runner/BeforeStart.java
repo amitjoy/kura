@@ -8,9 +8,11 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-/**
- * Old Camel API of Kura
- * 
- * @deprecated For alternatives see the deprecation note of {@link CamelRouter}
- */
-package org.eclipse.kura.camel.router;
+package org.eclipse.kura.camel.runner;
+
+import org.apache.camel.CamelContext;
+
+public interface BeforeStart {
+
+    public void beforeStart(CamelContext camelContext) throws Exception;
+}

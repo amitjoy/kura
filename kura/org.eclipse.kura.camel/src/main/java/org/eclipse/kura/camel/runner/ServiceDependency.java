@@ -8,9 +8,18 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-/**
- * Old Camel API of Kura
- * 
- * @deprecated For alternatives see the deprecation note of {@link CamelRouter}
- */
-package org.eclipse.kura.camel.router;
+package org.eclipse.kura.camel.runner;
+
+public interface ServiceDependency<T, C> {
+
+    public interface Handle<C> {
+
+        public void stop();
+
+        public boolean isSatisfied();
+
+        public void consume(C context);
+    }
+
+    public Handle<C> start(Runnable runnable);
+}

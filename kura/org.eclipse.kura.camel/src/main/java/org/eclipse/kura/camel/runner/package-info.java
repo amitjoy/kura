@@ -9,8 +9,10 @@
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
 /**
- * Old Camel API of Kura
- * 
- * @deprecated For alternatives see the deprecation note of {@link CamelRouter}
+ * Functionality for running a Camel context
+ * <p>
+ * The main class to create, run and update a {@link CamelContext} is the {@link CamelRunner} which
+ * is being created using a {@link CamelRunner.Builder}
+ * </p>
  */
-package org.eclipse.kura.camel.router;
+package org.eclipse.kura.camel.runner;

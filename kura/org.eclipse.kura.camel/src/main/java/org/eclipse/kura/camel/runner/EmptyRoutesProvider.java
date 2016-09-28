@@ -8,9 +8,19 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-/**
- * Old Camel API of Kura
- * 
- * @deprecated For alternatives see the deprecation note of {@link CamelRouter}
- */
-package org.eclipse.kura.camel.router;
+package org.eclipse.kura.camel.runner;
+
+import org.apache.camel.CamelContext;
+
+public class EmptyRoutesProvider implements RoutesProvider {
+
+    public static final EmptyRoutesProvider INSTANCE = new EmptyRoutesProvider();
+
+    private EmptyRoutesProvider() {
+    }
+
+    @Override
+    public void applyRoutes(final CamelContext camelContext) throws Exception {
+        CamelRunner.removeRoutes(camelContext, CamelRunner.fromRoutes(camelContext.getRoutes()));
+    }
+}

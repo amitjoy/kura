@@ -8,13 +8,24 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-package org.eclipse.kura.camel.xml;
+package org.eclipse.kura.camel.runner;
 
-import org.eclipse.kura.camel.component.AbstractXmlCamelComponent;
+import java.util.Objects;
 
-public class XmlRouterComponent extends AbstractXmlCamelComponent {
+import org.apache.camel.CamelContext;
+import org.apache.camel.model.RoutesDefinition;
 
-    public XmlRouterComponent() {
-        super("xml.data");
+public class SimpleRoutesProvider extends AbstractRoutesProvider {
+
+    private final RoutesDefinition routes;
+
+    public SimpleRoutesProvider(RoutesDefinition routes) {
+        Objects.requireNonNull(routes);
+        this.routes = routes;
+    }
+
+    @Override
+    protected RoutesDefinition getRoutes(final CamelContext camelContext) throws Exception {
+        return this.routes;
     }
 }

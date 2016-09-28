@@ -8,9 +8,9 @@
  * Contributors:
  *     Red Hat Inc - initial API and implementation
  *******************************************************************************/
-/**
- * Old Camel API of Kura
- * 
- * @deprecated For alternatives see the deprecation note of {@link CamelRouter}
- */
-package org.eclipse.kura.camel.router;
+package org.eclipse.kura.camel.runner;
+
+public interface ServiceConsumer<T, C> {
+
+    public void consume(C context, T service);
+}
