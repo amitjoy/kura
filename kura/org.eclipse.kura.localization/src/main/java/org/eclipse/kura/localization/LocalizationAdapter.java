@@ -42,66 +42,66 @@ import com.github.rodionmoiseev.c10n.annotations.DefaultC10NAnnotations;
  */
 public final class LocalizationAdapter {
 
-	/** System property for localization */
-	private static final String LOCALE_PROPERTY = "nl";
+    /** System property for localization */
+    private static final String LOCALE_PROPERTY = "nl";
 
-	static {
-		C10N.configure(new DefaultC10NAnnotations());
-	}
+    static {
+        C10N.configure(new DefaultC10NAnnotations());
+    }
 
-	/** Constructor */
-	private LocalizationAdapter() {
-		// Static Factory Methods container. No need to instantiate.
-	}
+    /** Constructor */
+    private LocalizationAdapter() {
+        // Static Factory Methods container. No need to instantiate.
+    }
 
-	/**
-	 * Adapt the provided message resource to its C10N type
-	 *
-	 * @param <T>
-	 *            the generic type
-	 * @param clazz
-	 *            the message resource
-	 * @throws KuraRuntimeException
-	 *             if the argument is null
-	 * @return the instance of the C10N resource
-	 */
-	public static <T> T adapt(final Class<T> clazz) {
-		checkNull(clazz, "Class instance of localization resource cannot be null");
-		return C10N.get(clazz, getSystemLocale());
-	}
+    /**
+     * Adapt the provided message resource to its C10N type
+     *
+     * @param <T>
+     *            the generic type
+     * @param clazz
+     *            the message resource
+     * @throws KuraRuntimeException
+     *             if the argument is null
+     * @return the instance of the C10N resource
+     */
+    public static <T> T adapt(final Class<T> clazz) {
+        checkNull(clazz, "Class instance of localization resource cannot be null");
+        return C10N.get(clazz, getSystemLocale());
+    }
 
-	/**
-	 * Returns the locale as set in the system property
-	 */
-	private static Locale getSystemLocale() {
-		final String locale = System.getProperty(LOCALE_PROPERTY);
-		if (locale != null) {
-			if ("EN".equalsIgnoreCase(locale)) {
-				return Locale.ENGLISH;
-			}
-			if ("IT".equalsIgnoreCase(locale)) {
-				return Locale.ITALIAN;
-			}
-			if ("DE".equalsIgnoreCase(locale)) {
-				return Locale.GERMAN;
-			}
-			if ("FR".equalsIgnoreCase(locale)) {
-				return Locale.FRENCH;
-			}
-			if ("JA".equalsIgnoreCase(locale)) {
-				return Locale.JAPANESE;
-			}
-			if ("KO".equalsIgnoreCase(locale)) {
-				return Locale.KOREAN;
-			}
-			if ("RU".equalsIgnoreCase(locale)) {
-				return new Locale.Builder().setLanguage("ru").setRegion("RU").build();
-			}
-			if ("ZH".equalsIgnoreCase(locale)) {
-				return Locale.CHINESE;
-			}
-		}
-		return Locale.ENGLISH;
-	}
+    /**
+     * Returns the locale as set in the system property
+     */
+    private static Locale getSystemLocale() {
+        final String locale = System.getProperty(LOCALE_PROPERTY);
+        if (locale != null) {
+            if ("EN".equalsIgnoreCase(locale)) {
+                return Locale.ENGLISH;
+            }
+            if ("IT".equalsIgnoreCase(locale)) {
+                return Locale.ITALIAN;
+            }
+            if ("DE".equalsIgnoreCase(locale)) {
+                return Locale.GERMAN;
+            }
+            if ("FR".equalsIgnoreCase(locale)) {
+                return Locale.FRENCH;
+            }
+            if ("JA".equalsIgnoreCase(locale)) {
+                return Locale.JAPANESE;
+            }
+            if ("KO".equalsIgnoreCase(locale)) {
+                return Locale.KOREAN;
+            }
+            if ("RU".equalsIgnoreCase(locale)) {
+                return new Locale.Builder().setLanguage("ru").setRegion("RU").build();
+            }
+            if ("ZH".equalsIgnoreCase(locale)) {
+                return Locale.CHINESE;
+            }
+        }
+        return Locale.ENGLISH;
+    }
 
 }

@@ -17,19 +17,19 @@ package org.eclipse.kura.asset;
  */
 public enum ChannelType {
 
-	/**
-	 * The channel will be used for performing reading operation
-	 */
-	READ,
+    /**
+     * The channel will be used for performing reading operation
+     */
+    READ,
 
-	/**
-	 * The channel will be used for performing both reading and writing
-	 * operations
-	 */
-	READ_WRITE,
+    /**
+     * The channel will be used for performing both reading and writing
+     * operations
+     */
+    READ_WRITE,
 
-	/**
-	 * The channel will be used for performing writing operation
-	 */
-	WRITE
+    /**
+     * The channel will be used for performing writing operation
+     */
+    WRITE
 }

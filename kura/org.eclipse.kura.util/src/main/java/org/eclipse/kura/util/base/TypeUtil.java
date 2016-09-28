@@ -27,46 +27,46 @@ import org.eclipse.kura.localization.resources.UtilMessages;
  */
 public final class TypeUtil {
 
-	/** Localization Resource. */
-	private static final UtilMessages s_message = LocalizationAdapter.adapt(UtilMessages.class);
+    /** Localization Resource. */
+    private static final UtilMessages s_message = LocalizationAdapter.adapt(UtilMessages.class);
 
-	/** Constructor */
-	private TypeUtil() {
-		// Static Factory Methods container. No need to instantiate.
-	}
+    /** Constructor */
+    private TypeUtil() {
+        // Static Factory Methods container. No need to instantiate.
+    }
 
-	/**
-	 * Returns a byte array representation of the provided integer value.
-	 *
-	 * @param value
-	 *            The provided integer value
-	 * @return the byte array instance
-	 */
-	public static byte[] intToBytes(final int value) {
-		final byte[] result = new byte[4];
-		result[0] = (byte) (value >> 24);
-		result[1] = (byte) (value >> 16);
-		result[2] = (byte) (value >> 8);
-		result[3] = (byte) (value);
-		return result;
-	}
+    /**
+     * Returns a byte array representation of the provided integer value.
+     *
+     * @param value
+     *            The provided integer value
+     * @return the byte array instance
+     */
+    public static byte[] intToBytes(final int value) {
+        final byte[] result = new byte[4];
+        result[0] = (byte) (value >> 24);
+        result[1] = (byte) (value >> 16);
+        result[2] = (byte) (value >> 8);
+        result[3] = (byte) (value);
+        return result;
+    }
 
-	/**
-	 * Converts to the byte array from the provided object instance
-	 *
-	 * @param value
-	 * @return the byte array
-	 * @throws IOException
-	 *             if the access to byte stream fails
-	 * @throws KuraRuntimeException
-	 *             if the argument is null
-	 */
-	public static byte[] objectToByteArray(final Object value) throws IOException {
-		checkNull(value, s_message.valueNonNull());
-		final ByteArrayOutputStream b = new ByteArrayOutputStream();
-		final ObjectOutputStream o = new ObjectOutputStream(b);
-		o.writeObject(value);
-		return b.toByteArray();
-	}
+    /**
+     * Converts to the byte array from the provided object instance
+     *
+     * @param value
+     * @return the byte array
+     * @throws IOException
+     *             if the access to byte stream fails
+     * @throws KuraRuntimeException
+     *             if the argument is null
+     */
+    public static byte[] objectToByteArray(final Object value) throws IOException {
+        checkNull(value, s_message.valueNonNull());
+        final ByteArrayOutputStream b = new ByteArrayOutputStream();
+        final ObjectOutputStream o = new ObjectOutputStream(b);
+        o.writeObject(value);
+        return b.toByteArray();
+    }
 
 }

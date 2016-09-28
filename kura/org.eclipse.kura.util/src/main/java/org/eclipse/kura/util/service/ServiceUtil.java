@@ -28,62 +28,62 @@ import org.osgi.framework.ServiceReference;
  */
 public final class ServiceUtil {
 
-	/** Localization Resource. */
-	private static final UtilMessages s_message = LocalizationAdapter.adapt(UtilMessages.class);
+    /** Localization Resource. */
+    private static final UtilMessages s_message = LocalizationAdapter.adapt(UtilMessages.class);
 
-	/** Constructor */
-	private ServiceUtil() {
-		// Static Factory Methods container. No need to instantiate.
-	}
+    /** Constructor */
+    private ServiceUtil() {
+        // Static Factory Methods container. No need to instantiate.
+    }
 
-	/**
-	 * Returns references to <em>all</em> services matching the given class name
-	 * and OSGi filter.
-	 *
-	 * @param bundleContext
-	 *            OSGi bundle context
-	 * @param clazz
-	 *            fully qualified class name (can be <code>null</code>)
-	 * @param filter
-	 *            valid OSGi filter (can be <code>null</code>)
-	 * @return non-<code>null</code> array of references to matching services
-	 * @throws KuraRuntimeException
-	 *             if the filter syntax is wrong (even though filter is
-	 *             nullable) or bundle syntax or class instance name is null
-	 */
-	public static <T> ServiceReference<T>[] getServiceReferences(final BundleContext bundleContext,
-			final Class<T> clazz, final String filter) {
-		checkNull(bundleContext, s_message.bundleContextNonNull());
-		checkNull(bundleContext, s_message.clazzNonNull());
+    /**
+     * Returns references to <em>all</em> services matching the given class name
+     * and OSGi filter.
+     *
+     * @param bundleContext
+     *            OSGi bundle context
+     * @param clazz
+     *            fully qualified class name (can be <code>null</code>)
+     * @param filter
+     *            valid OSGi filter (can be <code>null</code>)
+     * @return non-<code>null</code> array of references to matching services
+     * @throws KuraRuntimeException
+     *             if the filter syntax is wrong (even though filter is
+     *             nullable) or bundle syntax or class instance name is null
+     */
+    public static <T> ServiceReference<T>[] getServiceReferences(final BundleContext bundleContext,
+            final Class<T> clazz, final String filter) {
+        checkNull(bundleContext, s_message.bundleContextNonNull());
+        checkNull(clazz, s_message.clazzNonNull());
 
-		try {
-			final ServiceReference<?>[] refs = bundleContext.getServiceReferences(clazz.getName(), filter);
-			@SuppressWarnings("unchecked")
-			final ServiceReference<T>[] reference = (refs == null ? new ServiceReference[0] : refs);
-			return reference;
-		} catch (final InvalidSyntaxException ise) {
-			throw new KuraRuntimeException(KuraErrorCode.INTERNAL_ERROR, ThrowableUtil.stackTraceAsString(ise));
-		}
-	}
+        try {
+            final ServiceReference<?>[] refs = bundleContext.getServiceReferences(clazz.getName(), filter);
+            @SuppressWarnings("unchecked")
+            final ServiceReference<T>[] reference = (refs == null ? new ServiceReference[0] : refs);
+            return reference;
+        } catch (final InvalidSyntaxException ise) {
+            throw new KuraRuntimeException(KuraErrorCode.INTERNAL_ERROR, ThrowableUtil.stackTraceAsString(ise));
+        }
+    }
 
-	/**
-	 * Resets all the service reference counters
-	 *
-	 * @param bundleContext
-	 *            OSGi bundle context
-	 * @param refs
-	 *            the array of all service references
-	 * @throws KuraRuntimeException
-	 *             if any of the arguments is null
-	 */
-	public static void ungetServiceReferences(final BundleContext bundleContext, final ServiceReference<?>[] refs) {
-		checkNull(bundleContext, s_message.bundleContextNonNull());
-		checkNull(bundleContext, s_message.referencesNonNull());
+    /**
+     * Resets all the service reference counters
+     *
+     * @param bundleContext
+     *            OSGi bundle context
+     * @param refs
+     *            the array of all service references
+     * @throws KuraRuntimeException
+     *             if any of the arguments is null
+     */
+    public static void ungetServiceReferences(final BundleContext bundleContext, final ServiceReference<?>[] refs) {
+        checkNull(bundleContext, s_message.bundleContextNonNull());
+        checkNull(refs, s_message.referencesNonNull());
 
-		for (final ServiceReference<?> ref : refs) {
-			bundleContext.ungetService(ref);
-		}
+        for (final ServiceReference<?> ref : refs) {
+            bundleContext.ungetService(ref);
+        }
 
-	}
+    }
 
 }

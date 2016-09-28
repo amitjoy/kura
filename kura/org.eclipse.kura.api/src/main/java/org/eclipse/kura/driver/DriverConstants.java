@@ -17,35 +17,32 @@ package org.eclipse.kura.driver;
  */
 public enum DriverConstants {
 
-	/** Channel Name Property to be used in the configuration. */
-	CHANNEL_ID("channel.id"),
+    /** Channel Name Property to be used in the configuration. */
+    CHANNEL_ID("channel.id"),
 
-	/** Value type Property to be used in the configuration. */
-	CHANNEL_VALUE_TYPE("channel.value.type"),
+    /** Value type Property to be used in the configuration. */
+    CHANNEL_VALUE_TYPE("channel.value.type");
 
-	/** Driver Identifier */
-	DRIVER_PID("kura.service.pid");
+    /** The value. */
+    private String value;
 
-	/** The value. */
-	private String value;
+    /**
+     * Instantiates a new driver constants.
+     *
+     * @param value
+     *            the value
+     */
+    private DriverConstants(final String value) {
+        this.value = value;
+    }
 
-	/**
-	 * Instantiates a new driver constants.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	private DriverConstants(final String value) {
-		this.value = value;
-	}
-
-	/**
-	 * Returns the string representation of the constant
-	 *
-	 * @return the string representation
-	 */
-	public String value() {
-		return this.value;
-	}
+    /**
+     * Returns the string representation of the constant
+     *
+     * @return the string representation
+     */
+    public String value() {
+        return this.value;
+    }
 
 }

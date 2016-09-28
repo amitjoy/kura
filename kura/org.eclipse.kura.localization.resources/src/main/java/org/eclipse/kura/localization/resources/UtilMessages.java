@@ -16,35 +16,38 @@ import com.github.rodionmoiseev.c10n.annotations.En;
 /**
  * UtilMessages is considered to be a localization resource for {@code Util}
  * bundle. It contains all the necessary translation for every string literals
- * mentioned in {@code Util} bundle.
+ * mentioned in {@code Utility} bundle.
  */
 public interface UtilMessages {
 
-	@En("Bundle context cannot be null")
-	public String bundleContextNonNull();
+    @En("Bundle context cannot be null")
+    public String bundleContextNonNull();
 
-	@En("Class intance name cannot be null")
-	public String clazzNonNull();
+    @En("Class intance name cannot be null")
+    public String clazzNonNull();
 
-	@En("Delimiter cannot be null")
-	public String delimiterNonNull();
+    @En("Collection cannot be null")
+    public String collectionNonNull();
 
-	@En("Dictionary cannot be null")
-	public String dictionaryNonNull();
+    @En("Delimiter cannot be null")
+    public String delimiterNonNull();
 
-	@En("Initial Array size must not be less than 0")
-	public String initialArraySize();
+    @En("Dictionary cannot be null")
+    public String dictionaryNonNull();
 
-	@En("Iterable elements cannot be null")
-	public String iterableNonNull();
+    @En("Initial Array size must not be less than 0")
+    public String initialArraySize();
 
-	@En("Map cannot be null")
-	public String mapNonNull();
+    @En("Iterable elements cannot be null")
+    public String iterableNonNull();
 
-	@En("Service References cannot be null")
-	public String referencesNonNull();
+    @En("Map cannot be null")
+    public String mapNonNull();
 
-	@En("Value cannot be null")
-	public String valueNonNull();
+    @En("Service References cannot be null")
+    public String referencesNonNull();
+
+    @En("Value cannot be null")
+    public String valueNonNull();
 
 }

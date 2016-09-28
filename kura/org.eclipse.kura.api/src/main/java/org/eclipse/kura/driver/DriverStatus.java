@@ -26,128 +26,128 @@ import org.eclipse.kura.annotation.ThreadSafe;
 @ThreadSafe
 public final class DriverStatus {
 
-	/** The driver flag. */
-	private final DriverFlag driverFlag;
+    /** The driver flag. */
+    private final DriverFlag driverFlag;
 
-	/** The exception instance if needed. */
-	@Nullable
-	private final Exception exception;
+    /** The exception instance if needed. */
+    @Nullable
+    private final Exception exception;
 
-	/** The exception Message. */
-	@Nullable
-	private final String exceptionMessage;
+    /** The exception Message. */
+    @Nullable
+    private final String exceptionMessage;
 
-	/**
-	 * Instantiates a new status.
-	 *
-	 * @param driverFlag
-	 *            the driver flag
-	 * @throws KuraRuntimeException
-	 *             if the driver flag is null
-	 */
-	public DriverStatus(final DriverFlag driverFlag) {
-		checkNull(driverFlag, "Driver Flag cannot be null");
-		this.driverFlag = driverFlag;
-		this.exceptionMessage = null;
-		this.exception = null;
-	}
+    /**
+     * Instantiates a new status.
+     *
+     * @param driverFlag
+     *            the driver flag
+     * @throws KuraRuntimeException
+     *             if the driver flag is null
+     */
+    public DriverStatus(final DriverFlag driverFlag) {
+        checkNull(driverFlag, "Driver Flag cannot be null");
+        this.driverFlag = driverFlag;
+        this.exceptionMessage = null;
+        this.exception = null;
+    }
 
-	/**
-	 * Instantiates a new status.
-	 *
-	 * @param driverFlag
-	 *            the driver flag
-	 * @param exceptionMessage
-	 *            the exception message
-	 * @param exception
-	 *            the exception
-	 * @throws KuraRuntimeException
-	 *             if the driver flag is null
-	 */
-	public DriverStatus(final DriverFlag driverFlag, @Nullable final String exceptionMessage,
-			@Nullable final Exception exception) {
-		checkNull(driverFlag, "Driver Flag cannot be null");
-		this.driverFlag = driverFlag;
-		this.exceptionMessage = exceptionMessage;
-		this.exception = exception;
-	}
+    /**
+     * Instantiates a new status.
+     *
+     * @param driverFlag
+     *            the driver flag
+     * @param exceptionMessage
+     *            the exception message
+     * @param exception
+     *            the exception
+     * @throws KuraRuntimeException
+     *             if the driver flag is null
+     */
+    public DriverStatus(final DriverFlag driverFlag, @Nullable final String exceptionMessage,
+            @Nullable final Exception exception) {
+        checkNull(driverFlag, "Driver Flag cannot be null");
+        this.driverFlag = driverFlag;
+        this.exceptionMessage = exceptionMessage;
+        this.exception = exception;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
-			return false;
-		}
-		final DriverStatus other = (DriverStatus) obj;
-		if (this.driverFlag != other.driverFlag) {
-			return false;
-		}
-		if (this.exception == null) {
-			if (other.exception != null) {
-				return false;
-			}
-		} else if (!this.exception.equals(other.exception)) {
-			return false;
-		}
-		if (this.exceptionMessage == null) {
-			if (other.exceptionMessage != null) {
-				return false;
-			}
-		} else if (!this.exceptionMessage.equals(other.exceptionMessage)) {
-			return false;
-		}
-		return true;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final DriverStatus other = (DriverStatus) obj;
+        if (this.driverFlag != other.driverFlag) {
+            return false;
+        }
+        if (this.exception == null) {
+            if (other.exception != null) {
+                return false;
+            }
+        } else if (!this.exception.equals(other.exception)) {
+            return false;
+        }
+        if (this.exceptionMessage == null) {
+            if (other.exceptionMessage != null) {
+                return false;
+            }
+        } else if (!this.exceptionMessage.equals(other.exceptionMessage)) {
+            return false;
+        }
+        return true;
+    }
 
-	/**
-	 * Gets the driver flag.
-	 *
-	 * @return the driver flag
-	 */
-	public DriverFlag getDriverFlag() {
-		return this.driverFlag;
-	}
+    /**
+     * Gets the driver flag.
+     *
+     * @return the driver flag
+     */
+    public DriverFlag getDriverFlag() {
+        return this.driverFlag;
+    }
 
-	/**
-	 * Gets the exception.
-	 *
-	 * @return the exception
-	 */
-	public Exception getException() {
-		return this.exception;
-	}
+    /**
+     * Gets the exception.
+     *
+     * @return the exception
+     */
+    public Exception getException() {
+        return this.exception;
+    }
 
-	/**
-	 * Gets the exception message.
-	 *
-	 * @return the exception message
-	 */
-	public String getExceptionMessage() {
-		return this.exceptionMessage;
-	}
+    /**
+     * Gets the exception message.
+     *
+     * @return the exception message
+     */
+    public String getExceptionMessage() {
+        return this.exceptionMessage;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + ((this.driverFlag == null) ? 0 : this.driverFlag.hashCode());
-		result = (prime * result) + ((this.exception == null) ? 0 : this.exception.hashCode());
-		result = (prime * result) + ((this.exceptionMessage == null) ? 0 : this.exceptionMessage.hashCode());
-		return result;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + ((this.driverFlag == null) ? 0 : this.driverFlag.hashCode());
+        result = (prime * result) + ((this.exception == null) ? 0 : this.exception.hashCode());
+        result = (prime * result) + ((this.exceptionMessage == null) ? 0 : this.exceptionMessage.hashCode());
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "Status [driverFlag=" + this.driverFlag + ", exception=" + this.exception + ", exceptionMessage="
-				+ this.exceptionMessage + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "Status [driverFlag=" + this.driverFlag + ", exception=" + this.exception + ", exceptionMessage="
+                + this.exceptionMessage + "]";
+    }
 
 }

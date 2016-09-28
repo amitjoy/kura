@@ -18,43 +18,43 @@ import org.eclipse.kura.annotation.NotThreadSafe;
 
 /**
  * The DriverEvent class represents an event occurred while monitoring specific
- * channel configuration by the driver.
+ * channel configuration by the driver
  */
 @NotThreadSafe
 public final class DriverEvent {
 
-	/**
-	 * Represents the driver record as triggered due to the driver monitor
-	 * operation.
-	 */
-	private final DriverRecord driverRecord;
+    /**
+     * Represents the driver record as triggered due to the driver monitor
+     * operation.
+     */
+    private final DriverRecord driverRecord;
 
-	/**
-	 * Instantiates a new driver event.
-	 *
-	 * @param driverRecord
-	 *            the driver record
-	 * @throws KuraRuntimeException
-	 *             if the argument is null
-	 */
-	public DriverEvent(final DriverRecord driverRecord) {
-		checkNull(driverRecord, "Driver record cannot be null");
-		this.driverRecord = driverRecord;
-	}
+    /**
+     * Instantiates a new driver event
+     *
+     * @param driverRecord
+     *            the driver record
+     * @throws KuraRuntimeException
+     *             if the argument is null
+     */
+    public DriverEvent(final DriverRecord driverRecord) {
+        checkNull(driverRecord, "Driver record cannot be null");
+        this.driverRecord = driverRecord;
+    }
 
-	/**
-	 * Returns the associated driver record.
-	 *
-	 * @return the driver record
-	 */
-	public DriverRecord getDriverRecord() {
-		return this.driverRecord;
-	}
+    /**
+     * Returns the associated driver record
+     *
+     * @return the driver record
+     */
+    public DriverRecord getDriverRecord() {
+        return this.driverRecord;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "DriverEvent [driverRecord=" + this.driverRecord + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "DriverEvent [driverRecord=" + this.driverRecord + "]";
+    }
 
 }

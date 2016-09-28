@@ -26,14 +26,14 @@ import org.eclipse.kura.driver.DriverEvent;
  */
 public interface DriverListener {
 
-	/**
-	 * Triggers on driver event
-	 *
-	 * @param event
-	 *            the fired driver event
-	 * @throws KuraRuntimeException
-	 *             if event is null
-	 */
-	public void onDriverEvent(DriverEvent event);
+    /**
+     * Triggers on driver event
+     *
+     * @param event
+     *            the fired driver event
+     * @throws KuraRuntimeException
+     *             if event is null
+     */
+    public void onDriverEvent(DriverEvent event);
 
 }

@@ -34,102 +34,102 @@ import org.slf4j.LoggerFactory;
  */
 public final class Logger implements WireReceiver, ConfigurableComponent {
 
-	/** The Logger instance. */
-	private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(Logger.class);
+    /** The Logger instance. */
+    private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(Logger.class);
 
-	/** Localization Resource */
-	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
+    /** Localization Resource */
+    private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
-	/** The Wire Helper Service. */
-	private volatile WireHelperService wireHelperService;
+    /** The Wire Helper Service. */
+    private volatile WireHelperService wireHelperService;
 
-	/** The wire supporter component. */
-	private WireSupport wireSupport;
+    /** The wire supporter component. */
+    private WireSupport wireSupport;
 
-	/**
-	 * OSGi Service Component callback for activation.
-	 *
-	 * @param componentContext
-	 *            the component context
-	 * @param properties
-	 *            the properties
-	 */
-	protected synchronized void activate(final ComponentContext componentContext,
-			final Map<String, Object> properties) {
-		s_logger.debug(s_message.activatingLogger());
-		this.wireSupport = this.wireHelperService.newWireSupport(this);
-		s_logger.debug(s_message.activatingLoggerDone());
-	}
+    /**
+     * OSGi Service Component callback for activation.
+     *
+     * @param componentContext
+     *            the component context
+     * @param properties
+     *            the properties
+     */
+    protected synchronized void activate(final ComponentContext componentContext,
+            final Map<String, Object> properties) {
+        s_logger.debug(s_message.activatingLogger());
+        this.wireSupport = this.wireHelperService.newWireSupport(this);
+        s_logger.debug(s_message.activatingLoggerDone());
+    }
 
-	/**
-	 * Binds the Wire Helper Service.
-	 *
-	 * @param wireHelperService
-	 *            the new Wire Helper Service
-	 */
-	public synchronized void bindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.wireHelperService == null) {
-			this.wireHelperService = wireHelperService;
-		}
-	}
+    /**
+     * Binds the Wire Helper Service.
+     *
+     * @param wireHelperService
+     *            the new Wire Helper Service
+     */
+    public synchronized void bindWireHelperService(final WireHelperService wireHelperService) {
+        if (this.wireHelperService == null) {
+            this.wireHelperService = wireHelperService;
+        }
+    }
 
-	/**
-	 * OSGi Service Component callback for deactivation.
-	 *
-	 * @param componentContext
-	 *            the component context
-	 */
-	protected synchronized void deactivate(final ComponentContext componentContext) {
-		s_logger.debug(s_message.deactivatingLogger());
-		// remained for debug purposes
-		s_logger.debug(s_message.deactivatingLoggerDone());
-	}
+    /**
+     * OSGi Service Component callback for deactivation.
+     *
+     * @param componentContext
+     *            the component context
+     */
+    protected synchronized void deactivate(final ComponentContext componentContext) {
+        s_logger.debug(s_message.deactivatingLogger());
+        // remained for debugging purposes
+        s_logger.debug(s_message.deactivatingLoggerDone());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void onWireReceive(final WireEnvelope wireEnvelope) {
-		checkNull(wireEnvelope, s_message.wireEnvelopeNonNull());
-		s_logger.info(s_message.wireEnvelopeReceived(wireEnvelope.getEmitterPid()));
-		// filtering list of wire records based on the provided severity level
-		final List<WireRecord> records = this.wireSupport.filter(wireEnvelope.getRecords());
-		s_logger.info(s_message.loggerReceive(records.toString()));
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void onWireReceive(final WireEnvelope wireEnvelope) {
+        checkNull(wireEnvelope, s_message.wireEnvelopeNonNull());
+        s_logger.info(s_message.wireEnvelopeReceived(wireEnvelope.getEmitterPid()));
+        // filtering list of wire records based on the provided severity level
+        final List<WireRecord> records = this.wireSupport.filter(wireEnvelope.getRecords());
+        s_logger.info(s_message.loggerReceive(records.toString()));
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void producersConnected(final Wire[] wires) {
-		checkNull(wires, s_message.wiresNonNull());
-		this.wireSupport.producersConnected(wires);
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void producersConnected(final Wire[] wires) {
+        checkNull(wires, s_message.wiresNonNull());
+        this.wireSupport.producersConnected(wires);
+    }
 
-	/**
-	 * Unbinds the Wire Helper Service.
-	 *
-	 * @param wireHelperService
-	 *            the new Wire Helper Service
-	 */
-	public synchronized void unbindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.wireHelperService == wireHelperService) {
-			this.wireHelperService = null;
-		}
-	}
+    /**
+     * Unbinds the Wire Helper Service.
+     *
+     * @param wireHelperService
+     *            the new Wire Helper Service
+     */
+    public synchronized void unbindWireHelperService(final WireHelperService wireHelperService) {
+        if (this.wireHelperService == wireHelperService) {
+            this.wireHelperService = null;
+        }
+    }
 
-	/**
-	 * OSGi Service Component callback for updating.
-	 *
-	 * @param properties
-	 *            the updated properties
-	 */
-	public synchronized void updated(final Map<String, Object> properties) {
-		s_logger.debug(s_message.updatingLogger());
-		// remained for debug purposes
-		s_logger.debug(s_message.updatingLoggerDone());
-	}
+    /**
+     * OSGi Service Component callback for updating.
+     *
+     * @param properties
+     *            the updated properties
+     */
+    public synchronized void updated(final Map<String, Object> properties) {
+        s_logger.debug(s_message.updatingLogger());
+        // remained for debugging purposes
+        s_logger.debug(s_message.updatingLoggerDone());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void updated(final Wire wire, final Object value) {
-		this.wireSupport.updated(wire, value);
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void updated(final Wire wire, final Object value) {
+        this.wireSupport.updated(wire, value);
+    }
 
 }

@@ -20,26 +20,29 @@ import org.quartz.JobDataMap;
  */
 public final class TimerJobDataMap extends JobDataMap {
 
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = -2191522128203525408L;
+    /** The Constant serialVersionUID. */
+    private static final long serialVersionUID = -2191522128203525408L;
 
-	/**
-	 * Gets the wire support.
-	 *
-	 * @return the wire support
-	 */
-	public WireSupport getWireSupport() {
-		return (WireSupport) super.get("WireSupport");
-	}
+    /** The Constant to be used in the map. */
+    private static final String WIRE_SUPPORT = "WireSupport";
 
-	/**
-	 * Put wire support.
-	 *
-	 * @param wireSupport
-	 *            the wire support
-	 */
-	public void putWireSupport(final WireSupport wireSupport) {
-		super.put("WireSupport", wireSupport);
-	}
+    /**
+     * Gets the wire support.
+     *
+     * @return the wire support
+     */
+    public WireSupport getWireSupport() {
+        return (WireSupport) super.get(WIRE_SUPPORT);
+    }
+
+    /**
+     * Put wire support.
+     *
+     * @param wireSupport
+     *            the wire support
+     */
+    public void putWireSupport(final WireSupport wireSupport) {
+        super.put(WIRE_SUPPORT, wireSupport);
+    }
 
 }

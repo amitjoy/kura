@@ -33,103 +33,103 @@ import org.osgi.util.position.Position;
 @ThreadSafe
 public final class WireRecord {
 
-	/** The contained wire fields. */
-	private final List<WireField> fields;
+    /** The contained wire fields. */
+    private final List<WireField> fields;
 
-	/** The position. */
-	@Nullable
-	private final Position position;
+    /** The position. */
+    @Nullable
+    private final Position position;
 
-	/** The timestamp. */
-	private final Timestamp timestamp;
+    /** The timestamp. */
+    private final Timestamp timestamp;
 
-	/**
-	 * Instantiates a new wire record.
-	 *
-	 * @param timestamp
-	 *            the timestamp
-	 * @param fields
-	 *            the wire fields
-	 * @throws KuraRuntimeException
-	 *             if any of the argument is null
-	 */
-	public WireRecord(final Timestamp timestamp, final List<WireField> fields) {
-		checkNull(timestamp, "Timestamp cannot be null");
-		checkNull(fields, "Wire fields cannot be null");
+    /**
+     * Instantiates a new wire record.
+     *
+     * @param timestamp
+     *            the timestamp
+     * @param fields
+     *            the wire fields
+     * @throws KuraRuntimeException
+     *             if any of the argument is null
+     */
+    public WireRecord(final Timestamp timestamp, final List<WireField> fields) {
+        checkNull(timestamp, "Timestamp cannot be null");
+        checkNull(fields, "Wire fields cannot be null");
 
-		this.timestamp = timestamp;
-		this.position = null;
-		this.fields = Collections.unmodifiableList(fields);
-	}
+        this.timestamp = timestamp;
+        this.position = null;
+        this.fields = Collections.unmodifiableList(fields);
+    }
 
-	/**
-	 * Instantiates a new wire record.
-	 *
-	 * @param timestamp
-	 *            the timestamp
-	 * @param position
-	 *            the position
-	 * @param fields
-	 *            the wire fields
-	 * @throws KuraRuntimeException
-	 *             if any of the argument is null (except position)
-	 */
-	public WireRecord(final Timestamp timestamp, @Nullable final Position position, final List<WireField> fields) {
-		checkNull(timestamp, "Timestamp cannot be null");
-		checkNull(fields, "Wire fields cannot be null");
+    /**
+     * Instantiates a new wire record.
+     *
+     * @param timestamp
+     *            the timestamp
+     * @param position
+     *            the position
+     * @param fields
+     *            the wire fields
+     * @throws KuraRuntimeException
+     *             if any of the argument is null (except position)
+     */
+    public WireRecord(final Timestamp timestamp, @Nullable final Position position, final List<WireField> fields) {
+        checkNull(timestamp, "Timestamp cannot be null");
+        checkNull(fields, "Wire fields cannot be null");
 
-		this.timestamp = timestamp;
-		this.position = position;
-		this.fields = Collections.unmodifiableList(fields);
-	}
+        this.timestamp = timestamp;
+        this.position = position;
+        this.fields = Collections.unmodifiableList(fields);
+    }
 
-	/**
-	 * Instantiates a new wire record.
-	 *
-	 * @param fields
-	 *            the wire fields
-	 * @throws KuraRuntimeException
-	 *             if any of the argument is null
-	 */
-	public WireRecord(final WireField... fields) {
-		checkNull(fields, "Wire fields cannot be null");
-		this.timestamp = new Timestamp(new Date().getTime());
-		this.position = null;
-		this.fields = Collections.unmodifiableList(Arrays.asList(fields));
-	}
+    /**
+     * Instantiates a new wire record.
+     *
+     * @param fields
+     *            the wire fields
+     * @throws KuraRuntimeException
+     *             if any of the argument is null
+     */
+    public WireRecord(final WireField... fields) {
+        checkNull(fields, "Wire fields cannot be null");
+        this.timestamp = new Timestamp(new Date().getTime());
+        this.position = null;
+        this.fields = Collections.unmodifiableList(Arrays.asList(fields));
+    }
 
-	/**
-	 * Gets the associated fields.
-	 *
-	 * @return the fields
-	 */
-	public List<WireField> getFields() {
-		return this.fields;
-	}
+    /**
+     * Gets the associated fields.
+     *
+     * @return the fields
+     */
+    public List<WireField> getFields() {
+        return this.fields;
+    }
 
-	/**
-	 * Gets the position.
-	 *
-	 * @return the position
-	 */
-	public Position getPosition() {
-		return this.position;
-	}
+    /**
+     * Gets the position.
+     *
+     * @return the position
+     */
+    public Position getPosition() {
+        return this.position;
+    }
 
-	/**
-	 * Gets the timestamp.
-	 *
-	 * @return the timestamp
-	 */
-	public Timestamp getTimestamp() {
-		return this.timestamp;
-	}
+    /**
+     * Gets the timestamp.
+     *
+     * @return the timestamp
+     */
+    public Timestamp getTimestamp() {
+        return this.timestamp;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "WireRecord [fields=" + this.fields + ", position=" + this.position + ", timestamp=" + this.timestamp
-				+ "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "WireRecord [fields=" + this.fields + ", position=" + this.position + ", timestamp=" + this.timestamp
+                + "]";
+    }
 
 }

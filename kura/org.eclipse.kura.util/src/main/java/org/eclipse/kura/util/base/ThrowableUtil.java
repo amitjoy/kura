@@ -23,34 +23,34 @@ import org.eclipse.kura.KuraRuntimeException;
  */
 public final class ThrowableUtil {
 
-	/** Constructor */
-	private ThrowableUtil() {
-		// Static Factory Methods container. No need to instantiate.
-	}
+    /** Constructor */
+    private ThrowableUtil() {
+        // Static Factory Methods container. No need to instantiate.
+    }
 
-	/**
-	 * Propagates a {@code throwable}.
-	 *
-	 * @param throwable
-	 *            the throwable to propagate
-	 */
-	public static void propagate(final Throwable throwable) {
-		throw new KuraRuntimeException(KuraErrorCode.INTERNAL_ERROR, throwable);
-	}
+    /**
+     * Propagates a {@code throwable}.
+     *
+     * @param throwable
+     *            the throwable to propagate
+     */
+    public static void propagate(final Throwable throwable) {
+        throw new KuraRuntimeException(KuraErrorCode.INTERNAL_ERROR, throwable);
+    }
 
-	/**
-	 * Returns a string containing the result of {@link Throwable#toString()},
-	 * comprising recursive stack trace of {@code throwable}.
-	 *
-	 * @param throwable
-	 *            The {@code throwable} instance
-	 * @return the string
-	 */
-	public static String stackTraceAsString(final Throwable throwable) {
-		final StringWriter sw = new StringWriter();
-		final PrintWriter pw = new PrintWriter(sw);
-		throwable.printStackTrace(pw);
-		return sw.toString();
-	}
+    /**
+     * Returns a string containing the result of {@link Throwable#toString()},
+     * comprising recursive stack trace of {@code throwable}.
+     *
+     * @param throwable
+     *            The {@code throwable} instance
+     * @return the string
+     */
+    public static String stackTraceAsString(final Throwable throwable) {
+        final StringWriter sw = new StringWriter();
+        final PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        return sw.toString();
+    }
 
 }

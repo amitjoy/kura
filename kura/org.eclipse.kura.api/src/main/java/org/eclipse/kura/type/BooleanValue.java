@@ -24,74 +24,74 @@ import org.eclipse.kura.annotation.ThreadSafe;
 @ThreadSafe
 public final class BooleanValue implements TypedValue<Boolean> {
 
-	/**
-	 * The actual contained value that will be represented as
-	 * {@link TypedValue}.
-	 */
-	private final boolean value;
+    /**
+     * The actual contained value that will be represented as
+     * {@link TypedValue}.
+     */
+    private final boolean value;
 
-	/**
-	 * Instantiates a new boolean value.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	public BooleanValue(final boolean value) {
-		checkNull(value, "Provided Typed Value cannot be null");
-		this.value = value;
-	}
+    /**
+     * Instantiates a new boolean value.
+     *
+     * @param value
+     *            the value
+     */
+    public BooleanValue(final boolean value) {
+        checkNull(value, "Provided Typed Value cannot be null");
+        this.value = value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int compareTo(final TypedValue<Boolean> otherTypedValue) {
-		checkNull(otherTypedValue, "Typed Value cannot be null");
-		return Boolean.compare(this.value, otherTypedValue.getValue());
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(final TypedValue<Boolean> otherTypedValue) {
+        checkNull(otherTypedValue, "Typed Value cannot be null");
+        return Boolean.compare(this.value, otherTypedValue.getValue());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
-			return false;
-		}
-		final BooleanValue other = (BooleanValue) obj;
-		if (this.value != other.value) {
-			return false;
-		}
-		return true;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final BooleanValue other = (BooleanValue) obj;
+        if (this.value != other.value) {
+            return false;
+        }
+        return true;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public DataType getType() {
-		return BOOLEAN;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public DataType getType() {
+        return BOOLEAN;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Boolean getValue() {
-		return this.value;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public Boolean getValue() {
+        return this.value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + (this.value ? 1231 : 1237);
-		return result;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + (this.value ? 1231 : 1237);
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "BooleanValue [value=" + this.value + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "BooleanValue [value=" + this.value + "]";
+    }
 
 }

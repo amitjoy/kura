@@ -23,21 +23,21 @@ import org.eclipse.kura.util.collection.CollectionUtil;
  */
 public class StubChannelDescriptor implements ChannelDescriptor {
 
-	/** {@inheritDoc} */
-	@Override
-	public Object getDescriptor() {
-		final List<Tad> elements = CollectionUtil.newArrayList();
-		final Tad unitId = new Tad();
-		unitId.setId("unit.id");
-		unitId.setName("unit.id");
-		unitId.setType(Tscalar.INTEGER);
-		unitId.setDefault("");
-		unitId.setDescription("unit.desc");
-		unitId.setCardinality(0);
-		unitId.setRequired(true);
+    /** {@inheritDoc} */
+    @Override
+    public Object getDescriptor() {
+        final List<Tad> elements = CollectionUtil.newArrayList();
+        final Tad unitId = new Tad();
+        unitId.setId("unit.id");
+        unitId.setName("unit.id");
+        unitId.setType(Tscalar.INTEGER);
+        unitId.setDefault("");
+        unitId.setDescription("unit.desc");
+        unitId.setCardinality(0);
+        unitId.setRequired(true);
 
-		elements.add(unitId);
-		return elements;
-	}
+        elements.add(unitId);
+        return elements;
+    }
 
 }

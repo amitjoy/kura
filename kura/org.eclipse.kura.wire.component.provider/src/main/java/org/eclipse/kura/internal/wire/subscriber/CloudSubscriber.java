@@ -61,312 +61,312 @@ import org.slf4j.LoggerFactory;
  */
 public final class CloudSubscriber implements WireEmitter, ConfigurableComponent, DataServiceListener {
 
-	/** The Logger instance. */
-	private static final Logger s_logger = LoggerFactory.getLogger(CloudSubscriber.class);
+    /** The Logger instance. */
+    private static final Logger s_logger = LoggerFactory.getLogger(CloudSubscriber.class);
 
-	/** Localization Resource */
-	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
+    /** Localization Resource */
+    private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
-	/** The cloud service. */
-	private volatile CloudService cloudService;
+    /** The cloud service. */
+    private volatile CloudService cloudService;
 
-	/** The data service. */
-	private volatile DataService dataService;
+    /** The data service. */
+    private volatile DataService dataService;
 
-	/** The cloud subscriber options. */
-	private CloudSubscriberOptions options;
+    /** The cloud subscriber options. */
+    private CloudSubscriberOptions options;
 
-	/** The subscribed topic */
-	private String topic;
+    /** The subscribed topic */
+    private String topic;
 
-	/** The Wire Helper Service. */
-	private volatile WireHelperService wireHelperService;
+    /** The Wire Helper Service. */
+    private volatile WireHelperService wireHelperService;
 
-	/** The wire supporter component. */
-	private WireSupport wireSupport;
+    /** The wire supporter component. */
+    private WireSupport wireSupport;
 
-	/**
-	 * OSGi Service Component callback for activation.
-	 *
-	 * @param componentContext
-	 *            the component context
-	 * @param properties
-	 *            the properties
-	 */
-	protected synchronized void activate(final ComponentContext componentContext,
-			final Map<String, Object> properties) {
-		s_logger.debug(s_message.activatingCloudSubscriber());
-		this.wireSupport = this.wireHelperService.newWireSupport(this);
-		this.options = new CloudSubscriberOptions(properties);
-		this.topic = this.options.getSubscribingTopic();
-		this.dataService.addDataServiceListener(this);
-		s_logger.debug(s_message.activatingCloudSubscriberDone());
-	}
+    /**
+     * OSGi Service Component callback for activation.
+     *
+     * @param componentContext
+     *            the component context
+     * @param properties
+     *            the properties
+     */
+    protected synchronized void activate(final ComponentContext componentContext,
+            final Map<String, Object> properties) {
+        s_logger.debug(s_message.activatingCloudSubscriber());
+        this.wireSupport = this.wireHelperService.newWireSupport(this);
+        this.options = new CloudSubscriberOptions(properties);
+        this.topic = this.options.getSubscribingTopic();
+        this.dataService.addDataServiceListener(this);
+        s_logger.debug(s_message.activatingCloudSubscriberDone());
+    }
 
-	/**
-	 * Binds the cloud service.
-	 *
-	 * @param cloudService
-	 *            the new cloud service
-	 */
-	public synchronized void bindCloudService(final CloudService cloudService) {
-		if (this.cloudService == null) {
-			this.cloudService = cloudService;
-		}
-	}
+    /**
+     * Binds the cloud service.
+     *
+     * @param cloudService
+     *            the new cloud service
+     */
+    public synchronized void bindCloudService(final CloudService cloudService) {
+        if (this.cloudService == null) {
+            this.cloudService = cloudService;
+        }
+    }
 
-	/**
-	 * Binds the data service.
-	 *
-	 * @param dataService
-	 *            the new data service
-	 */
-	public synchronized void bindDataService(final DataService dataService) {
-		if (this.dataService == null) {
-			this.dataService = dataService;
-		}
-	}
+    /**
+     * Binds the data service.
+     *
+     * @param dataService
+     *            the new data service
+     */
+    public synchronized void bindDataService(final DataService dataService) {
+        if (this.dataService == null) {
+            this.dataService = dataService;
+        }
+    }
 
-	/**
-	 * Binds the Wire Helper Service.
-	 *
-	 * @param wireHelperService
-	 *            the new Wire Helper Service
-	 */
-	public synchronized void bindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.wireHelperService == null) {
-			this.wireHelperService = wireHelperService;
-		}
-	}
+    /**
+     * Binds the Wire Helper Service.
+     *
+     * @param wireHelperService
+     *            the new Wire Helper Service
+     */
+    public synchronized void bindWireHelperService(final WireHelperService wireHelperService) {
+        if (this.wireHelperService == null) {
+            this.wireHelperService = wireHelperService;
+        }
+    }
 
-	/**
-	 * Builds the Wire Record from the provided Kura Payload.
-	 *
-	 * @param payload
-	 *            the payload
-	 * @return the Wire Record
-	 * @throws IOException
-	 *             if the byte array conversion fails
-	 * @throws KuraRuntimeException
-	 *             if the payload provided is null
-	 */
-	private WireRecord buildWireRecord(final KuraPayload payload) throws IOException {
-		checkNull(payload, s_message.payloadNonNull());
-		final List<WireField> wireFields = CollectionUtil.newArrayList();
+    /**
+     * Builds the Wire Record from the provided Kura Payload.
+     *
+     * @param payload
+     *            the payload
+     * @return the Wire Record
+     * @throws IOException
+     *             if the byte array conversion fails
+     * @throws KuraRuntimeException
+     *             if the payload provided is null
+     */
+    private WireRecord buildWireRecord(final KuraPayload payload) throws IOException {
+        checkNull(payload, s_message.payloadNonNull());
+        final List<WireField> wireFields = CollectionUtil.newArrayList();
 
-		for (final String metric : payload.metricNames()) {
-			final Object metricValue = payload.getMetric(metric);
-			TypedValue<?> val = TypedValues.newStringValue("");
-			// check instance of this metric value properly
-			if (metricValue instanceof Boolean) {
-				final boolean value = Boolean.parseBoolean(String.valueOf(metricValue));
-				val = TypedValues.newBooleanValue(value);
-			}
-			if (metricValue instanceof Byte) {
-				final byte value = Byte.parseByte(String.valueOf(metricValue));
-				val = TypedValues.newByteValue(value);
-			}
-			if (metricValue instanceof Long) {
-				final long value = Long.parseLong(String.valueOf(metricValue));
-				val = TypedValues.newLongValue(value);
-			}
-			if (metricValue instanceof Double) {
-				final double value = Double.parseDouble(String.valueOf(metricValue));
-				val = TypedValues.newDoubleValue(value);
-			}
-			if (metricValue instanceof Integer) {
-				final int value = Integer.parseInt(String.valueOf(metricValue));
-				val = TypedValues.newIntegerValue(value);
-			}
-			if (metricValue instanceof Short) {
-				final short value = Short.parseShort(String.valueOf(metricValue));
-				val = TypedValues.newShortValue(value);
-			}
-			if (metricValue instanceof String) {
-				final String value = String.valueOf(metricValue);
-				val = TypedValues.newStringValue(value);
-			}
-			if (metricValue instanceof byte[]) {
-				final byte[] value = TypeUtil.objectToByteArray(metricValue);
-				val = TypedValues.newByteArrayValue(value);
-			}
-			SeverityLevel level = null;
-			if ("ERROR".equalsIgnoreCase(String.valueOf(metricValue))) {
-				level = ERROR;
-			} else if ("SEVERE".equalsIgnoreCase(String.valueOf(metricValue))) {
-				level = SEVERE;
-			} else if ("CONFIG".equalsIgnoreCase(String.valueOf(metricValue))) {
-				level = CONFIG;
-			} else if ("INFO".equalsIgnoreCase(String.valueOf(metricValue))) {
-				level = INFO;
-			}
-			final WireField wireField = new WireField(metric, val, level);
-			wireFields.add(wireField);
-		}
-		return new WireRecord(wireFields.toArray(new WireField[0]));
-	}
+        for (final String metric : payload.metricNames()) {
+            final Object metricValue = payload.getMetric(metric);
+            TypedValue<?> val = TypedValues.newStringValue("");
+            // check instance of this metric value properly
+            if (metricValue instanceof Boolean) {
+                final boolean value = Boolean.parseBoolean(String.valueOf(metricValue));
+                val = TypedValues.newBooleanValue(value);
+            }
+            if (metricValue instanceof Byte) {
+                final byte value = Byte.parseByte(String.valueOf(metricValue));
+                val = TypedValues.newByteValue(value);
+            }
+            if (metricValue instanceof Long) {
+                final long value = Long.parseLong(String.valueOf(metricValue));
+                val = TypedValues.newLongValue(value);
+            }
+            if (metricValue instanceof Double) {
+                final double value = Double.parseDouble(String.valueOf(metricValue));
+                val = TypedValues.newDoubleValue(value);
+            }
+            if (metricValue instanceof Integer) {
+                final int value = Integer.parseInt(String.valueOf(metricValue));
+                val = TypedValues.newIntegerValue(value);
+            }
+            if (metricValue instanceof Short) {
+                final short value = Short.parseShort(String.valueOf(metricValue));
+                val = TypedValues.newShortValue(value);
+            }
+            if (metricValue instanceof String) {
+                final String value = String.valueOf(metricValue);
+                val = TypedValues.newStringValue(value);
+            }
+            if (metricValue instanceof byte[]) {
+                final byte[] value = TypeUtil.objectToByteArray(metricValue);
+                val = TypedValues.newByteArrayValue(value);
+            }
+            SeverityLevel level = null;
+            if ("ERROR".equalsIgnoreCase(String.valueOf(metricValue))) {
+                level = ERROR;
+            } else if ("SEVERE".equalsIgnoreCase(String.valueOf(metricValue))) {
+                level = SEVERE;
+            } else if ("CONFIG".equalsIgnoreCase(String.valueOf(metricValue))) {
+                level = CONFIG;
+            } else if ("INFO".equalsIgnoreCase(String.valueOf(metricValue))) {
+                level = INFO;
+            }
+            final WireField wireField = new WireField(metric, val, level);
+            wireFields.add(wireField);
+        }
+        return new WireRecord(wireFields.toArray(new WireField[0]));
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void consumersConnected(final Wire[] wires) {
-		this.wireSupport.consumersConnected(wires);
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void consumersConnected(final Wire[] wires) {
+        this.wireSupport.consumersConnected(wires);
+    }
 
-	/**
-	 * OSGi Service Component callback for deactivation.
-	 *
-	 * @param componentContext
-	 *            the component context
-	 */
-	protected synchronized void deactivate(final ComponentContext componentContext) {
-		s_logger.debug(s_message.deactivatingCloudSubscriber());
-		// close the client
-		try {
-			this.unsubsribe();
-			this.dataService.removeDataServiceListener(this);
-		} catch (final KuraException e) {
-			s_logger.error(ThrowableUtil.stackTraceAsString(e));
-		}
-		// close the disconnect manager
-		s_logger.debug(s_message.deactivatingCloudSubscriberDone());
-	}
+    /**
+     * OSGi Service Component callback for deactivation.
+     *
+     * @param componentContext
+     *            the component context
+     */
+    protected synchronized void deactivate(final ComponentContext componentContext) {
+        s_logger.debug(s_message.deactivatingCloudSubscriber());
+        // close the client
+        try {
+            this.unsubsribe();
+            this.dataService.removeDataServiceListener(this);
+        } catch (final KuraException e) {
+            s_logger.error(ThrowableUtil.stackTraceAsString(e));
+        }
+        // close the disconnect manager
+        s_logger.debug(s_message.deactivatingCloudSubscriberDone());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void onConnectionEstablished() {
-		try {
-			if (this.topic != null) {
-				this.dataService.subscribe(this.topic, this.options.getSubscribingQos());
-			}
-		} catch (final KuraException e) {
-			s_logger.error(s_message.errorCreatingCloudClinet() + e);
-		}
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void onConnectionEstablished() {
+        try {
+            if (this.topic != null) {
+                this.dataService.subscribe(this.topic, this.options.getSubscribingQos());
+            }
+        } catch (final KuraException e) {
+            s_logger.error(s_message.errorCreatingCloudClinet() + e);
+        }
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void onConnectionLost(final Throwable cause) {
-		// Not required
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void onConnectionLost(final Throwable cause) {
+        // Not required
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void onDisconnected() {
-		// Not required
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void onDisconnected() {
+        // Not required
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void onDisconnecting() {
-		// Not required
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void onDisconnecting() {
+        // Not required
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void onMessageArrived(final String topic, final byte[] payload, final int qos, final boolean retained) {
-		KuraPayload kuraPayload = null;
-		try {
-			kuraPayload = ((CloudPayloadProtoBufDecoder) this.cloudService).buildFromByteArray(payload);
-		} catch (final KuraException e) {
-			s_logger.error(ThrowableUtil.stackTraceAsString(e));
-		}
-		if (payload != null) {
-			WireRecord record = null;
-			try {
-				record = this.buildWireRecord(kuraPayload);
-			} catch (final IOException e) {
-				s_logger.error(ThrowableUtil.stackTraceAsString(e));
-			}
-			if (record != null) {
-				this.wireSupport.emit(Arrays.asList(record));
-			}
-		}
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void onMessageArrived(final String topic, final byte[] payload, final int qos, final boolean retained) {
+        KuraPayload kuraPayload = null;
+        try {
+            kuraPayload = ((CloudPayloadProtoBufDecoder) this.cloudService).buildFromByteArray(payload);
+        } catch (final KuraException e) {
+            s_logger.error(ThrowableUtil.stackTraceAsString(e));
+        }
+        if (payload != null) {
+            WireRecord record = null;
+            try {
+                record = this.buildWireRecord(kuraPayload);
+            } catch (final IOException e) {
+                s_logger.error(ThrowableUtil.stackTraceAsString(e));
+            }
+            if (record != null) {
+                this.wireSupport.emit(Arrays.asList(record));
+            }
+        }
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void onMessageConfirmed(final int messageId, final String topic) {
-		// Not required
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void onMessageConfirmed(final int messageId, final String topic) {
+        // Not required
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void onMessagePublished(final int messageId, final String topic) {
-		// Not required
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void onMessagePublished(final int messageId, final String topic) {
+        // Not required
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Object polled(final Wire wires) {
-		return this.wireSupport.polled(wires);
-	}
+    /** {@inheritDoc} */
+    @Override
+    public Object polled(final Wire wires) {
+        return this.wireSupport.polled(wires);
+    }
 
-	/**
-	 * Unbinds cloud service.
-	 *
-	 * @param cloudService
-	 *            the cloud service
-	 */
-	public synchronized void unbindCloudService(final CloudService cloudService) {
-		if (this.cloudService == cloudService) {
-			this.cloudService = null;
-		}
-	}
+    /**
+     * Unbinds cloud service.
+     *
+     * @param cloudService
+     *            the cloud service
+     */
+    public synchronized void unbindCloudService(final CloudService cloudService) {
+        if (this.cloudService == cloudService) {
+            this.cloudService = null;
+        }
+    }
 
-	/**
-	 * Unbinds data service.
-	 *
-	 * @param dataService
-	 *            the data service
-	 */
-	public synchronized void unbindDataService(final DataService dataService) {
-		if (this.dataService == dataService) {
-			this.dataService = null;
-		}
-	}
+    /**
+     * Unbinds data service.
+     *
+     * @param dataService
+     *            the data service
+     */
+    public synchronized void unbindDataService(final DataService dataService) {
+        if (this.dataService == dataService) {
+            this.dataService = null;
+        }
+    }
 
-	/**
-	 * Unbinds the Wire Helper Service.
-	 *
-	 * @param wireHelperService
-	 *            the new Wire Helper Service
-	 */
-	public synchronized void unbindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.wireHelperService == wireHelperService) {
-			this.wireHelperService = null;
-		}
-	}
+    /**
+     * Unbinds the Wire Helper Service.
+     *
+     * @param wireHelperService
+     *            the new Wire Helper Service
+     */
+    public synchronized void unbindWireHelperService(final WireHelperService wireHelperService) {
+        if (this.wireHelperService == wireHelperService) {
+            this.wireHelperService = null;
+        }
+    }
 
-	/**
-	 * Unsubscribe previous topic.
-	 *
-	 * @throws KuraException
-	 *             if couln't unsubscribe
-	 */
-	private void unsubsribe() throws KuraException {
-		if (this.topic != null) {
-			this.dataService.unsubscribe(this.topic);
-		}
-		this.topic = this.options.getSubscribingTopic();
-	}
+    /**
+     * Unsubscribe previous topic.
+     *
+     * @throws KuraException
+     *             if couln't unsubscribe
+     */
+    private void unsubsribe() throws KuraException {
+        if (this.topic != null) {
+            this.dataService.unsubscribe(this.topic);
+        }
+        this.topic = this.options.getSubscribingTopic();
+    }
 
-	/**
-	 * OSGi Service Component callback for updating.
-	 *
-	 * @param properties
-	 *            the updated properties
-	 */
-	public synchronized void updated(final Map<String, Object> properties) {
-		s_logger.debug(s_message.updatingCloudSubscriber());
-		// recreate the Cloud Client
-		try {
-			this.unsubsribe();
-		} catch (final KuraException e) {
-			s_logger.error(ThrowableUtil.stackTraceAsString(e));
-		}
-		// Update properties
-		this.options = new CloudSubscriberOptions(properties);
-		s_logger.debug(s_message.updatingCloudSubscriberDone());
-	}
+    /**
+     * OSGi Service Component callback for updating.
+     *
+     * @param properties
+     *            the updated properties
+     */
+    public synchronized void updated(final Map<String, Object> properties) {
+        s_logger.debug(s_message.updatingCloudSubscriber());
+        // recreate the Cloud Client
+        try {
+            this.unsubsribe();
+        } catch (final KuraException e) {
+            s_logger.error(ThrowableUtil.stackTraceAsString(e));
+        }
+        // Update properties
+        this.options = new CloudSubscriberOptions(properties);
+        s_logger.debug(s_message.updatingCloudSubscriberDone());
+    }
 
 }

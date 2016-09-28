@@ -32,44 +32,44 @@ import org.eclipse.kura.util.collection.CollectionUtil;
  */
 public final class S7PlcChannelDescriptor implements ChannelDescriptor {
 
-	/** Localization Resource. */
-	private static final S7PlcMessages s_message = LocalizationAdapter.adapt(S7PlcMessages.class);
+    /** Localization Resource. */
+    private static final S7PlcMessages s_message = LocalizationAdapter.adapt(S7PlcMessages.class);
 
-	/** {@inheritDoc} */
-	@Override
-	public Object getDescriptor() {
-		final List<Tad> elements = CollectionUtil.newArrayList();
+    /** {@inheritDoc} */
+    @Override
+    public Object getDescriptor() {
+        final List<Tad> elements = CollectionUtil.newArrayList();
 
-		final Tad areaNo = new Tad();
-		areaNo.setName(s_message.areaNo());
-		areaNo.setId(s_message.areaNo());
-		areaNo.setDescription(s_message.areaNo());
-		areaNo.setType(Tscalar.INTEGER);
-		areaNo.setRequired(true);
-		areaNo.setDefault("0");
+        final Tad areaNo = new Tad();
+        areaNo.setName(s_message.areaNo());
+        areaNo.setId(s_message.areaNo());
+        areaNo.setDescription(s_message.areaNo());
+        areaNo.setType(Tscalar.INTEGER);
+        areaNo.setRequired(true);
+        areaNo.setDefault("0");
 
-		elements.add(areaNo);
+        elements.add(areaNo);
 
-		final Tad offset = new Tad();
-		offset.setName(s_message.offset());
-		offset.setId(s_message.offset());
-		offset.setDescription(s_message.offset());
-		offset.setType(Tscalar.INTEGER);
-		offset.setRequired(true);
-		offset.setDefault("0");
+        final Tad offset = new Tad();
+        offset.setName(s_message.offset());
+        offset.setId(s_message.offset());
+        offset.setDescription(s_message.offset());
+        offset.setType(Tscalar.INTEGER);
+        offset.setRequired(true);
+        offset.setDefault("0");
 
-		elements.add(offset);
+        elements.add(offset);
 
-		final Tad byteCount = new Tad();
-		byteCount.setName(s_message.byteCount());
-		byteCount.setId(s_message.byteCount());
-		byteCount.setDescription(s_message.byteCountDesc());
-		byteCount.setType(Tscalar.INTEGER);
-		byteCount.setRequired(true);
-		byteCount.setDefault("0");
+        final Tad byteCount = new Tad();
+        byteCount.setName(s_message.byteCount());
+        byteCount.setId(s_message.byteCount());
+        byteCount.setDescription(s_message.byteCountDesc());
+        byteCount.setType(Tscalar.INTEGER);
+        byteCount.setRequired(true);
+        byteCount.setDefault("0");
 
-		elements.add(byteCount);
-		return elements;
-	}
+        elements.add(byteCount);
+        return elements;
+    }
 
 }

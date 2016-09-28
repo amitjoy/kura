@@ -26,14 +26,14 @@ import org.eclipse.kura.asset.AssetEvent;
  */
 public interface AssetListener {
 
-	/**
-	 * Triggers on asset event
-	 *
-	 * @param event
-	 *            the fired asset event
-	 * @throws KuraRuntimeException
-	 *             if event is null
-	 */
-	public void onAssetEvent(AssetEvent event);
+    /**
+     * Triggers on asset event
+     *
+     * @param event
+     *            the fired asset event
+     * @throws KuraRuntimeException
+     *             if event is null
+     */
+    public void onAssetEvent(AssetEvent event);
 
 }

@@ -35,70 +35,70 @@ import org.eclipse.kura.util.collection.CollectionUtil;
  */
 public final class ModbusChannelDescriptor implements ChannelDescriptor {
 
-	/** Localization Resource. */
-	private static final ModbusDriverMessages s_message = LocalizationAdapter.adapt(ModbusDriverMessages.class);
+    /** Localization Resource. */
+    private static final ModbusDriverMessages s_message = LocalizationAdapter.adapt(ModbusDriverMessages.class);
 
-	/** {@inheritDoc} */
-	@Override
-	public Object getDescriptor() {
-		final List<Tad> elements = CollectionUtil.newArrayList();
+    /** {@inheritDoc} */
+    @Override
+    public Object getDescriptor() {
+        final List<Tad> elements = CollectionUtil.newArrayList();
 
-		final Tad unitId = new Tad();
-		unitId.setId(s_message.unitId());
-		unitId.setName(s_message.unitId());
-		unitId.setType(Tscalar.INTEGER);
-		unitId.setDefault("1");
-		unitId.setMin("1");
-		unitId.setMax("247");
-		unitId.setDescription(s_message.unitIdDesc());
-		unitId.setCardinality(0);
-		unitId.setRequired(true);
+        final Tad unitId = new Tad();
+        unitId.setId(s_message.unitId());
+        unitId.setName(s_message.unitId());
+        unitId.setType(Tscalar.INTEGER);
+        unitId.setDefault("1");
+        unitId.setMin("1");
+        unitId.setMax("247");
+        unitId.setDescription(s_message.unitIdDesc());
+        unitId.setCardinality(0);
+        unitId.setRequired(true);
 
-		elements.add(unitId);
+        elements.add(unitId);
 
-		final Tad primaryTable = new Tad();
-		primaryTable.setName(s_message.primaryTable());
-		primaryTable.setId(s_message.primaryTable());
-		primaryTable.setDescription(s_message.primaryTableDesc());
-		primaryTable.setDefault(s_message.holdingRegs());
-		primaryTable.setType(Tscalar.STRING);
-		primaryTable.setRequired(true);
+        final Tad primaryTable = new Tad();
+        primaryTable.setName(s_message.primaryTable());
+        primaryTable.setId(s_message.primaryTable());
+        primaryTable.setDescription(s_message.primaryTableDesc());
+        primaryTable.setDefault(s_message.holdingRegs());
+        primaryTable.setType(Tscalar.STRING);
+        primaryTable.setRequired(true);
 
-		final Toption coil = new Toption();
-		coil.setValue(s_message.coils());
-		coil.setLabel(s_message.coils());
-		primaryTable.getOption().add(coil);
+        final Toption coil = new Toption();
+        coil.setValue(s_message.coils());
+        coil.setLabel(s_message.coils());
+        primaryTable.getOption().add(coil);
 
-		final Toption discreteInput = new Toption();
-		discreteInput.setValue(s_message.discreteInputs());
-		discreteInput.setLabel(s_message.discreteInputs());
-		primaryTable.getOption().add(discreteInput);
+        final Toption discreteInput = new Toption();
+        discreteInput.setValue(s_message.discreteInputs());
+        discreteInput.setLabel(s_message.discreteInputs());
+        primaryTable.getOption().add(discreteInput);
 
-		final Toption inputRegister = new Toption();
-		inputRegister.setValue(s_message.inputRegs());
-		inputRegister.setLabel(s_message.inputRegs());
-		primaryTable.getOption().add(inputRegister);
+        final Toption inputRegister = new Toption();
+        inputRegister.setValue(s_message.inputRegs());
+        inputRegister.setLabel(s_message.inputRegs());
+        primaryTable.getOption().add(inputRegister);
 
-		final Toption holdingRegister = new Toption();
-		holdingRegister.setValue(s_message.holdingRegs());
-		holdingRegister.setLabel(s_message.holdingRegs());
-		primaryTable.getOption().add(holdingRegister);
+        final Toption holdingRegister = new Toption();
+        holdingRegister.setValue(s_message.holdingRegs());
+        holdingRegister.setLabel(s_message.holdingRegs());
+        primaryTable.getOption().add(holdingRegister);
 
-		elements.add(primaryTable);
+        elements.add(primaryTable);
 
-		final Tad address = new Tad();
-		address.setName(s_message.memoryAddr());
-		address.setId(s_message.memoryAddr());
-		address.setDescription(s_message.memoryAddrDesc());
-		address.setType(Tscalar.INTEGER);
-		address.setRequired(true);
-		address.setDefault("1");
-		address.setMin("1");
-		address.setMax("65536");
+        final Tad address = new Tad();
+        address.setName(s_message.memoryAddr());
+        address.setId(s_message.memoryAddr());
+        address.setDescription(s_message.memoryAddrDesc());
+        address.setType(Tscalar.INTEGER);
+        address.setRequired(true);
+        address.setDefault("1");
+        address.setMin("1");
+        address.setMax("65536");
 
-		elements.add(address);
+        elements.add(address);
 
-		return elements;
-	}
+        return elements;
+    }
 
 }

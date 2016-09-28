@@ -22,22 +22,22 @@ import org.osgi.service.wireadmin.Wire;
  */
 public final class StubReceiver implements ConfigurableComponent, WireComponent, WireReceiver {
 
-	/** {@inheritDoc} */
-	@Override
-	public void onWireReceive(final WireEnvelope wireEnvelope) {
-		// no need
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void onWireReceive(final WireEnvelope wireEnvelope) {
+        // no need
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void producersConnected(final Wire[] arg0) {
-		// no need
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void producersConnected(final Wire[] arg0) {
+        // no need
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void updated(final Wire arg0, final Object arg1) {
-		// no need
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void updated(final Wire arg0, final Object arg1) {
+        // no need
+    }
 
 }

@@ -19,71 +19,70 @@ import java.util.Map;
  */
 final class TimerOptions {
 
-	/** The Constant denoting the interval property for the CRON expression */
-	private static final String PROP_CRON_INTERVAL = "cron.interval";
+    /** The Constant denoting the interval property for the CRON expression */
+    private static final String PROP_CRON_INTERVAL = "cron.interval";
 
-	/** The Constant denoting the simple interval property from the metatype */
-	private static final String PROP_SIMPLE_INTERVAL = "simple.interval";
+    /** The Constant denoting the simple interval property from the metatype */
+    private static final String PROP_SIMPLE_INTERVAL = "simple.interval";
 
-	/** The Constant denoting the type of the interval */
-	private static final String PROP_TYPE = "type";
+    /** The Constant denoting the type of the interval */
+    private static final String PROP_TYPE = "type";
 
-	/** The properties as associated */
-	private final Map<String, Object> properties;
+    /** The properties as associated */
+    private final Map<String, Object> properties;
 
-	/**
-	 * Instantiates a new Timer options.
-	 *
-	 * @param properties
-	 *            the provided properties
-	 */
-	TimerOptions(final Map<String, Object> properties) {
-		this.properties = properties;
-	}
+    /**
+     * Instantiates a new Timer options.
+     *
+     * @param properties
+     *            the provided properties
+     */
+    TimerOptions(final Map<String, Object> properties) {
+        this.properties = properties;
+    }
 
-	/**
-	 * Returns the rate of refresh for this view.
-	 *
-	 * @return the CRON expression
-	 */
-	String getCronExpression() {
-		String expression = null;
-		final Object interval = this.properties.get(PROP_CRON_INTERVAL);
-		if ((this.properties != null) && (this.properties.containsKey(PROP_CRON_INTERVAL))
-				&& (interval instanceof String)) {
-			expression = (String) interval;
-		}
-		return expression;
-	}
+    /**
+     * Returns the rate of refresh for this view.
+     *
+     * @return the CRON expression
+     */
+    String getCronExpression() {
+        String expression = null;
+        final Object interval = this.properties.get(PROP_CRON_INTERVAL);
+        if ((this.properties != null) && (this.properties.containsKey(PROP_CRON_INTERVAL))
+                && (interval instanceof String)) {
+            expression = (String) interval;
+        }
+        return expression;
+    }
 
-	/**
-	 * Returns the simple interval as configured.
-	 *
-	 * @return the simple interval
-	 */
-	int getSimpleInterval() {
-		int interval = 0;
-		final Object simpleInterval = this.properties.get(PROP_SIMPLE_INTERVAL);
-		if ((this.properties != null) && (this.properties.containsKey(PROP_SIMPLE_INTERVAL))
-				&& (simpleInterval instanceof Integer)) {
-			interval = (Integer) simpleInterval;
-		}
-		return interval;
-	}
+    /**
+     * Returns the simple interval as configured.
+     *
+     * @return the simple interval
+     */
+    int getSimpleInterval() {
+        int interval = 0;
+        final Object simpleInterval = this.properties.get(PROP_SIMPLE_INTERVAL);
+        if ((this.properties != null) && (this.properties.containsKey(PROP_SIMPLE_INTERVAL))
+                && (simpleInterval instanceof Integer)) {
+            interval = (Integer) simpleInterval;
+        }
+        return interval;
+    }
 
-	/**
-	 * Returns type as configured.
-	 *
-	 * @return the configured type
-	 */
-	String getType() {
-		String type = null;
-		final Object timerType = this.properties.get(PROP_TYPE);
-		if ((this.properties != null) && (this.properties.containsKey(PROP_TYPE))
-				&& (timerType instanceof String)) {
-			type = (String) timerType;
-		}
-		return type;
-	}
+    /**
+     * Returns type as configured.
+     *
+     * @return the configured type
+     */
+    String getType() {
+        String type = null;
+        final Object timerType = this.properties.get(PROP_TYPE);
+        if ((this.properties != null) && (this.properties.containsKey(PROP_TYPE)) && (timerType instanceof String)) {
+            type = (String) timerType;
+        }
+        return type;
+    }
 
 }

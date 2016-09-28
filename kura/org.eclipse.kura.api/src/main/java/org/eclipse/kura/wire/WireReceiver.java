@@ -23,13 +23,13 @@ import org.osgi.service.wireadmin.Consumer;
  */
 public interface WireReceiver extends WireComponent, Consumer {
 
-	/**
-	 * Triggers when the wire component receives a {@link WireEnvelope}
-	 *
-	 * @param wireEnvelope
-	 *            the received wire envelope
-	 * @throws KuraRuntimeException
-	 *             if the argument is null
-	 */
-	public void onWireReceive(WireEnvelope wireEnvelope);
+    /**
+     * Triggers when the wire component receives a {@link WireEnvelope}
+     *
+     * @param wireEnvelope
+     *            the received wire envelope
+     * @throws KuraRuntimeException
+     *             if the argument is null
+     */
+    public void onWireReceive(WireEnvelope wireEnvelope);
 }

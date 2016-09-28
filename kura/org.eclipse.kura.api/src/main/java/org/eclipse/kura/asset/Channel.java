@@ -39,7 +39,7 @@ public final class Channel {
 	/** The name of the communication channel. */
 	private String name;
 
-	/** The type of the channel. (read/write/read_Write) */
+	/** The type of the channel. (READ/WRITE/READ_WRITE) */
 	private ChannelType type;
 
 	/**

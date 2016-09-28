@@ -19,59 +19,59 @@ import java.util.Map;
  */
 final class CloudSubscriberOptions {
 
-	/** The Constant denoting QoS. */
-	private static final String CONF_QOS = "subscribe.qos";
+    /** The Constant denoting QoS. */
+    private static final String CONF_QOS = "subscribe.qos";
 
-	/** The Constant denoting MQTT topic. */
-	private static final String CONF_TOPIC = "subscribe.topic";
+    /** The Constant denoting MQTT topic. */
+    private static final String CONF_TOPIC = "subscribe.topic";
 
-	/** The Constant denoting default QoS. */
-	private static final int DEFAULT_QOS = 0;
+    /** The Constant denoting default QoS. */
+    private static final int DEFAULT_QOS = 0;
 
-	/** The Constant denoting default MQTT topic. */
-	private static final String DEFAULT_TOPIC = "EVENT";
+    /** The Constant denoting default MQTT topic. */
+    private static final String DEFAULT_TOPIC = "EVENT";
 
-	/** The properties as associated */
-	private final Map<String, Object> properties;
+    /** The properties as associated */
+    private final Map<String, Object> properties;
 
-	/**
-	 * Instantiates a new cloud subscriber options.
-	 *
-	 * @param properties
-	 *            the properties
-	 */
-	CloudSubscriberOptions(final Map<String, Object> properties) {
-		this.properties = properties;
-	}
+    /**
+     * Instantiates a new cloud subscriber options.
+     *
+     * @param properties
+     *            the properties
+     */
+    CloudSubscriberOptions(final Map<String, Object> properties) {
+        this.properties = properties;
+    }
 
-	/**
-	 * Returns the QoS to be used for message subscription.
-	 *
-	 * @return the subscribing QoS
-	 */
-	int getSubscribingQos() {
-		int subscribingQos = DEFAULT_QOS;
-		final Object qos = this.properties.get(CONF_QOS);
-		if ((this.properties != null) && this.properties.containsKey(CONF_QOS) && (qos != null)
-				&& (qos instanceof Integer)) {
-			subscribingQos = (Integer) qos;
-		}
-		return subscribingQos;
-	}
+    /**
+     * Returns the QoS to be used for message subscription.
+     *
+     * @return the subscribing QoS
+     */
+    int getSubscribingQos() {
+        int subscribingQos = DEFAULT_QOS;
+        final Object qos = this.properties.get(CONF_QOS);
+        if ((this.properties != null) && this.properties.containsKey(CONF_QOS) && (qos != null)
+                && (qos instanceof Integer)) {
+            subscribingQos = (Integer) qos;
+        }
+        return subscribingQos;
+    }
 
-	/**
-	 * Returns the topic to be used for message subscription.
-	 *
-	 * @return the subscribing topic
-	 */
-	String getSubscribingTopic() {
-		String subscribingTopic = DEFAULT_TOPIC;
-		final Object topic = this.properties.get(CONF_TOPIC);
-		if ((this.properties != null) && this.properties.containsKey(CONF_TOPIC) && (topic != null)
-				&& (topic instanceof String)) {
-			subscribingTopic = String.valueOf(topic);
-		}
-		return subscribingTopic;
-	}
+    /**
+     * Returns the topic to be used for message subscription.
+     *
+     * @return the subscribing topic
+     */
+    String getSubscribingTopic() {
+        String subscribingTopic = DEFAULT_TOPIC;
+        final Object topic = this.properties.get(CONF_TOPIC);
+        if ((this.properties != null) && this.properties.containsKey(CONF_TOPIC) && (topic != null)
+                && (topic instanceof String)) {
+            subscribingTopic = String.valueOf(topic);
+        }
+        return subscribingTopic;
+    }
 
 }

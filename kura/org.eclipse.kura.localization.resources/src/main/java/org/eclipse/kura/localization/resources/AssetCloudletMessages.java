@@ -20,100 +20,100 @@ import com.github.rodionmoiseev.c10n.annotations.En;
  */
 public interface AssetCloudletMessages {
 
-	@En("Activating Asset Cloudlet...")
-	public String activating();
+    @En("Activating Asset Cloudlet...")
+    public String activating();
 
-	@En("Activating Asset Cloudlet...Done")
-	public String activatingDone();
+    @En("Activating Asset Cloudlet...Done")
+    public String activatingDone();
 
-	@En("AssetCloudlet activation failed {0}")
-	public String activationFailed(Throwable e);
+    @En("AssetCloudlet activation failed {0}")
+    public String activationFailed(Throwable e);
 
-	@En("Asset has been found by Asset Cloudlet Tracker....==> adding service")
-	public String assetFoundAdding();
+    @En("Asset has been found by Asset Cloudlet Tracker....==> adding service")
+    public String assetFoundAdding();
 
-	@En("Asset has been found by Asset Cloudlet Tracker....==> open")
-	public String assetFoundOpen();
+    @En("Asset has been found by Asset Cloudlet Tracker....==> open")
+    public String assetFoundOpen();
 
-	@En("Asset PID cannot be null")
-	public String assetPidNonNull();
+    @En("Asset PID cannot be null")
+    public String assetPidNonNull();
 
-	@En("Asset Record cannot be null")
-	public String assetRecordNonNull();
+    @En("Asset Record cannot be null")
+    public String assetRecordNonNull();
 
-	@En("List of asset records cannot be null")
-	public String assetRecordsNonNull();
+    @En("List of asset records cannot be null")
+    public String assetRecordsNonNull();
 
-	@En("Asset has been removed by Asset Cloudlet Tracker....")
-	public String assetRemoved();
+    @En("Asset has been removed by Asset Cloudlet Tracker....")
+    public String assetRemoved();
 
-	@En("Asset service instance cannot be null")
-	public String assetServiceNonNull();
+    @En("Asset service instance cannot be null")
+    public String assetServiceNonNull();
 
-	@En("Bundle context cannot be null")
-	public String bundleContextNonNull();
+    @En("Bundle context cannot be null")
+    public String bundleContextNonNull();
 
-	@En("name")
-	public String channel();
+    @En("name")
+    public String channel();
 
-	@En("Channel ID must be provided as an integer")
-	public String channelAsInteger();
+    @En("Channel ID must be provided as an integer")
+    public String channelAsInteger();
 
-	@En("Channel IDs cannot be null")
-	public String channelIdNonNull();
+    @En("Channel IDs cannot be null")
+    public String channelIdNonNull();
 
-	@En("Channel cannot be null")
-	public String channelNonNull();
+    @En("Channel cannot be null")
+    public String channelNonNull();
 
-	@En("List of channel IDs cannot be empty")
-	public String channelsNonEmpty();
+    @En("List of channel IDs cannot be empty")
+    public String channelsNonEmpty();
 
-	@En("List of channel IDs cannot be null")
-	public String channelsNonNull();
+    @En("List of channel IDs cannot be null")
+    public String channelsNonNull();
 
-	@En("Cloudlet GET Request received on the Asset Cloudlet")
-	public String cloudGETReqReceived();
+    @En("Cloudlet GET Request received on the Asset Cloudlet")
+    public String cloudGETReqReceived();
 
-	@En("Cloudlet GET Request receiving on the Asset Cloudlet...")
-	public String cloudGETReqReceiving();
+    @En("Cloudlet GET Request receiving on the Asset Cloudlet...")
+    public String cloudGETReqReceiving();
 
-	@En("Cloudlet PUT Request received on the Asset Cloudlet")
-	public String cloudPUTReqReceived();
+    @En("Cloudlet PUT Request received on the Asset Cloudlet")
+    public String cloudPUTReqReceived();
 
-	@En("Cloudlet PUT Request receiving on the Asset Cloudlet...")
-	public String cloudPUTReqReceiving();
+    @En("Cloudlet PUT Request receiving on the Asset Cloudlet...")
+    public String cloudPUTReqReceiving();
 
-	@En("Connection to the Modbus Device failed")
-	public String connectionException();
+    @En("Connection to the Modbus Device failed")
+    public String connectionException();
 
-	@En("Deactivating Asset Cloudlet...")
-	public String deactivating();
+    @En("Deactivating Asset Cloudlet...")
+    public String deactivating();
 
-	@En("Deactivating Asset Cloudlet...Done")
-	public String deactivatingDone();
+    @En("Deactivating Asset Cloudlet...Done")
+    public String deactivatingDone();
 
-	@En("error")
-	public String errorMessage();
+    @En("error")
+    public String errorMessage();
 
-	@En("flag")
-	public String flag();
+    @En("flag")
+    public String flag();
 
-	@En("Response Payload cannot be null")
-	public String respPayloadNonNull();
+    @En("Response Payload cannot be null")
+    public String respPayloadNonNull();
 
-	@En("timestamp")
-	public String timestamp();
+    @En("timestamp")
+    public String timestamp();
 
-	@En("User Provided Type cannot be null")
-	public String typeNonNull();
+    @En("User Provided Type cannot be null")
+    public String typeNonNull();
 
-	@En("value")
-	public String value();
+    @En("value")
+    public String value();
 
-	@En("User Provided Value cannot be null")
-	public String valueNonNull();
+    @En("User Provided Value cannot be null")
+    public String valueNonNull();
 
-	@En("The provided value type is erroneous")
-	public String valueTypeConversionError();
+    @En("The provided value type is erroneous")
+    public String valueTypeConversionError();
 
 }

@@ -24,73 +24,73 @@ import org.eclipse.kura.annotation.ThreadSafe;
 @ThreadSafe
 public final class ShortValue implements TypedValue<Short> {
 
-	/**
-	 * The actual contained value that will be represented as
-	 * {@link TypedValue}.
-	 */
-	private final short value;
+    /**
+     * The actual contained value that will be represented as
+     * {@link TypedValue}.
+     */
+    private final short value;
 
-	/**
-	 * Instantiates a new short value.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	public ShortValue(final short value) {
-		this.value = value;
-	}
+    /**
+     * Instantiates a new short value.
+     *
+     * @param value
+     *            the value
+     */
+    public ShortValue(final short value) {
+        this.value = value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int compareTo(final TypedValue<Short> otherTypedValue) {
-		checkNull(otherTypedValue, "Typed Value cannot be null");
-		return Short.compare(this.value, otherTypedValue.getValue());
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(final TypedValue<Short> otherTypedValue) {
+        checkNull(otherTypedValue, "Typed Value cannot be null");
+        return Short.compare(this.value, otherTypedValue.getValue());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
-			return false;
-		}
-		final ShortValue other = (ShortValue) obj;
-		if (this.value != other.value) {
-			return false;
-		}
-		return true;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final ShortValue other = (ShortValue) obj;
+        if (this.value != other.value) {
+            return false;
+        }
+        return true;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public DataType getType() {
-		return SHORT;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public DataType getType() {
+        return SHORT;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Short getValue() {
-		return this.value;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public Short getValue() {
+        return this.value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + this.value;
-		return result;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + this.value;
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "ShortValue [value=" + this.value + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "ShortValue [value=" + this.value + "]";
+    }
 
 }

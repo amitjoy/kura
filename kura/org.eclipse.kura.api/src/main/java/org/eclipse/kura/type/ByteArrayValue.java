@@ -26,82 +26,82 @@ import org.eclipse.kura.annotation.ThreadSafe;
 @ThreadSafe
 public final class ByteArrayValue implements TypedValue<byte[]> {
 
-	/**
-	 * The actual contained value that will be represented as
-	 * {@link TypedValue}.
-	 */
-	private final byte[] value;
+    /**
+     * The actual contained value that will be represented as
+     * {@link TypedValue}.
+     */
+    private final byte[] value;
 
-	/**
-	 * Instantiates a new byte array value.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	public ByteArrayValue(final byte[] value) {
-		checkNull(value, "Provided Typed Value cannot be null");
-		this.value = value;
-	}
+    /**
+     * Instantiates a new byte array value.
+     *
+     * @param value
+     *            the value
+     */
+    public ByteArrayValue(final byte[] value) {
+        checkNull(value, "Provided Typed Value cannot be null");
+        this.value = value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int compareTo(final TypedValue<byte[]> otherTypedValue) {
-		checkNull(otherTypedValue, "Typed Value cannot be null");
-		final byte[] otherValue = otherTypedValue.getValue();
-		for (int i = 0, j = 0; (i < this.value.length) && (j < otherValue.length); i++, j++) {
-			final int a = this.value[i] & 0xff;
-			final int b = otherValue[j] & 0xff;
-			if (a != b) {
-				return a - b;
-			}
-		}
-		return this.value.length - otherValue.length;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(final TypedValue<byte[]> otherTypedValue) {
+        checkNull(otherTypedValue, "Typed Value cannot be null");
+        final byte[] otherValue = otherTypedValue.getValue();
+        for (int i = 0, j = 0; (i < this.value.length) && (j < otherValue.length); i++, j++) {
+            final int a = this.value[i] & 0xff;
+            final int b = otherValue[j] & 0xff;
+            if (a != b) {
+                return a - b;
+            }
+        }
+        return this.value.length - otherValue.length;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
-			return false;
-		}
-		final ByteArrayValue other = (ByteArrayValue) obj;
-		if (!Arrays.equals(this.value, other.value)) {
-			return false;
-		}
-		return true;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final ByteArrayValue other = (ByteArrayValue) obj;
+        if (!Arrays.equals(this.value, other.value)) {
+            return false;
+        }
+        return true;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public DataType getType() {
-		return BYTE_ARRAY;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public DataType getType() {
+        return BYTE_ARRAY;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public byte[] getValue() {
-		return this.value;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public byte[] getValue() {
+        return this.value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + Arrays.hashCode(this.value);
-		return result;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + Arrays.hashCode(this.value);
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "ByteArrayValue [value=" + Arrays.toString(this.value) + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "ByteArrayValue [value=" + Arrays.toString(this.value) + "]";
+    }
 
 }

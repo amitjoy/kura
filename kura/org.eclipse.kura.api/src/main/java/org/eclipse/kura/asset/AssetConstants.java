@@ -17,65 +17,59 @@ package org.eclipse.kura.asset;
  */
 public enum AssetConstants {
 
-	/** Asset Description Property to be used in the configuration. */
-	ASSET_DESC_PROP("asset.desc"),
+    /** Asset Description Property to be used in the configuration. */
+    ASSET_DESC_PROP("asset.desc"),
 
-	/** Driver PID Property to be used in the configuration. */
-	ASSET_DRIVER_PROP("driver.pid"),
+    /** Driver PID Property to be used in the configuration. */
+    ASSET_DRIVER_PROP("driver.pid"),
 
-	/** Asset Identifier */
-	ASSET_PID("kura.service.pid"),
+    /** Asset Severity Level to be used in the configuration. */
+    ASSET_SEVERITY_LEVEL("severity.level"),
 
-	/** Asset Severity Level to be used in the configuration. */
-	ASSET_SEVERITY_LEVEL("severity.level"),
+    /** String denoting a postfix for channel configuration property. */
+    CHANNEL_PROPERTY_POSTFIX("."),
 
-	/** String denoting a postfix for channel configuration property. */
-	CHANNEL_PROPERTY_POSTFIX("."),
+    /** String denoting a prefix for channel configuration property. */
+    CHANNEL_PROPERTY_PREFIX("CH"),
 
-	/** String denoting a prefix for channel configuration property. */
-	CHANNEL_PROPERTY_PREFIX("CH"),
+    /**
+     * String denoting a postfix for driver specific channel configuration
+     * property.
+     */
+    DRIVER_PROPERTY_POSTFIX("DRIVER"),
 
-	/**
-	 * String denoting a postfix for driver specific channel configuration
-	 * property.
-	 */
-	DRIVER_PROPERTY_POSTFIX("DRIVER"),
+    /** Name Property to be used in the configuration. */
+    NAME("name"),
 
-	/** Name Property to be used in the configuration. */
-	NAME("name"),
+    /** Severity Level Property to be used in the configuration. */
+    SEVERITY_LEVEL("severity.level"),
 
-	/** Severity Level Property to be used in the configuration. */
-	SEVERITY_LEVEL("severity.level"),
+    /** Type Property to be used in the configuration. */
+    TYPE("type"),
 
-	/** The timer event. */
-	TIMER_EVENT("TimerEvent"),
+    /** Value type Property to be used in the configuration. */
+    VALUE_TYPE("value.type");
 
-	/** Type Property to be used in the configuration. */
-	TYPE("type"),
+    /** The value. */
+    private String value;
 
-	/** Value type Property to be used in the configuration. */
-	VALUE_TYPE("value.type");
+    /**
+     * Instantiates a new asset constants.
+     *
+     * @param value
+     *            the value
+     */
+    private AssetConstants(final String value) {
+        this.value = value;
+    }
 
-	/** The value. */
-	private String value;
-
-	/**
-	 * Instantiates a new asset constants.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	private AssetConstants(final String value) {
-		this.value = value;
-	}
-
-	/**
-	 * Returns the string representation of the constant
-	 *
-	 * @return the string representation
-	 */
-	public String value() {
-		return this.value;
-	}
+    /**
+     * Returns the string representation of the constant
+     *
+     * @return the string representation
+     */
+    public String value() {
+        return this.value;
+    }
 
 }

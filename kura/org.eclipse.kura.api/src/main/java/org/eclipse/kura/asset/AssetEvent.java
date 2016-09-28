@@ -18,43 +18,43 @@ import org.eclipse.kura.annotation.NotThreadSafe;
 
 /**
  * This class represents an event occurred while monitoring specific channel
- * configuration by the asset.
+ * configuration by the asset
  */
 @NotThreadSafe
 public final class AssetEvent {
 
-	/**
-	 * Represents the asset record as triggered due to the asset specific
-	 * monitor operation.
-	 */
-	private final AssetRecord assetRecord;
+    /**
+     * Represents the asset record as triggered due to the asset specific
+     * monitor operation
+     */
+    private final AssetRecord assetRecord;
 
-	/**
-	 * Instantiates a new asset event.
-	 *
-	 * @param assetRecord
-	 *            the asset record
-	 * @throws KuraRuntimeException
-	 *             if the argument is null
-	 */
-	public AssetEvent(final AssetRecord assetRecord) {
-		checkNull(assetRecord, "Asset record cannot be null");
-		this.assetRecord = assetRecord;
-	}
+    /**
+     * Instantiates a new asset event.
+     *
+     * @param assetRecord
+     *            the asset record
+     * @throws KuraRuntimeException
+     *             if the argument is null
+     */
+    public AssetEvent(final AssetRecord assetRecord) {
+        checkNull(assetRecord, "Asset record cannot be null");
+        this.assetRecord = assetRecord;
+    }
 
-	/**
-	 * Returns the associated asset record.
-	 *
-	 * @return the asset record
-	 */
-	public AssetRecord getAssetRecord() {
-		return this.assetRecord;
-	}
+    /**
+     * Returns the associated asset record.
+     *
+     * @return the asset record
+     */
+    public AssetRecord getAssetRecord() {
+        return this.assetRecord;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "AssetEvent [assetRecord=" + this.assetRecord + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "AssetEvent [assetRecord=" + this.assetRecord + "]";
+    }
 
 }

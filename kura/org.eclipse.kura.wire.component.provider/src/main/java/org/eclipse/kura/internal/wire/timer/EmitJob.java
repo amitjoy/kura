@@ -30,23 +30,23 @@ import org.quartz.JobExecutionException;
 @DisallowConcurrentExecution
 public final class EmitJob implements Job {
 
-	/** Timer Field Constant */
-	private static final String PROP = "TIMER";
+    /** Timer Field Constant */
+    private static final String PROP = "TIMER";
 
-	/**
-	 * Emits a Wire Record every specified interval.
-	 *
-	 * @param context
-	 *            the Job Execution context
-	 * @throws JobExecutionException
-	 *             the job execution exception
-	 */
-	@Override
-	public void execute(final JobExecutionContext context) throws JobExecutionException {
-		final TimerJobDataMap dataMap = (TimerJobDataMap) context.getJobDetail().getJobDataMap();
-		final WireSupport wireSupport = dataMap.getWireSupport();
-		wireSupport.emit(Arrays
-				.asList(new WireRecord(new WireField(PROP, TypedValues.newStringValue(PROP), SeverityLevel.CONFIG))));
-	}
+    /**
+     * Emits a Wire Record every specified interval.
+     *
+     * @param context
+     *            the Job Execution context
+     * @throws JobExecutionException
+     *             the job execution exception
+     */
+    @Override
+    public void execute(final JobExecutionContext context) throws JobExecutionException {
+        final TimerJobDataMap dataMap = (TimerJobDataMap) context.getJobDetail().getJobDataMap();
+        final WireSupport wireSupport = dataMap.getWireSupport();
+        wireSupport.emit(Arrays
+                .asList(new WireRecord(new WireField(PROP, TypedValues.newStringValue(PROP), SeverityLevel.CONFIG))));
+    }
 
 }

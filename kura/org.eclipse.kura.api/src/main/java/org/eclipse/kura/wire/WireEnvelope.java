@@ -30,41 +30,41 @@ import org.osgi.service.wireadmin.Envelope;
 @ThreadSafe
 public final class WireEnvelope extends BasicEnvelope {
 
-	/**
-	 * The scope as agreed by the composite producer and consumer. This remains
-	 * same for all the Kura Wires communications.
-	 */
-	private static final String SCOPE = "WIRES";
+    /**
+     * The scope as agreed by the composite producer and consumer. This remains
+     * same for all the Kura Wires communications.
+     */
+    private static final String SCOPE = "WIRES";
 
-	/**
-	 * Instantiates a new WireEnvelope.
-	 *
-	 * @param emitterPid
-	 *            the wire emitter PID
-	 * @param wireRecords
-	 *            the wire records
-	 */
-	public WireEnvelope(final String emitterPid, final List<WireRecord> wireRecords) {
-		super(wireRecords, emitterPid, SCOPE);
-	}
+    /**
+     * Instantiates a new WireEnvelope.
+     *
+     * @param emitterPid
+     *            the wire emitter PID
+     * @param wireRecords
+     *            the wire records
+     */
+    public WireEnvelope(final String emitterPid, final List<WireRecord> wireRecords) {
+        super(wireRecords, emitterPid, SCOPE);
+    }
 
-	/**
-	 * Gets the wire emitter PID.
-	 *
-	 * @return the wire emitter PID
-	 */
-	public String getEmitterPid() {
-		return (String) this.getIdentification();
-	}
+    /**
+     * Gets the wire emitter PID.
+     *
+     * @return the wire emitter PID
+     */
+    public String getEmitterPid() {
+        return (String) this.getIdentification();
+    }
 
-	/**
-	 * Gets the wire records.
-	 *
-	 * @return the wire records
-	 */
-	@SuppressWarnings("unchecked")
-	public List<WireRecord> getRecords() {
-		return (List<WireRecord>) this.getValue();
-	}
+    /**
+     * Gets the wire records.
+     *
+     * @return the wire records
+     */
+    @SuppressWarnings("unchecked")
+    public List<WireRecord> getRecords() {
+        return (List<WireRecord>) this.getValue();
+    }
 
 }

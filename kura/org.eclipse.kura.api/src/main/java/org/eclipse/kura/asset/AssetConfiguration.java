@@ -80,84 +80,84 @@ import org.eclipse.kura.type.DataType;
 @ThreadSafe
 public final class AssetConfiguration {
 
-	/**
-	 * The list of channels associated with this asset. The association denotes
-	 * channel ID and its actual object reference pair.
-	 */
-	private final Map<Long, Channel> assetChannels;
+    /**
+     * The list of channels associated with this asset. The association denotes
+     * channel ID and its actual object reference pair.
+     */
+    private final Map<Long, Channel> assetChannels;
 
-	/** the asset description. */
-	private String assetDescription;
+    /** the asset description. */
+    private String assetDescription;
 
-	/** the driver PID as associated with this asset. */
-	private final String driverPid;
+    /** the driver PID as associated with this asset. */
+    private final String driverPid;
 
-	/**
-	 * Instantiates a new asset configuration.
-	 *
-	 * @param description
-	 *            the description of the asset
-	 * @param driverPid
-	 *            the driver PID
-	 * @param channels
-	 *            the map of all channel configurations
-	 * @throws KuraRuntimeException
-	 *             if any of the arguments is null
-	 */
-	public AssetConfiguration(final String description, final String driverPid, final Map<Long, Channel> channels) {
-		checkNull(description, "Asset description cannot be null");
-		checkNull(driverPid, "Asset driver PID cannot be null");
-		checkNull(channels, "Asset channel configurations cannot be null");
+    /**
+     * Instantiates a new asset configuration.
+     *
+     * @param description
+     *            the description of the asset
+     * @param driverPid
+     *            the driver PID
+     * @param channels
+     *            the map of all channel configurations
+     * @throws KuraRuntimeException
+     *             if any of the arguments is null
+     */
+    public AssetConfiguration(final String description, final String driverPid, final Map<Long, Channel> channels) {
+        checkNull(description, "Asset description cannot be null");
+        checkNull(driverPid, "Asset driver PID cannot be null");
+        checkNull(channels, "Asset channel configurations cannot be null");
 
-		this.assetDescription = description;
-		this.driverPid = driverPid;
-		this.assetChannels = channels;
-	}
+        this.assetDescription = description;
+        this.driverPid = driverPid;
+        this.assetChannels = channels;
+    }
 
-	/**
-	 * Gets the asset channels.
-	 *
-	 * @return the asset channels
-	 */
-	public Map<Long, Channel> getAssetChannels() {
-		return this.assetChannels;
-	}
+    /**
+     * Gets the asset channels.
+     *
+     * @return the asset channels
+     */
+    public Map<Long, Channel> getAssetChannels() {
+        return this.assetChannels;
+    }
 
-	/**
-	 * Gets the asset description.
-	 *
-	 * @return the asset description
-	 */
-	public String getAssetDescription() {
-		return this.assetDescription;
-	}
+    /**
+     * Gets the asset description.
+     *
+     * @return the asset description
+     */
+    public String getAssetDescription() {
+        return this.assetDescription;
+    }
 
-	/**
-	 * Gets the driver PID.
-	 *
-	 * @return the driver PID
-	 */
-	public String getDriverPid() {
-		return this.driverPid;
-	}
+    /**
+     * Gets the driver PID.
+     *
+     * @return the driver PID
+     */
+    public String getDriverPid() {
+        return this.driverPid;
+    }
 
-	/**
-	 * Sets the asset description.
-	 *
-	 * @param description
-	 *            the new asset description
-	 * @throws KuraRuntimeException
-	 *             if the argument is null
-	 */
-	public void setAssetDescription(final String description) {
-		checkNull(description, "Asset description cannot be null");
-		this.assetDescription = description;
-	}
+    /**
+     * Sets the asset description.
+     *
+     * @param description
+     *            the new asset description
+     * @throws KuraRuntimeException
+     *             if the argument is null
+     */
+    public void setAssetDescription(final String description) {
+        checkNull(description, "Asset description cannot be null");
+        this.assetDescription = description;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "AssetConfiguration [channels=" + this.assetChannels + ", description=" + this.assetDescription
-				+ ", driverPid=" + this.driverPid + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "AssetConfiguration [channels=" + this.assetChannels + ", description=" + this.assetDescription
+                + ", driverPid=" + this.driverPid + "]";
+    }
 }

@@ -24,75 +24,75 @@ import org.eclipse.kura.annotation.ThreadSafe;
 @ThreadSafe
 public final class DoubleValue implements TypedValue<Double> {
 
-	/**
-	 * The actual contained value that will be represented as
-	 * {@link TypedValue}.
-	 */
-	private final double value;
+    /**
+     * The actual contained value that will be represented as
+     * {@link TypedValue}.
+     */
+    private final double value;
 
-	/**
-	 * Instantiates a new double value.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	public DoubleValue(final double value) {
-		this.value = value;
-	}
+    /**
+     * Instantiates a new double value.
+     *
+     * @param value
+     *            the value
+     */
+    public DoubleValue(final double value) {
+        this.value = value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int compareTo(final TypedValue<Double> otherTypedValue) {
-		checkNull(otherTypedValue, "Typed Value cannot be null");
-		return Double.compare(this.value, otherTypedValue.getValue());
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(final TypedValue<Double> otherTypedValue) {
+        checkNull(otherTypedValue, "Typed Value cannot be null");
+        return Double.compare(this.value, otherTypedValue.getValue());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
-			return false;
-		}
-		final DoubleValue other = (DoubleValue) obj;
-		if (Double.doubleToLongBits(this.value) != Double.doubleToLongBits(other.value)) {
-			return false;
-		}
-		return true;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final DoubleValue other = (DoubleValue) obj;
+        if (Double.doubleToLongBits(this.value) != Double.doubleToLongBits(other.value)) {
+            return false;
+        }
+        return true;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public DataType getType() {
-		return DOUBLE;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public DataType getType() {
+        return DOUBLE;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Double getValue() {
-		return this.value;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public Double getValue() {
+        return this.value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		long temp;
-		temp = Double.doubleToLongBits(this.value);
-		result = (prime * result) + (int) (temp ^ (temp >>> 32));
-		return result;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        long temp;
+        temp = Double.doubleToLongBits(this.value);
+        result = (prime * result) + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "DoubleValue [value=" + this.value + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "DoubleValue [value=" + this.value + "]";
+    }
 
 }

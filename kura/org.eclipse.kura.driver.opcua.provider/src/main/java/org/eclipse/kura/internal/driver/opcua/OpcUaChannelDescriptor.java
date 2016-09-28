@@ -32,33 +32,33 @@ import org.eclipse.kura.util.collection.CollectionUtil;
  */
 public final class OpcUaChannelDescriptor implements ChannelDescriptor {
 
-	/** Localization Resource. */
-	private static final OpcUaMessages s_message = LocalizationAdapter.adapt(OpcUaMessages.class);
+    /** Localization Resource. */
+    private static final OpcUaMessages s_message = LocalizationAdapter.adapt(OpcUaMessages.class);
 
-	/** {@inheritDoc} */
-	@Override
-	public Object getDescriptor() {
-		final List<Tad> elements = CollectionUtil.newArrayList();
+    /** {@inheritDoc} */
+    @Override
+    public Object getDescriptor() {
+        final List<Tad> elements = CollectionUtil.newArrayList();
 
-		final Tad nodeId = new Tad();
-		nodeId.setName(s_message.nodeId());
-		nodeId.setId(s_message.nodeId());
-		nodeId.setDescription(s_message.nodeId());
-		nodeId.setType(Tscalar.STRING);
-		nodeId.setRequired(true);
-		nodeId.setDefault("MyNode");
-		elements.add(nodeId);
+        final Tad nodeId = new Tad();
+        nodeId.setName(s_message.nodeId());
+        nodeId.setId(s_message.nodeId());
+        nodeId.setDescription(s_message.nodeId());
+        nodeId.setType(Tscalar.STRING);
+        nodeId.setRequired(true);
+        nodeId.setDefault("MyNode");
+        elements.add(nodeId);
 
-		final Tad namespaceIndex = new Tad();
-		namespaceIndex.setName(s_message.nodeNamespaceIndex());
-		namespaceIndex.setId(s_message.nodeNamespaceIndex());
-		namespaceIndex.setDescription(s_message.nodeNamespaceIndex());
-		namespaceIndex.setType(Tscalar.INTEGER);
-		namespaceIndex.setRequired(true);
-		namespaceIndex.setDefault("2");
+        final Tad namespaceIndex = new Tad();
+        namespaceIndex.setName(s_message.nodeNamespaceIndex());
+        namespaceIndex.setId(s_message.nodeNamespaceIndex());
+        namespaceIndex.setDescription(s_message.nodeNamespaceIndex());
+        namespaceIndex.setType(Tscalar.INTEGER);
+        namespaceIndex.setRequired(true);
+        namespaceIndex.setDefault("2");
 
-		elements.add(namespaceIndex);
-		return elements;
-	}
+        elements.add(namespaceIndex);
+        return elements;
+    }
 
 }

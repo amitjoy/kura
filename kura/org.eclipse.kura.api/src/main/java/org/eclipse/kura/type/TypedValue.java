@@ -16,20 +16,22 @@ package org.eclipse.kura.type;
  *
  * @param <T>
  *            The Java Value Type to be represented
+ *
+ * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface TypedValue<T> extends Comparable<TypedValue<T>> {
 
-	/**
-	 * Returns the data type of the represented value
-	 *
-	 * @return the datatype as associated
-	 */
-	public DataType getType();
+    /**
+     * Returns the data type of the represented value
+     *
+     * @return the datatype as associated
+     */
+    public DataType getType();
 
-	/**
-	 * Returns the actual value as represented
-	 *
-	 * @return the value as associated
-	 */
-	public T getValue();
+    /**
+     * Returns the actual value as represented
+     *
+     * @return the value as associated
+     */
+    public T getValue();
 }

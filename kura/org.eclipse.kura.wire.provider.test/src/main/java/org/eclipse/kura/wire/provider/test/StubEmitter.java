@@ -21,17 +21,17 @@ import org.osgi.service.wireadmin.Wire;
  */
 public final class StubEmitter implements WireEmitter, WireComponent, ConfigurableComponent {
 
-	/** {@inheritDoc} */
-	@Override
-	public void consumersConnected(final Wire[] arg0) {
-		// no need
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void consumersConnected(final Wire[] arg0) {
+        // no need
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Object polled(final Wire arg0) {
-		// no need
-		return null;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public Object polled(final Wire arg0) {
+        // no need
+        return null;
+    }
 
 }

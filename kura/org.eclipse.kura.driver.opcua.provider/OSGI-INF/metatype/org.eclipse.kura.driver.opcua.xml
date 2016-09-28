@@ -108,7 +108,7 @@
 		
 		<AD id="password" 
 			name="password"
-			type="String" 
+			type="Password" 
 			cardinality="0" 
 			required="false" 
 			default=""
@@ -144,11 +144,11 @@
 
 		<AD id="keystore.password" 
 			name="keystore.password"
-			type="String" 
+			type="Password" 
 			cardinality="0" 
 			required="true" 
 			default="password"
-			description="Configurable Property to set keystore password" />
+			description="Configurable Property to set keystore password (default set to password)" />
         
     </OCD>
     

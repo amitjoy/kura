@@ -20,118 +20,118 @@ import com.github.rodionmoiseev.c10n.annotations.En;
  */
 public interface ModbusDriverMessages {
 
-	@En("Activating Modbus Driver.....")
-	public String activating();
+    @En("Activating Modbus Driver.....")
+    public String activating();
 
-	@En("Activating Modbus Driver.....Done")
-	public String activatingDone();
+    @En("Activating Modbus Driver.....Done")
+    public String activatingDone();
 
-	@En("COILS")
-	public String coils();
+    @En("COILS")
+    public String coils();
 
-	@En("Connecting to Modbus...")
-	public String connectingModbus();
+    @En("Connecting to Modbus...")
+    public String connectingModbus();
 
-	@En("Connecting to Modbus...Done")
-	public String connectingModbusDone();
+    @En("Connecting to Modbus...Done")
+    public String connectingModbusDone();
 
-	@En("Unable to Connect...")
-	public String connectionProblem();
+    @En("Unable to Connect...")
+    public String connectionProblem();
 
-	@En("Modbus Connector cannot be null")
-	public String connectorNonNull();
+    @En("Modbus Connector cannot be null")
+    public String connectorNonNull();
 
-	@En("Deactivating Modbus Driver.....")
-	public String deactivating();
+    @En("Deactivating Modbus Driver.....")
+    public String deactivating();
 
-	@En("Deactivating Modbus Driver.....Done")
-	public String deactivatingDone();
+    @En("Deactivating Modbus Driver.....Done")
+    public String deactivatingDone();
 
-	@En("Disconnecting from Modbus...")
-	public String disconnectingModbus();
+    @En("Disconnecting from Modbus...")
+    public String disconnectingModbus();
 
-	@En("Disconnecting from Modbus...Done")
-	public String disconnectingModbusDone();
+    @En("Disconnecting from Modbus...Done")
+    public String disconnectingModbusDone();
 
-	@En("Unable to Disconnect...")
-	public String disconnectionProblem();
+    @En("Unable to Disconnect...")
+    public String disconnectionProblem();
 
-	@En("DISCRETE_INPUTS")
-	public String discreteInputs();
+    @En("DISCRETE_INPUTS")
+    public String discreteInputs();
 
-	@En("Error while disconnecting....")
-	public String errorDisconnecting();
+    @En("Error while disconnecting....")
+    public String errorDisconnecting();
 
-	@En("Error while retrieving Channel Configuration")
-	public String errorRetrievingChannelConfiguration();
+    @En("Error while retrieving Channel Configuration")
+    public String errorRetrievingChannelConfiguration();
 
-	@En("Error while retrieving Function Code")
-	public String errorRetrievingFunctionCode();
+    @En("Error while retrieving Function Code")
+    public String errorRetrievingFunctionCode();
 
-	@En("Error while retrieving Memory Address")
-	public String errorRetrievingMemAddr();
+    @En("Error while retrieving Memory Address")
+    public String errorRetrievingMemAddr();
 
-	@En("Error while retrieving Primary Table")
-	public String errorRetrievingPrimaryTable();
+    @En("Error while retrieving Primary Table")
+    public String errorRetrievingPrimaryTable();
 
-	@En("Error while retrieving Unit ID")
-	public String errorRetrievingUnitId();
+    @En("Error while retrieving Unit ID")
+    public String errorRetrievingUnitId();
 
-	@En("Error while retrieving value type")
-	public String errorRetrievingValueType();
+    @En("Error while retrieving value type")
+    public String errorRetrievingValueType();
 
-	@En("Function Codes not in Range")
-	public String functionCodesNotInRange();
+    @En("Function Codes not in Range")
+    public String functionCodesNotInRange();
 
-	@En("HOLDING_REGISTERS")
-	public String holdingRegs();
+    @En("HOLDING_REGISTERS")
+    public String holdingRegs();
 
-	@En("INPUT_REGISTERS")
-	public String inputRegs();
+    @En("INPUT_REGISTERS")
+    public String inputRegs();
 
-	@En("memory.address")
-	public String memoryAddr();
+    @En("memory.address")
+    public String memoryAddr();
 
-	@En("Address of the register (as integer value, not HEX)")
-	public String memoryAddrDesc();
+    @En("Address of the register (as integer value, not HEX)")
+    public String memoryAddrDesc();
 
-	@En("primary.table")
-	public String primaryTable();
+    @En("primary.table")
+    public String primaryTable();
 
-	@En("Modbus Primary Memory Address Space")
-	public String primaryTableDesc();
+    @En("Modbus Primary Memory Address Space")
+    public String primaryTableDesc();
 
-	@En("Primary Table cannot be null")
-	public String primaryTableNonNull();
+    @En("Primary Table cannot be null")
+    public String primaryTableNonNull();
 
-	@En("Properties cannot be null")
-	public String propertiesNonNull();
+    @En("Properties cannot be null")
+    public String propertiesNonNull();
 
-	@En("Driver Record cannot be null")
-	public String recordNonNull();
+    @En("Driver Record cannot be null")
+    public String recordNonNull();
 
-	@En("Request type {0} is not supported")
-	public String requestTypeNotSupported(int functionCode);
+    @En("Request type {0} is not supported")
+    public String requestTypeNotSupported(int functionCode);
 
-	@En("Modbus Response cannot be null")
-	public String responseNonNull();
+    @En("Modbus Response cannot be null")
+    public String responseNonNull();
 
-	@En("unit.id")
-	public String unitId();
+    @En("unit.id")
+    public String unitId();
 
-	@En("Unit ID to connect to")
-	public String unitIdDesc();
+    @En("Unit ID to connect to")
+    public String unitIdDesc();
 
-	@En("Updating Modbus Driver.....")
-	public String updating();
+    @En("Updating Modbus Driver.....")
+    public String updating();
 
-	@En("Updating Modbus Driver.....Done")
-	public String updatingDone();
+    @En("Updating Modbus Driver.....Done")
+    public String updatingDone();
 
-	@En("Register address must a positive number greater than 0 but less than or equal to 65536")
-	public String wrongRegister();
+    @En("Register address must a positive number greater than 0 but less than or equal to 65536")
+    public String wrongRegister();
 
-	@En("Unit ID must a positive number greater than 0 but less than or equal to 247")
-	public String wrongUnitId();
+    @En("Unit ID must a positive number greater than 0 but less than or equal to 247")
+    public String wrongUnitId();
 
 }

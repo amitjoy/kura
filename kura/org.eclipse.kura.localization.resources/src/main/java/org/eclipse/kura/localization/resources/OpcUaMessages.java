@@ -20,79 +20,82 @@ import com.github.rodionmoiseev.c10n.annotations.En;
  */
 public interface OpcUaMessages {
 
-	@En("Activating OPC-UA Driver.....")
-	public String activating();
+    @En("Activating OPC-UA Driver.....")
+    public String activating();
 
-	@En("Activating OPC-UA Driver.....Done")
-	public String activatingDone();
+    @En("Activating OPC-UA Driver.....Done")
+    public String activatingDone();
 
-	@En("Connecting to OPC-UA...")
-	public String connecting();
+    @En("Connecting to OPC-UA...")
+    public String connecting();
 
-	@En("Connecting to OPC-UA...Done")
-	public String connectingDone();
+    @En("Connecting to OPC-UA...Done")
+    public String connectingDone();
 
-	@En("Unable to Connect...No desired Endpoints returned")
-	public String connectionProblem();
+    @En("Unable to Connect...No desired Endpoints returned")
+    public String connectionProblem();
 
-	@En("Deactivating OPC-UA Driver.....")
-	public String deactivating();
+    @En("Crypto Service cannot be null")
+    public String cryptoServiceNonNull();
 
-	@En("Deactivating OPC-UA Driver.....Done")
-	public String deactivatingDone();
+    @En("Deactivating OPC-UA Driver.....")
+    public String deactivating();
 
-	@En("Disconnecting from OPC-UA...")
-	public String disconnecting();
+    @En("Deactivating OPC-UA Driver.....Done")
+    public String deactivatingDone();
 
-	@En("Disconnecting from OPC-UA...Done")
-	public String disconnectingDone();
+    @En("Disconnecting from OPC-UA...")
+    public String disconnecting();
 
-	@En("Unable to Disconnect...")
-	public String disconnectionProblem();
+    @En("Disconnecting from OPC-UA...Done")
+    public String disconnectingDone();
 
-	@En("Error while disconnecting....")
-	public String errorDisconnecting();
+    @En("Unable to Disconnect...")
+    public String disconnectionProblem();
 
-	@En("Error while retrieving Node ID")
-	public String errorRetrievingNodeId();
+    @En("Error while disconnecting....")
+    public String errorDisconnecting();
 
-	@En("Error while retrieving Node Namespace index")
-	public String errorRetrievingNodeNamespace();
+    @En("Error while retrieving Node ID")
+    public String errorRetrievingNodeId();
 
-	@En("Error while retrieving value type")
-	public String errorRetrievingValueType();
+    @En("Error while retrieving Node Namespace index")
+    public String errorRetrievingNodeNamespace();
 
-	@En("Error while converting the retrieved value to the defined typed")
-	public String errorValueTypeConversion();
+    @En("Error while retrieving value type")
+    public String errorRetrievingValueType();
 
-	@En("node.id")
-	public String nodeId();
+    @En("Error while converting the retrieved value to the defined typed")
+    public String errorValueTypeConversion();
 
-	@En("node.namespace.index")
-	public String nodeNamespaceIndex();
+    @En("node.id")
+    public String nodeId();
 
-	@En("Properties cannot be null")
-	public String propertiesNonNull();
+    @En("node.namespace.index")
+    public String nodeNamespaceIndex();
 
-	@En("OPC-UA Read Operation Failed")
-	public String readFailed();
+    @En("Properties cannot be null")
+    public String propertiesNonNull();
 
-	@En("Driver Record cannot be null")
-	public String recordNonNull();
+    @En("OPC-UA Read Operation Failed")
+    public String readFailed();
 
-	@En("Updating OPC-UA Driver.....")
-	public String updating();
+    @En("Driver Record cannot be null")
+    public String recordNonNull();
 
-	@En("Updating OPC-UA Driver.....Done")
-	public String updatingDone();
+    @En("Updating OPC-UA Driver.....")
+    public String updating();
 
-	@En("Value cannot be null")
-	public String valueNonNull();
+    @En("Updating OPC-UA Driver.....Done")
+    public String updatingDone();
 
-	@En("Value is null")
-	public String valueNull();
+    @En("Value cannot be null")
+    public String valueNonNull();
 
-	@En("OPC-UA Write Operation Failed")
-	public String writeFailed();
+    @En("Value is null")
+    public String valueNull();
+
+    @En("OPC-UA Write Operation Failed")
+    public String writeFailed();
 
 }

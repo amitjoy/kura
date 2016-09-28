@@ -17,11 +17,11 @@ package org.eclipse.kura.internal.driver.modbus;
  */
 public enum ModbusType {
 
-	/** The Serial Mode. */
-	RTU,
-	/** The TCP Mode. */
-	TCP,
-	/** The UDP Mode. */
-	UDP
+    /** The Serial Mode. */
+    RTU,
+    /** The TCP Mode. */
+    TCP,
+    /** The UDP Mode. */
+    UDP
 
 }

@@ -24,72 +24,72 @@ import org.eclipse.kura.annotation.ThreadSafe;
 @ThreadSafe
 public final class IntegerValue implements TypedValue<Integer> {
 
-	/**
-	 * The actual contained value that will be represented as
-	 * {@link TypedValue}.
-	 */
-	private final int value;
+    /**
+     * The actual contained value that will be represented as
+     * {@link TypedValue}.
+     */
+    private final int value;
 
-	/**
-	 * Instantiates a new integer value.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	public IntegerValue(final int value) {
-		this.value = value;
-	}
+    /**
+     * Instantiates a new integer value.
+     *
+     * @param value
+     *            the value
+     */
+    public IntegerValue(final int value) {
+        this.value = value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int compareTo(final TypedValue<Integer> otherTypedValue) {
-		checkNull(otherTypedValue, "Typed Value cannot be null");
-		return Integer.compare(this.value, otherTypedValue.getValue());
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(final TypedValue<Integer> otherTypedValue) {
+        checkNull(otherTypedValue, "Typed Value cannot be null");
+        return Integer.compare(this.value, otherTypedValue.getValue());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
-			return false;
-		}
-		final IntegerValue other = (IntegerValue) obj;
-		if (this.value != other.value) {
-			return false;
-		}
-		return true;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final IntegerValue other = (IntegerValue) obj;
+        if (this.value != other.value) {
+            return false;
+        }
+        return true;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public DataType getType() {
-		return INTEGER;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public DataType getType() {
+        return INTEGER;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Integer getValue() {
-		return this.value;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public Integer getValue() {
+        return this.value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + this.value;
-		return result;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + this.value;
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "IntegerValue [value=" + this.value + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "IntegerValue [value=" + this.value + "]";
+    }
 }

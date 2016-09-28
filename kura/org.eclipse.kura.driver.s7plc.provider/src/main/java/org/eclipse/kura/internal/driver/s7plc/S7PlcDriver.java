@@ -64,261 +64,261 @@ import com.github.s7connector.api.factory.S7ConnectorFactory;
  */
 public final class S7PlcDriver implements Driver {
 
-	/** DB Area Number Property */
-	private static final String AREA_NO = "area.no";
+    /** DB Area Number Property */
+    private static final String AREA_NO = "area.no";
 
-	/** Number of bytes to read Property */
-	private static final String BYTE_COUNT = "byte.count";
+    /** Number of bytes to read Property */
+    private static final String BYTE_COUNT = "byte.count";
 
-	/** DB Area Offset Property */
-	private static final String OFFSET = "offset";
+    /** DB Area Offset Property */
+    private static final String OFFSET = "offset";
 
-	/** The Logger instance. */
-	private static final Logger s_logger = LoggerFactory.getLogger(S7PlcDriver.class);
+    /** The Logger instance. */
+    private static final Logger s_logger = LoggerFactory.getLogger(S7PlcDriver.class);
 
-	/** Localization Resource. */
-	private static final S7PlcMessages s_message = LocalizationAdapter.adapt(S7PlcMessages.class);
+    /** Localization Resource. */
+    private static final S7PlcMessages s_message = LocalizationAdapter.adapt(S7PlcMessages.class);
 
-	/** Connector instance */
-	private S7Connector connector;
+    /** Connector instance */
+    private S7Connector connector;
 
-	/** flag to check if the driver is connected. */
-	private boolean isConnected;
+    /** flag to check if the driver is connected. */
+    private boolean isConnected;
 
-	/** S7 PLC Configuration Options. */
-	private S7PlcOptions options;
+    /** S7 PLC Configuration Options. */
+    private S7PlcOptions options;
 
-	/**
-	 * OSGi service component callback while activation.
-	 *
-	 * @param componentContext
-	 *            the component context
-	 * @param properties
-	 *            the service properties
-	 */
-	protected synchronized void activate(final ComponentContext componentContext,
-			final Map<String, Object> properties) {
-		s_logger.debug(s_message.activating());
-		this.extractProperties(properties);
-		s_logger.debug(s_message.activatingDone());
-	}
+    /**
+     * OSGi service component callback while activation.
+     *
+     * @param componentContext
+     *            the component context
+     * @param properties
+     *            the service properties
+     */
+    protected synchronized void activate(final ComponentContext componentContext,
+            final Map<String, Object> properties) {
+        s_logger.debug(s_message.activating());
+        this.extractProperties(properties);
+        s_logger.debug(s_message.activatingDone());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void connect() throws ConnectionException {
-		if (!this.isConnected) {
-			s_logger.debug(s_message.connecting());
-			this.connector = S7ConnectorFactory.buildTCPConnector().withHost(this.options.getIp())
-					.withRack(this.options.getRack()).withSlot(this.options.getSlot()).build();
-			this.isConnected = true;
-			s_logger.debug(s_message.connectingDone());
-		}
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void connect() throws ConnectionException {
+        if (!this.isConnected) {
+            s_logger.debug(s_message.connecting());
+            this.connector = S7ConnectorFactory.buildTCPConnector().withHost(this.options.getIp())
+                    .withRack(this.options.getRack()).withSlot(this.options.getSlot()).build();
+            this.isConnected = true;
+            s_logger.debug(s_message.connectingDone());
+        }
+    }
 
-	/**
-	 * OSGi service component callback while deactivation.
-	 *
-	 * @param componentContext
-	 *            the component context
-	 */
-	protected synchronized void deactivate(final ComponentContext componentContext) {
-		s_logger.debug(s_message.deactivating());
-		try {
-			this.disconnect();
-		} catch (final ConnectionException e) {
-			s_logger.error(s_message.errorDisconnecting() + ThrowableUtil.stackTraceAsString(e));
-		}
-		this.connector = null;
-		s_logger.debug(s_message.deactivatingDone());
-	}
+    /**
+     * OSGi service component callback while deactivation.
+     *
+     * @param componentContext
+     *            the component context
+     */
+    protected synchronized void deactivate(final ComponentContext componentContext) {
+        s_logger.debug(s_message.deactivating());
+        try {
+            this.disconnect();
+        } catch (final ConnectionException e) {
+            s_logger.error(s_message.errorDisconnecting() + ThrowableUtil.stackTraceAsString(e));
+        }
+        this.connector = null;
+        s_logger.debug(s_message.deactivatingDone());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void disconnect() throws ConnectionException {
-		if (this.isConnected) {
-			try {
-				s_logger.debug(s_message.disconnecting());
-				this.connector.close();
-				this.isConnected = false;
-				s_logger.debug(s_message.disconnectingDone());
-			} catch (final IOException e) {
-				s_logger.error(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
-				throw new ConnectionException(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
-			}
-		}
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void disconnect() throws ConnectionException {
+        if (this.isConnected) {
+            try {
+                s_logger.debug(s_message.disconnecting());
+                this.connector.close();
+                this.isConnected = false;
+                s_logger.debug(s_message.disconnectingDone());
+            } catch (final IOException e) {
+                s_logger.error(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
+                throw new ConnectionException(s_message.disconnectionProblem() + ThrowableUtil.stackTraceAsString(e));
+            }
+        }
+    }
 
-	/**
-	 * Extract the S7 PLC specific configurations from the provided properties.
-	 *
-	 * @param properties
-	 *            the provided properties to parse
-	 */
-	private void extractProperties(final Map<String, Object> properties) {
-		checkNull(properties, s_message.propertiesNonNull());
-		this.options = new S7PlcOptions(properties);
-	}
+    /**
+     * Extract the S7 PLC specific configurations from the provided properties.
+     *
+     * @param properties
+     *            the provided properties to parse
+     */
+    private void extractProperties(final Map<String, Object> properties) {
+        checkNull(properties, s_message.propertiesNonNull());
+        this.options = new S7PlcOptions(properties);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public ChannelDescriptor getChannelDescriptor() {
-		return new S7PlcChannelDescriptor();
-	}
+    /** {@inheritDoc} */
+    @Override
+    public ChannelDescriptor getChannelDescriptor() {
+        return new S7PlcChannelDescriptor();
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public List<DriverRecord> read(final List<DriverRecord> records) throws ConnectionException {
-		if (!this.isConnected) {
-			this.connect();
-		}
-		for (final DriverRecord record : records) {
-			// check if the channel type configuration is provided
-			final Map<String, Object> channelConfig = record.getChannelConfig();
-			DataType type;
-			if (!channelConfig.containsKey(CHANNEL_VALUE_TYPE.value())) {
-				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
-						s_message.errorRetrievingValueType(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			type = (DataType) channelConfig.get(CHANNEL_VALUE_TYPE.value());
-			// check if the area no configuration is provided
-			if (!channelConfig.containsKey(AREA_NO)) {
-				record.setDriverStatus(
-						new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE, s_message.errorRetrievingAreaNo(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			// check if the byte count configuration is provided
-			if (!channelConfig.containsKey(BYTE_COUNT)) {
-				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
-						s_message.errorRetrievingByteCount(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			// check if the area offset configuration is provided
-			if (!channelConfig.containsKey(OFFSET)) {
-				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
-						s_message.errorRetrievingAreaOffset(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			if (type != BYTE_ARRAY) {
-				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
-						s_message.instanceOfByteArray(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			int areaNo;
-			int byteCount;
-			int offset;
-			try {
-				areaNo = Integer.parseInt(channelConfig.get(AREA_NO).toString());
-				byteCount = Integer.parseInt(channelConfig.get(BYTE_COUNT).toString());
-				offset = Integer.parseInt(channelConfig.get(OFFSET).toString());
-			} catch (final NumberFormatException nfe) {
-				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
-						s_message.instanceOfByteArray(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			final byte[] value = this.connector.read(DaveArea.DB, areaNo, byteCount, offset);
-			if (value != null) {
-				record.setDriverStatus(new DriverStatus(READ_SUCCESSFUL));
-				record.setValue(TypedValues.newByteArrayValue(value));
-				record.setTimestamp(System.currentTimeMillis());
-			}
-		}
-		return records;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public List<DriverRecord> read(final List<DriverRecord> records) throws ConnectionException {
+        if (!this.isConnected) {
+            this.connect();
+        }
+        for (final DriverRecord record : records) {
+            // check if the channel type configuration is provided
+            final Map<String, Object> channelConfig = record.getChannelConfig();
+            DataType type;
+            if (!channelConfig.containsKey(CHANNEL_VALUE_TYPE.value())) {
+                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
+                        s_message.errorRetrievingValueType(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            type = (DataType) channelConfig.get(CHANNEL_VALUE_TYPE.value());
+            // check if the area no configuration is provided
+            if (!channelConfig.containsKey(AREA_NO)) {
+                record.setDriverStatus(
+                        new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE, s_message.errorRetrievingAreaNo(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            // check if the byte count configuration is provided
+            if (!channelConfig.containsKey(BYTE_COUNT)) {
+                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
+                        s_message.errorRetrievingByteCount(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            // check if the area offset configuration is provided
+            if (!channelConfig.containsKey(OFFSET)) {
+                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
+                        s_message.errorRetrievingAreaOffset(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            if (type != BYTE_ARRAY) {
+                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
+                        s_message.instanceOfByteArray(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            int areaNo;
+            int byteCount;
+            int offset;
+            try {
+                areaNo = Integer.parseInt(channelConfig.get(AREA_NO).toString());
+                byteCount = Integer.parseInt(channelConfig.get(BYTE_COUNT).toString());
+                offset = Integer.parseInt(channelConfig.get(OFFSET).toString());
+            } catch (final NumberFormatException nfe) {
+                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
+                        s_message.instanceOfByteArray(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            final byte[] value = this.connector.read(DaveArea.DB, areaNo, byteCount, offset);
+            if (value != null) {
+                record.setDriverStatus(new DriverStatus(READ_SUCCESSFUL));
+                record.setValue(TypedValues.newByteArrayValue(value));
+                record.setTimestamp(System.currentTimeMillis());
+            }
+        }
+        return records;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void registerDriverListener(final Map<String, Object> channelConfig, final DriverListener listener)
-			throws ConnectionException {
-		throw new KuraRuntimeException(KuraErrorCode.OPERATION_NOT_SUPPORTED);
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void registerDriverListener(final Map<String, Object> channelConfig, final DriverListener listener)
+            throws ConnectionException {
+        throw new KuraRuntimeException(KuraErrorCode.OPERATION_NOT_SUPPORTED);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void unregisterDriverListener(final DriverListener listener) throws ConnectionException {
-		throw new KuraRuntimeException(KuraErrorCode.OPERATION_NOT_SUPPORTED);
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void unregisterDriverListener(final DriverListener listener) throws ConnectionException {
+        throw new KuraRuntimeException(KuraErrorCode.OPERATION_NOT_SUPPORTED);
+    }
 
-	/**
-	 * OSGi service component callback while updating.
-	 *
-	 * @param properties
-	 *            the properties
-	 */
-	public synchronized void updated(final Map<String, Object> properties) {
-		s_logger.debug(s_message.updating());
-		this.extractProperties(properties);
-		s_logger.debug(s_message.updatingDone());
-	}
+    /**
+     * OSGi service component callback while updating.
+     *
+     * @param properties
+     *            the properties
+     */
+    public synchronized void updated(final Map<String, Object> properties) {
+        s_logger.debug(s_message.updating());
+        this.extractProperties(properties);
+        s_logger.debug(s_message.updatingDone());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public List<DriverRecord> write(final List<DriverRecord> records) throws ConnectionException {
-		if (!this.isConnected) {
-			this.connect();
-		}
-		for (final DriverRecord record : records) {
-			// check if the channel type configuration is provided
-			final Map<String, Object> channelConfig = record.getChannelConfig();
-			DataType type;
-			if (!channelConfig.containsKey(CHANNEL_VALUE_TYPE.value())) {
-				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
-						s_message.errorRetrievingValueType(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			type = (DataType) channelConfig.get(CHANNEL_VALUE_TYPE.value());
-			// check if the area no configuration is provided
-			if (!channelConfig.containsKey(AREA_NO)) {
-				record.setDriverStatus(
-						new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE, s_message.errorRetrievingAreaNo(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			// check if the byte count configuration is provided
-			if (!channelConfig.containsKey(BYTE_COUNT)) {
-				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
-						s_message.errorRetrievingByteCount(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			// check if the area offset configuration is provided
-			if (!channelConfig.containsKey(OFFSET)) {
-				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
-						s_message.errorRetrievingAreaOffset(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			final TypedValue<?> recordValue = record.getValue();
-			if (!(recordValue instanceof ByteArrayValue) || (type != BYTE_ARRAY)) {
-				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
-						s_message.instanceOfByteArray(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			int areaNo;
-			int offset;
-			try {
-				areaNo = Integer.parseInt(channelConfig.get(AREA_NO).toString());
-				offset = Integer.parseInt(channelConfig.get(OFFSET).toString());
-			} catch (final NumberFormatException nfe) {
-				record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
-						s_message.instanceOfByteArray(), null));
-				record.setTimestamp(System.currentTimeMillis());
-				continue;
-			}
-			final byte[] value = ((ByteArrayValue) recordValue).getValue();
-			this.connector.write(DaveArea.DB, areaNo, offset, value);
-			record.setDriverStatus(new DriverStatus(WRITE_SUCCESSFUL));
-			record.setTimestamp(System.currentTimeMillis());
-		}
-		return records;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public List<DriverRecord> write(final List<DriverRecord> records) throws ConnectionException {
+        if (!this.isConnected) {
+            this.connect();
+        }
+        for (final DriverRecord record : records) {
+            // check if the channel type configuration is provided
+            final Map<String, Object> channelConfig = record.getChannelConfig();
+            DataType type;
+            if (!channelConfig.containsKey(CHANNEL_VALUE_TYPE.value())) {
+                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
+                        s_message.errorRetrievingValueType(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            type = (DataType) channelConfig.get(CHANNEL_VALUE_TYPE.value());
+            // check if the area no configuration is provided
+            if (!channelConfig.containsKey(AREA_NO)) {
+                record.setDriverStatus(
+                        new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE, s_message.errorRetrievingAreaNo(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            // check if the byte count configuration is provided
+            if (!channelConfig.containsKey(BYTE_COUNT)) {
+                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
+                        s_message.errorRetrievingByteCount(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            // check if the area offset configuration is provided
+            if (!channelConfig.containsKey(OFFSET)) {
+                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
+                        s_message.errorRetrievingAreaOffset(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            final TypedValue<?> recordValue = record.getValue();
+            if (!(recordValue instanceof ByteArrayValue) || (type != BYTE_ARRAY)) {
+                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
+                        s_message.instanceOfByteArray(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            int areaNo;
+            int offset;
+            try {
+                areaNo = Integer.parseInt(channelConfig.get(AREA_NO).toString());
+                offset = Integer.parseInt(channelConfig.get(OFFSET).toString());
+            } catch (final NumberFormatException nfe) {
+                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_VALUE_TYPE_CONVERSION_EXCEPTION,
+                        s_message.instanceOfByteArray(), null));
+                record.setTimestamp(System.currentTimeMillis());
+                continue;
+            }
+            final byte[] value = ((ByteArrayValue) recordValue).getValue();
+            this.connector.write(DaveArea.DB, areaNo, offset, value);
+            record.setDriverStatus(new DriverStatus(WRITE_SUCCESSFUL));
+            record.setTimestamp(System.currentTimeMillis());
+        }
+        return records;
+    }
 
 }

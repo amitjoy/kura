@@ -15,17 +15,17 @@ package org.eclipse.kura.asset;
  * This represents all the Kura Asset specific flag codes
  */
 public enum AssetFlag {
-	/**
-	 * In case of any failure on the channel
-	 */
-	FAILURE,
-	/**
-	 * In case of successful reading operation
-	 */
-	READ_SUCCESSFUL,
+    /**
+     * In case of any failure on the channel
+     */
+    FAILURE,
+    /**
+     * In case of successful reading operation
+     */
+    READ_SUCCESSFUL,
 
-	/**
-	 * In case of successful writing operation
-	 */
-	WRITE_SUCCESSFUL;
+    /**
+     * In case of successful writing operation
+     */
+    WRITE_SUCCESSFUL;
 }

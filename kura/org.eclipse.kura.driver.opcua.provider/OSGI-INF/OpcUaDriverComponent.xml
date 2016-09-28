@@ -22,4 +22,10 @@
    <service>
       <provide interface="org.eclipse.kura.driver.Driver"/>
    </service>
+   <reference bind="bindCryptoService" 
+   		cardinality="1..1" 
+   		interface="org.eclipse.kura.crypto.CryptoService" 
+   		name="CryptoService" 
+   		policy="static" 
+   		unbind="unbindCryptoService"/>
 </scr:component>

@@ -24,73 +24,73 @@ import org.eclipse.kura.annotation.ThreadSafe;
 @ThreadSafe
 public final class ByteValue implements TypedValue<Byte> {
 
-	/**
-	 * The actual contained value that will be represented as
-	 * {@link TypedValue}.
-	 */
-	private final byte value;
+    /**
+     * The actual contained value that will be represented as
+     * {@link TypedValue}.
+     */
+    private final byte value;
 
-	/**
-	 * Instantiates a new byte value.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	public ByteValue(final byte value) {
-		this.value = value;
-	}
+    /**
+     * Instantiates a new byte value.
+     *
+     * @param value
+     *            the value
+     */
+    public ByteValue(final byte value) {
+        this.value = value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int compareTo(final TypedValue<Byte> otherTypedValue) {
-		checkNull(otherTypedValue, "Typed Value cannot be null");
-		return Byte.compare(this.value, otherTypedValue.getValue());
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(final TypedValue<Byte> otherTypedValue) {
+        checkNull(otherTypedValue, "Typed Value cannot be null");
+        return Byte.compare(this.value, otherTypedValue.getValue());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
-			return false;
-		}
-		final ByteValue other = (ByteValue) obj;
-		if (this.value != other.value) {
-			return false;
-		}
-		return true;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final ByteValue other = (ByteValue) obj;
+        if (this.value != other.value) {
+            return false;
+        }
+        return true;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public DataType getType() {
-		return BYTE;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public DataType getType() {
+        return BYTE;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Byte getValue() {
-		return this.value;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public Byte getValue() {
+        return this.value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + this.value;
-		return result;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + this.value;
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "ByteValue [value=" + this.value + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "ByteValue [value=" + this.value + "]";
+    }
 
 }

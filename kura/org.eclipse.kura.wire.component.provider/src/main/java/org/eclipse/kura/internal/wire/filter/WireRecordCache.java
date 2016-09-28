@@ -29,138 +29,138 @@ import org.eclipse.kura.wire.WireRecord;
  */
 final class WireRecordCache {
 
-	/** Map that is the cache. */
-	private static final Map<Long, List<WireRecord>> m_map = CollectionUtil.newConcurrentHashMap();
+    /** Map that is the cache. */
+    private static final Map<Long, List<WireRecord>> m_map = CollectionUtil.newConcurrentHashMap();
 
-	/** Localization Resource. */
-	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
+    /** Localization Resource. */
+    private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
-	/** Cache Maximum Capacity as configured. */
-	private int capacity;
+    /** Cache Maximum Capacity as configured. */
+    private int capacity;
 
-	/** Last refreshed time. */
-	private Calendar lastRefreshedTime;
+    /** Last refreshed time. */
+    private Calendar lastRefreshedTime;
 
-	/** DB Wire Record Filter instance. */
-	private final DbWireRecordFilter recordFilter;
+    /** DB Wire Record Filter instance. */
+    private final DbWireRecordFilter recordFilter;
 
-	/** Refresh duration in seconds. */
-	private int refreshDuration;
+    /** Refresh duration in seconds. */
+    private int refreshDuration;
 
-	/**
-	 * Instantiates a new wire record cache.
-	 *
-	 * @param filter
-	 *            the DB Wire Record filter
-	 * @throws KuraRuntimeException
-	 *             if argument is null
-	 */
-	WireRecordCache(final DbWireRecordFilter filter) {
-		checkNull(filter, s_message.dbFilterNonNull());
-		this.recordFilter = filter;
-	}
+    /**
+     * Instantiates a new wire record cache.
+     *
+     * @param filter
+     *            the DB Wire Record filter
+     * @throws KuraRuntimeException
+     *             if argument is null
+     */
+    WireRecordCache(final DbWireRecordFilter filter) {
+        checkNull(filter, s_message.dbFilterNonNull());
+        this.recordFilter = filter;
+    }
 
-	/**
-	 * Returns the object in the map based on input key.
-	 *
-	 * @param key
-	 *            - key to get from cache map
-	 * @return object for the particular key
-	 */
-	List<WireRecord> get(final long key) {
-		if (this.refreshCache()) {
-			m_map.put(this.lastRefreshedTime.getTimeInMillis(), this.recordFilter.filter());
-		}
-		return m_map.get(key);
-	}
+    /**
+     * Returns the object in the map based on input key.
+     *
+     * @param key
+     *            - key to get from cache map
+     * @return object for the particular key
+     */
+    List<WireRecord> get(final long key) {
+        if (this.refreshCache()) {
+            m_map.put(this.lastRefreshedTime.getTimeInMillis(), this.recordFilter.filter());
+        }
+        return m_map.get(key);
+    }
 
-	/**
-	 * Gets the capacity.
-	 *
-	 * @return the capacity
-	 */
-	public int getCapacity() {
-		return this.capacity;
-	}
+    /**
+     * Gets the capacity.
+     *
+     * @return the capacity
+     */
+    public int getCapacity() {
+        return this.capacity;
+    }
 
-	/**
-	 * Gets the last refreshed time.
-	 *
-	 * @return the last refreshed time
-	 */
-	Calendar getLastRefreshedTime() {
-		if (this.lastRefreshedTime == null) {
-			this.lastRefreshedTime = Calendar.getInstance();
-			return this.lastRefreshedTime;
-		}
-		return this.lastRefreshedTime;
-	}
+    /**
+     * Gets the last refreshed time.
+     *
+     * @return the last refreshed time
+     */
+    Calendar getLastRefreshedTime() {
+        if (this.lastRefreshedTime == null) {
+            this.lastRefreshedTime = Calendar.getInstance();
+            return this.lastRefreshedTime;
+        }
+        return this.lastRefreshedTime;
+    }
 
-	/**
-	 * Gets the refresh duration.
-	 *
-	 * @return the refresh duration
-	 */
-	int getRefreshDuration() {
-		return this.refreshDuration;
-	}
+    /**
+     * Gets the refresh duration.
+     *
+     * @return the refresh duration
+     */
+    int getRefreshDuration() {
+        return this.refreshDuration;
+    }
 
-	/**
-	 * Puts the object to the key provided in the cache map.
-	 *
-	 * @param key
-	 *            - key to put in cache map
-	 * @param value
-	 *            - object for the key
-	 */
-	void put(final long key, final List<WireRecord> value) {
-		// clears the map if the size of the map is as same as the max size
-		// expected
-		if (m_map.size() == this.capacity) {
-			m_map.clear();
-		}
-		m_map.put(key, value);
-		this.lastRefreshedTime = Calendar.getInstance();
-	}
+    /**
+     * Puts the object to the key provided in the cache map.
+     *
+     * @param key
+     *            - key to put in cache map
+     * @param value
+     *            - object for the key
+     */
+    void put(final long key, final List<WireRecord> value) {
+        // clears the map if the size of the map is as same as the max size
+        // expected
+        if (m_map.size() == this.capacity) {
+            m_map.clear();
+        }
+        m_map.put(key, value);
+        this.lastRefreshedTime = Calendar.getInstance();
+    }
 
-	/**
-	 * Refreshes the Cache as per the cache duration set.
-	 *
-	 * @return true or false if cache is expired or not
-	 */
-	private boolean refreshCache() {
-		final Calendar now = Calendar.getInstance();
-		final Calendar lastRefreshedTime = Calendar.getInstance(this.lastRefreshedTime.getTimeZone());
-		lastRefreshedTime.setTime(this.lastRefreshedTime.getTime());
-		lastRefreshedTime.add(Calendar.SECOND, this.refreshDuration);
+    /**
+     * Refreshes the Cache as per the cache duration set.
+     *
+     * @return true or false if cache is expired or not
+     */
+    private boolean refreshCache() {
+        final Calendar now = Calendar.getInstance();
+        final Calendar lastRefreshedTime = Calendar.getInstance(this.lastRefreshedTime.getTimeZone());
+        lastRefreshedTime.setTime(this.lastRefreshedTime.getTime());
+        lastRefreshedTime.add(Calendar.SECOND, this.refreshDuration);
 
-		if (lastRefreshedTime.after(now)) {
-			return false;
-		} else {
-			// Cache expired hence refresh it
-			this.lastRefreshedTime = Calendar.getInstance();
-			return true;
-		}
-	}
+        if (lastRefreshedTime.after(now)) {
+            return false;
+        } else {
+            // Cache expired hence refresh it
+            this.lastRefreshedTime = Calendar.getInstance();
+            return true;
+        }
+    }
 
-	/**
-	 * Sets the capacity.
-	 *
-	 * @param capacity
-	 *            the new capacity
-	 */
-	public void setCapacity(final int capacity) {
-		this.capacity = capacity;
-	}
+    /**
+     * Sets the capacity.
+     *
+     * @param capacity
+     *            the new capacity
+     */
+    public void setCapacity(final int capacity) {
+        this.capacity = capacity;
+    }
 
-	/**
-	 * Sets the refresh duration.
-	 *
-	 * @param refreshDuration
-	 *            the new refresh duration
-	 */
-	void setRefreshDuration(final int refreshDuration) {
-		this.refreshDuration = refreshDuration;
-	}
+    /**
+     * Sets the refresh duration.
+     *
+     * @param refreshDuration
+     *            the new refresh duration
+     */
+    void setRefreshDuration(final int refreshDuration) {
+        this.refreshDuration = refreshDuration;
+    }
 
 }

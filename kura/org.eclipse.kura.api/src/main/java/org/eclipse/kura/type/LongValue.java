@@ -24,73 +24,73 @@ import org.eclipse.kura.annotation.ThreadSafe;
 @ThreadSafe
 public final class LongValue implements TypedValue<Long> {
 
-	/**
-	 * The actual contained value that will be represented as
-	 * {@link TypedValue}.
-	 */
-	private final long value;
+    /**
+     * The actual contained value that will be represented as
+     * {@link TypedValue}.
+     */
+    private final long value;
 
-	/**
-	 * Instantiates a new long value.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	public LongValue(final long value) {
-		this.value = value;
-	}
+    /**
+     * Instantiates a new long value.
+     *
+     * @param value
+     *            the value
+     */
+    public LongValue(final long value) {
+        this.value = value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int compareTo(final TypedValue<Long> otherTypedValue) {
-		checkNull(otherTypedValue, "Typed Value cannot be null");
-		return Long.compare(this.value, otherTypedValue.getValue());
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(final TypedValue<Long> otherTypedValue) {
+        checkNull(otherTypedValue, "Typed Value cannot be null");
+        return Long.compare(this.value, otherTypedValue.getValue());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
-			return false;
-		}
-		final LongValue other = (LongValue) obj;
-		if (this.value != other.value) {
-			return false;
-		}
-		return true;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final LongValue other = (LongValue) obj;
+        if (this.value != other.value) {
+            return false;
+        }
+        return true;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public DataType getType() {
-		return LONG;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public DataType getType() {
+        return LONG;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Long getValue() {
-		return this.value;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public Long getValue() {
+        return this.value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + (int) (this.value ^ (this.value >>> 32));
-		return result;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + (int) (this.value ^ (this.value >>> 32));
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "LongValue [value=" + this.value + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "LongValue [value=" + this.value + "]";
+    }
 
 }

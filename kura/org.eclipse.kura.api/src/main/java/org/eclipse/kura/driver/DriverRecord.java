@@ -66,170 +66,170 @@ import org.eclipse.kura.type.TypedValue;
 @NotThreadSafe
 public final class DriverRecord {
 
-	/**
-	 * Provided channel configuration to perform read or write or monitor
-	 * operation.
-	 */
-	private Map<String, Object> channelConfiguration;
+    /**
+     * Provided channel configuration to perform read or write or monitor
+     * operation.
+     */
+    private Map<String, Object> channelConfiguration;
 
-	/**
-	 * Represents a driver specific status which signifies the status of the
-	 * read or write or monitor operation.
-	 */
-	private DriverStatus driverStatus;
+    /**
+     * Represents a driver specific status which signifies the status of the
+     * read or write or monitor operation.
+     */
+    private DriverStatus driverStatus;
 
-	/** Represents the timestamp of the operation performed. */
-	private long timestamp;
+    /** Represents the timestamp of the operation performed. */
+    private long timestamp;
 
-	/**
-	 * Represents the value as read by the driver during a read or a monitor
-	 * operation. It can also represent the value which needs to be written by
-	 * the driver to the actual asset.
-	 */
-	private TypedValue<?> value;
+    /**
+     * Represents the value as read by the driver during a read or a monitor
+     * operation. It can also represent the value which needs to be written by
+     * the driver to the actual asset.
+     */
+    private TypedValue<?> value;
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
-			return false;
-		}
-		final DriverRecord other = (DriverRecord) obj;
-		if (this.channelConfiguration == null) {
-			if (other.channelConfiguration != null) {
-				return false;
-			}
-		} else if (!this.channelConfiguration.equals(other.channelConfiguration)) {
-			return false;
-		}
-		if (this.driverStatus == null) {
-			if (other.driverStatus != null) {
-				return false;
-			}
-		} else if (!this.driverStatus.equals(other.driverStatus)) {
-			return false;
-		}
-		if (this.timestamp != other.timestamp) {
-			return false;
-		}
-		if (this.value == null) {
-			if (other.value != null) {
-				return false;
-			}
-		} else if (!this.value.equals(other.value)) {
-			return false;
-		}
-		return true;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final DriverRecord other = (DriverRecord) obj;
+        if (this.channelConfiguration == null) {
+            if (other.channelConfiguration != null) {
+                return false;
+            }
+        } else if (!this.channelConfiguration.equals(other.channelConfiguration)) {
+            return false;
+        }
+        if (this.driverStatus == null) {
+            if (other.driverStatus != null) {
+                return false;
+            }
+        } else if (!this.driverStatus.equals(other.driverStatus)) {
+            return false;
+        }
+        if (this.timestamp != other.timestamp) {
+            return false;
+        }
+        if (this.value == null) {
+            if (other.value != null) {
+                return false;
+            }
+        } else if (!this.value.equals(other.value)) {
+            return false;
+        }
+        return true;
+    }
 
-	/**
-	 * Returns the channel configuration as provided.
-	 *
-	 * @return the channel configuration
-	 */
-	public Map<String, Object> getChannelConfig() {
-		return this.channelConfiguration;
-	}
+    /**
+     * Returns the channel configuration as provided.
+     *
+     * @return the channel configuration
+     */
+    public Map<String, Object> getChannelConfig() {
+        return this.channelConfiguration;
+    }
 
-	/**
-	 * Returns the driver operation status.
-	 *
-	 * @return the driver status
-	 */
-	public DriverStatus getDriverStatus() {
-		return this.driverStatus;
-	}
+    /**
+     * Returns the driver operation status.
+     *
+     * @return the driver status
+     */
+    public DriverStatus getDriverStatus() {
+        return this.driverStatus;
+    }
 
-	/**
-	 * Returns the associated timestamp.
-	 *
-	 * @return the timestamp
-	 */
-	public long getTimestamp() {
-		return this.timestamp;
-	}
+    /**
+     * Returns the associated timestamp.
+     *
+     * @return the timestamp
+     */
+    public long getTimestamp() {
+        return this.timestamp;
+    }
 
-	/**
-	 * Returns the associated value.
-	 *
-	 * @return the value
-	 */
-	public TypedValue<?> getValue() {
-		return this.value;
-	}
+    /**
+     * Returns the associated value.
+     *
+     * @return the value
+     */
+    public TypedValue<?> getValue() {
+        return this.value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + ((this.channelConfiguration == null) ? 0 : this.channelConfiguration.hashCode());
-		result = (prime * result) + ((this.driverStatus == null) ? 0 : this.driverStatus.hashCode());
-		result = (prime * result) + (int) (this.timestamp ^ (this.timestamp >>> 32));
-		result = (prime * result) + ((this.value == null) ? 0 : this.value.hashCode());
-		return result;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + ((this.channelConfiguration == null) ? 0 : this.channelConfiguration.hashCode());
+        result = (prime * result) + ((this.driverStatus == null) ? 0 : this.driverStatus.hashCode());
+        result = (prime * result) + (int) (this.timestamp ^ (this.timestamp >>> 32));
+        result = (prime * result) + ((this.value == null) ? 0 : this.value.hashCode());
+        return result;
+    }
 
-	/**
-	 * Sets the channel configuration as provided.
-	 *
-	 * @param channelConfig
-	 *            the channel configuration
-	 * @throws KuraRuntimeException
-	 *             if the argument is null
-	 */
-	public void setChannelConfig(final Map<String, Object> channelConfig) {
-		checkNull(channelConfig, "Channel configuration cannot be null");
-		this.channelConfiguration = new HashMap<String, Object>(channelConfig);
-	}
+    /**
+     * Sets the channel configuration as provided.
+     *
+     * @param channelConfig
+     *            the channel configuration
+     * @throws KuraRuntimeException
+     *             if the argument is null
+     */
+    public void setChannelConfig(final Map<String, Object> channelConfig) {
+        checkNull(channelConfig, "Channel configuration cannot be null");
+        this.channelConfiguration = new HashMap<String, Object>(channelConfig);
+    }
 
-	/**
-	 * Sets the status.
-	 *
-	 * @param status
-	 *            the new driver status
-	 * @throws KuraRuntimeException
-	 *             if the argument is null
-	 */
-	public void setDriverStatus(final DriverStatus status) {
-		checkNull(status, "Driver Status cannot be null");
-		this.driverStatus = status;
-	}
+    /**
+     * Sets the status.
+     *
+     * @param status
+     *            the new driver status
+     * @throws KuraRuntimeException
+     *             if the argument is null
+     */
+    public void setDriverStatus(final DriverStatus status) {
+        checkNull(status, "Driver Status cannot be null");
+        this.driverStatus = status;
+    }
 
-	/**
-	 * Sets the timestamp as provided.
-	 *
-	 * @param timestamp
-	 *            the new timestamp
-	 */
-	public void setTimestamp(final long timestamp) {
-		this.timestamp = timestamp;
-	}
+    /**
+     * Sets the timestamp as provided.
+     *
+     * @param timestamp
+     *            the new timestamp
+     */
+    public void setTimestamp(final long timestamp) {
+        this.timestamp = timestamp;
+    }
 
-	/**
-	 * Sets the value as provided.
-	 *
-	 * @param value
-	 *            the new value
-	 * @throws KuraRuntimeException
-	 *             if the argument is null
-	 */
-	public void setValue(final TypedValue<?> value) {
-		checkNull(value, "Value type cannot be null");
-		this.value = value;
-	}
+    /**
+     * Sets the value as provided.
+     *
+     * @param value
+     *            the new value
+     * @throws KuraRuntimeException
+     *             if the argument is null
+     */
+    public void setValue(final TypedValue<?> value) {
+        checkNull(value, "Value type cannot be null");
+        this.value = value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "DriverRecord [channelConfiguration=" + this.channelConfiguration + ", driverStatus=" + this.driverStatus
-				+ ", timestamp=" + this.timestamp + ", value=" + this.value + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "DriverRecord [channelConfiguration=" + this.channelConfiguration + ", driverStatus=" + this.driverStatus
+                + ", timestamp=" + this.timestamp + ", value=" + this.value + "]";
+    }
 
 }

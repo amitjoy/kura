@@ -88,277 +88,317 @@ import org.slf4j.LoggerFactory;
  */
 public final class WireAsset extends BaseAsset implements WireEmitter, WireReceiver {
 
-	/** Configuration PID Property. */
-	private static final String CONF_PID = "org.eclipse.kura.wire.WireAsset";
+    /** Configuration PID Property. */
+    private static final String CONF_PID = "org.eclipse.kura.wire.WireAsset";
 
-	/** The Logger instance. */
-	private static final Logger s_logger = LoggerFactory.getLogger(WireAsset.class);
+    /** The Logger instance. */
+    private static final Logger s_logger = LoggerFactory.getLogger(WireAsset.class);
 
-	/** Localization Resource. */
-	private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
+    /** Localization Resource. */
+    private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
 
-	/** The Wire Helper Service. */
-	private volatile WireHelperService wireHelperService;
+    /** The Wire Helper Service. */
+    private volatile WireHelperService wireHelperService;
 
-	/** Wire Supporter Component. */
-	private WireSupport wireSupport;
+    /** Wire Supporter Component. */
+    private WireSupport wireSupport;
 
-	/**
-	 * OSGi service component callback while activation.
-	 *
-	 * @param componentContext
-	 *            the component context
-	 * @param properties
-	 *            the service properties
-	 */
-	@Override
-	protected synchronized void activate(final ComponentContext componentContext,
-			final Map<String, Object> properties) {
-		s_logger.debug(s_message.activatingWireAsset());
-		super.activate(componentContext, properties);
-		this.wireSupport = this.wireHelperService.newWireSupport(this);
-		s_logger.debug(s_message.activatingWireAssetDone());
-	}
+    /**
+     * OSGi service component callback while activation.
+     *
+     * @param componentContext
+     *            the component context
+     * @param properties
+     *            the service properties
+     */
+    @Override
+    protected synchronized void activate(final ComponentContext componentContext,
+            final Map<String, Object> properties) {
+        s_logger.debug(s_message.activatingWireAsset());
+        super.activate(componentContext, properties);
+        this.wireSupport = this.wireHelperService.newWireSupport(this);
+        s_logger.debug(s_message.activatingWireAssetDone());
+    }
 
-	/**
-	 * Binds the Wire Helper Service.
-	 *
-	 * @param wireHelperService
-	 *            the new Wire Helper Service
-	 */
-	public synchronized void bindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.wireHelperService == null) {
-			this.wireHelperService = wireHelperService;
-		}
-	}
+    /**
+     * Binds the Wire Helper Service.
+     *
+     * @param wireHelperService
+     *            the new Wire Helper Service
+     */
+    public synchronized void bindWireHelperService(final WireHelperService wireHelperService) {
+        if (this.wireHelperService == null) {
+            this.wireHelperService = wireHelperService;
+        }
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public void consumersConnected(final Wire[] wires) {
-		this.wireSupport.consumersConnected(wires);
-	}
+    /** {@inheritDoc} */
+    @Override
+    public void consumersConnected(final Wire[] wires) {
+        this.wireSupport.consumersConnected(wires);
+    }
 
-	/**
-	 * OSGi service component callback while deactivation.
-	 *
-	 * @param context
-	 *            the context
-	 */
-	@Override
-	protected synchronized void deactivate(final ComponentContext context) {
-		s_logger.debug(s_message.deactivatingWireAsset());
-		super.deactivate(context);
-		s_logger.debug(s_message.deactivatingWireAssetDone());
-	}
+    /**
+     * OSGi service component callback while deactivation.
+     *
+     * @param context
+     *            the context
+     */
+    @Override
+    protected synchronized void deactivate(final ComponentContext context) {
+        s_logger.debug(s_message.deactivatingWireAsset());
+        super.deactivate(context);
+        s_logger.debug(s_message.deactivatingWireAssetDone());
+    }
 
-	/**
-	 * Emit the provided list of asset records to the associated wires.
-	 *
-	 * @param assetRecords
-	 *            the list of asset records conforming to the aforementioned
-	 *            specification
-	 * @throws KuraRuntimeException
-	 *             if provided records list is null or it is empty
-	 */
-	private void emitAssetRecords(final List<AssetRecord> assetRecords) {
-		checkNull(assetRecords, s_message.assetRecordsNonNull());
-		checkCondition(assetRecords.isEmpty(), s_message.assetRecordsNonEmpty());
+    /**
+     * Determines the channels to read from the list of provided Wire Records
+     *
+     * @param records
+     *            the list of Wire Records
+     * @return the list of channel IDs
+     * @throws KuraRuntimeException
+     *             if argument is null or empty
+     */
+    private List<Long> determineReadingChannels(final List<WireRecord> records) {
+        checkNull(records, s_message.wireRecordsNonNull());
+        checkCondition(records.isEmpty(), s_message.wireRecordsNonEmpty());
 
-		final List<WireRecord> wireRecords = CollectionUtil.newArrayList();
-		for (final AssetRecord assetRecord : assetRecords) {
-			final AssetStatus assetStatus = assetRecord.getAssetStatus();
-			final AssetFlag assetFlag = assetStatus.getAssetFlag();
-			final SeverityLevel level = (assetFlag == FAILURE) ? ERROR : INFO;
-			final long channelId = assetRecord.getChannelId();
-			WireField assetPidWireField = new WireField(s_message.assetName(), TypedValues.newStringValue(""), level);
-			try {
-				assetPidWireField = new WireField(s_message.assetName(),
-						TypedValues.newStringValue(this.getConfiguration().getPid()), level);
-			} catch (final KuraException e) {
-				s_logger.error(ThrowableUtil.stackTraceAsString(e));
-			}
-			final WireField channelIdWireField = new WireField(s_message.channelId(),
-					TypedValues.newLongValue(channelId), level);
-			final String channelName = this.assetConfiguration.getAssetChannels().get(channelId).getName();
-			final WireField channelNameWireField = new WireField(s_message.channelName(),
-					TypedValues.newStringValue(channelName), level);
-			final WireField assetFlagWireField = new WireField(s_message.assetFlag(),
-					TypedValues.newStringValue(assetFlag.name()), level);
-			final WireField timestampWireField = new WireField(s_message.timestamp(),
-					TypedValues.newLongValue(assetRecord.getTimestamp()), level);
-			final WireField valueWireField = new WireField(s_message.typedValue(),
-					assetRecord.getValue() != null ? assetRecord.getValue() : TypedValues.newStringValue(""), level);
-			WireRecord wireRecord;
-			WireField errorField;
-			if (level == ERROR) {
-				String errorMessage = "ERROR NOT SPECIFIED";
-				final Exception exception = assetStatus.getException();
-				final String exceptionMsg = assetStatus.getExceptionMessage();
-				if ((exception != null) && (exceptionMsg != null)) {
-					errorMessage = exceptionMsg + " " + ThrowableUtil.stackTraceAsString(exception);
-				} else if ((exception == null) && (exceptionMsg != null)) {
-					errorMessage = exceptionMsg;
-				} else if ((exception != null) && (exceptionMsg == null)) {
-					errorMessage = ThrowableUtil.stackTraceAsString(exception);
-				}
-				errorField = new WireField(s_message.error(), TypedValues.newStringValue(errorMessage), level);
-				wireRecord = new WireRecord(new Timestamp(new Date().getTime()),
-						Arrays.asList(assetPidWireField, channelIdWireField, channelNameWireField, assetFlagWireField,
-								valueWireField, timestampWireField, errorField));
-			} else {
-				wireRecord = new WireRecord(new Timestamp(new Date().getTime()),
-						Arrays.asList(assetPidWireField, channelIdWireField, channelNameWireField, assetFlagWireField,
-								valueWireField, timestampWireField));
-			}
-			wireRecords.add(wireRecord);
-		}
-		this.wireSupport.emit(wireRecords);
-	}
+        final List<Long> channelsToRead = CollectionUtil.newArrayList();
+        final Map<Long, Channel> channels = this.assetConfiguration.getAssetChannels();
+        for (final Map.Entry<Long, Channel> channelEntry : channels.entrySet()) {
+            final Channel channel = channelEntry.getValue();
+            if ((channel.getType() == READ) || (channel.getType() == READ_WRITE)) {
+                channelsToRead.add(channel.getId());
+            }
+        }
+        return channelsToRead;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	protected String getFactoryPid() {
-		return CONF_PID;
-	}
+    /**
+     * Determine the channels to write
+     *
+     * @param records
+     *            the list of Wire Records to parse
+     * @return list of Asset Records containing the values to be written
+     * @throws KuraRuntimeException
+     *             if argument is null or empty
+     */
+    private List<AssetRecord> determineWritingChannels(final List<WireRecord> records) {
+        checkNull(records, s_message.wireRecordsNonNull());
+        checkCondition(records.isEmpty(), s_message.wireRecordsNonEmpty());
 
-	/**
-	 * This method is triggered as soon as the wire component receives a Wire
-	 * Envelope. After it receives a Wire Envelope, it checks for all associated
-	 * channels to read and write and perform the operations accordingly. The
-	 * order of executions are performed the following way:
-	 *
-	 * <ul>
-	 * <li>Perform all read operations on associated reading channels</li>
-	 * <li>Perform all write operations on associated writing channels</li>
-	 * <ul>
-	 *
-	 * Both of the aforementioned operations are performed as soon as it timer
-	 * wire component is also triggered.
-	 *
-	 * @param wireEnvelope
-	 *            the received wire envelope
-	 */
-	@Override
-	public void onWireReceive(final WireEnvelope wireEnvelope) {
-		checkNull(wireEnvelope, s_message.wireEnvelopeNonNull());
-		s_logger.debug(s_message.wireEnvelopeReceived() + this.wireSupport);
+        final List<AssetRecord> assetRecordsToWriteChannels = CollectionUtil.newArrayList();
+        final Map<Long, Channel> channels = this.assetConfiguration.getAssetChannels();
+        for (final WireRecord wireRecord : records) {
+            String channelNameWireField = null;
+            for (final WireField wireField : wireRecord.getFields()) {
+                for (final Map.Entry<Long, Channel> channelEntry : channels.entrySet()) {
+                    final Channel channel = channelEntry.getValue();
+                    if ((channel.getType() == WRITE) || (channel.getType() == READ_WRITE)) {
+                        final String wireFieldName = wireField.getName();
+                        if (s_message.channelName().equalsIgnoreCase(wireFieldName)) {
+                            channelNameWireField = String.valueOf(wireField.getValue().getValue());
+                        }
+                        if ((channelNameWireField != null) && channel.getName().equalsIgnoreCase(channelNameWireField)
+                                && s_message.typedValue().equalsIgnoreCase(wireFieldName)
+                                && (wireField.getSeverityLevel() == INFO)) {
+                            assetRecordsToWriteChannels.add(this.prepareAssetRecord(channel, wireField.getValue()));
+                        }
+                    }
+                }
+            }
+        }
+        return assetRecordsToWriteChannels;
+    }
 
-		// filtering list of wire records based on the provided severity level
-		final List<WireRecord> records = this.wireSupport.filter(wireEnvelope.getRecords());
-		final List<AssetRecord> assetRecordsToWriteChannels = CollectionUtil.newArrayList();
-		final List<Long> channelsToRead = CollectionUtil.newArrayList();
-		final Map<Long, Channel> channels = this.assetConfiguration.getAssetChannels();
+    /**
+     * Emit the provided list of asset records to the associated wires.
+     *
+     * @param assetRecords
+     *            the list of asset records conforming to the aforementioned
+     *            specification
+     * @throws KuraRuntimeException
+     *             if provided records list is null or it is empty
+     */
+    private void emitAssetRecords(final List<AssetRecord> assetRecords) {
+        checkNull(assetRecords, s_message.assetRecordsNonNull());
+        checkCondition(assetRecords.isEmpty(), s_message.assetRecordsNonEmpty());
 
-		// determining channels to read
-		for (final Map.Entry<Long, Channel> channelEntry : channels.entrySet()) {
-			final Channel channel = channelEntry.getValue();
-			if ((channel.getType() == READ) || (channel.getType() == READ_WRITE)) {
-				channelsToRead.add(channel.getId());
-			}
-		}
-		checkCondition(records.isEmpty(), s_message.wireRecordsNonEmpty());
-		try {
-			List<AssetRecord> recentlyReadRecords = null;
-			if ((channelsToRead != null) && !channelsToRead.isEmpty()) {
-				recentlyReadRecords = this.read(channelsToRead);
-			}
-			if (recentlyReadRecords != null) {
-				this.emitAssetRecords(recentlyReadRecords);
-			}
-		} catch (final KuraException e) {
-			s_logger.error(s_message.errorPerformingRead() + ThrowableUtil.stackTraceAsString(e));
-		}
-		// determining channels to write
-		for (final WireRecord wireRecord : records) {
-			String channelNameWireField = null;
-			for (final WireField wireField : wireRecord.getFields()) {
-				for (final Map.Entry<Long, Channel> channelEntry : channels.entrySet()) {
-					final Channel channel = channelEntry.getValue();
-					if ((channel.getType() == WRITE) || (channel.getType() == READ_WRITE)) {
-						final String wireFieldName = wireField.getName();
-						if (s_message.channelName().equalsIgnoreCase(wireFieldName)) {
-							channelNameWireField = String.valueOf(wireField.getValue().getValue());
-						}
-						if ((channelNameWireField != null) && channel.getName().equalsIgnoreCase(channelNameWireField)
-								&& s_message.typedValue().equalsIgnoreCase(wireFieldName)
-								&& (wireField.getSeverityLevel() == INFO)) {
-							assetRecordsToWriteChannels.add(this.prepareAssetRecord(channel, wireField.getValue()));
-						}
-					}
-				}
-			}
-		}
-		// perform the write operation
-		try {
-			if ((assetRecordsToWriteChannels != null) && !assetRecordsToWriteChannels.isEmpty()) {
-				this.write(assetRecordsToWriteChannels);
-			}
-		} catch (final KuraException e) {
-			s_logger.error(s_message.errorPerformingWrite() + ThrowableUtil.stackTraceAsString(e));
-		}
-	}
+        final List<WireRecord> wireRecords = CollectionUtil.newArrayList();
+        for (final AssetRecord assetRecord : assetRecords) {
+            final AssetStatus assetStatus = assetRecord.getAssetStatus();
+            final AssetFlag assetFlag = assetStatus.getAssetFlag();
+            final SeverityLevel level = (assetFlag == FAILURE) ? ERROR : INFO;
+            final long channelId = assetRecord.getChannelId();
+            WireField assetPidWireField = new WireField(s_message.assetName(), TypedValues.newStringValue(""), level);
+            try {
+                assetPidWireField = new WireField(s_message.assetName(),
+                        TypedValues.newStringValue(this.getConfiguration().getPid()), level);
+            } catch (final KuraException e) {
+                s_logger.error(ThrowableUtil.stackTraceAsString(e));
+            }
+            final WireField channelIdWireField = new WireField(s_message.channelId(),
+                    TypedValues.newLongValue(channelId), level);
+            final String channelName = this.assetConfiguration.getAssetChannels().get(channelId).getName();
+            final WireField channelNameWireField = new WireField(s_message.channelName(),
+                    TypedValues.newStringValue(channelName), level);
+            final WireField assetFlagWireField = new WireField(s_message.assetFlag(),
+                    TypedValues.newStringValue(assetFlag.name()), level);
+            final WireField timestampWireField = new WireField(s_message.timestamp(),
+                    TypedValues.newLongValue(assetRecord.getTimestamp()), level);
+            final WireField valueWireField = new WireField(s_message.typedValue(),
+                    assetRecord.getValue() != null ? assetRecord.getValue() : TypedValues.newStringValue(""), level);
+            WireRecord wireRecord;
+            WireField errorField;
+            if (level == ERROR) {
+                String errorMessage = "ERROR NOT SPECIFIED";
+                final Exception exception = assetStatus.getException();
+                final String exceptionMsg = assetStatus.getExceptionMessage();
+                if ((exception != null) && (exceptionMsg != null)) {
+                    errorMessage = exceptionMsg + " " + ThrowableUtil.stackTraceAsString(exception);
+                } else if ((exception == null) && (exceptionMsg != null)) {
+                    errorMessage = exceptionMsg;
+                } else if ((exception != null) && (exceptionMsg == null)) {
+                    errorMessage = ThrowableUtil.stackTraceAsString(exception);
+                }
+                errorField = new WireField(s_message.error(), TypedValues.newStringValue(errorMessage), level);
+                wireRecord = new WireRecord(new Timestamp(new Date().getTime()),
+                        Arrays.asList(assetPidWireField, channelIdWireField, channelNameWireField, assetFlagWireField,
+                                valueWireField, timestampWireField, errorField));
+            } else {
+                wireRecord = new WireRecord(new Timestamp(new Date().getTime()),
+                        Arrays.asList(assetPidWireField, channelIdWireField, channelNameWireField, assetFlagWireField,
+                                valueWireField, timestampWireField));
+            }
+            wireRecords.add(wireRecord);
+        }
+        this.wireSupport.emit(wireRecords);
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public Object polled(final Wire wire) {
-		return this.wireSupport.polled(wire);
-	}
+    /** {@inheritDoc} */
+    @Override
+    protected String getFactoryPid() {
+        return CONF_PID;
+    }
 
-	/**
-	 * Create an asset record from the provided channel information.
-	 *
-	 * @param channel
-	 *            the channel to get the values from
-	 * @param value
-	 *            the value
-	 * @return the asset record
-	 * @throws KuraRuntimeException
-	 *             if any of the provided arguments is null
-	 */
-	private AssetRecord prepareAssetRecord(final Channel channel, final TypedValue<?> value) {
-		checkNull(channel, s_message.channelNonNull());
-		checkNull(value, s_message.valueNonNull());
+    /**
+     * This method is triggered as soon as the wire component receives a Wire
+     * Envelope. After it receives a Wire Envelope, it checks for all associated
+     * channels to read and write and perform the operations accordingly. The
+     * order of executions are performed the following way:
+     *
+     * <ul>
+     * <li>Perform all read operations on associated reading channels</li>
+     * <li>Perform all write operations on associated writing channels</li>
+     * <ul>
+     *
+     * Both of the aforementioned operations are performed as soon as it timer
+     * wire component is also triggered.
+     *
+     * @param wireEnvelope
+     *            the received wire envelope
+     */
+    @Override
+    public void onWireReceive(final WireEnvelope wireEnvelope) {
+        checkNull(wireEnvelope, s_message.wireEnvelopeNonNull());
+        s_logger.debug(s_message.wireEnvelopeReceived() + this.wireSupport);
 
-		final AssetRecord assetRecord = new AssetRecord(channel.getId());
-		assetRecord.setValue(value);
-		return assetRecord;
-	}
+        // filtering list of wire records based on the provided severity level
+        final List<WireRecord> records = this.wireSupport.filter(wireEnvelope.getRecords());
+        final List<Long> channelIds = this.determineReadingChannels(records);
+        final List<AssetRecord> assetRecordsToWriteChannels = this.determineWritingChannels(records);
 
-	/** {@inheritDoc} */
-	@Override
-	public void producersConnected(final Wire[] wires) {
-		this.wireSupport.producersConnected(wires);
-	}
+        // perform the operations
+        this.writeChannels(assetRecordsToWriteChannels);
+        this.readChannels(channelIds);
+    }
 
-	/**
-	 * Unbinds the Wire Helper Service.
-	 *
-	 * @param wireHelperService
-	 *            the new Wire Helper Service
-	 */
-	public synchronized void unbindWireHelperService(final WireHelperService wireHelperService) {
-		if (this.wireHelperService == wireHelperService) {
-			this.wireHelperService = null;
-		}
-	}
+    /** {@inheritDoc} */
+    @Override
+    public Object polled(final Wire wire) {
+        return this.wireSupport.polled(wire);
+    }
 
-	/**
-	 * OSGi service component callback while updation.
-	 *
-	 * @param properties
-	 *            the service properties
-	 */
-	@Override
-	public synchronized void updated(final Map<String, Object> properties) {
-		s_logger.debug(s_message.updatingWireAsset());
-		super.updated(properties);
-		s_logger.debug(s_message.updatingWireAssetDone());
-	}
+    /**
+     * Create an asset record from the provided channel information.
+     *
+     * @param channel
+     *            the channel to get the values from
+     * @param value
+     *            the value
+     * @return the asset record
+     * @throws KuraRuntimeException
+     *             if any of the provided arguments is null
+     */
+    private AssetRecord prepareAssetRecord(final Channel channel, final TypedValue<?> value) {
+        checkNull(channel, s_message.channelNonNull());
+        checkNull(value, s_message.valueNonNull());
 
-	/** {@inheritDoc} */
-	@Override
-	public void updated(final Wire wire, final Object value) {
-		this.wireSupport.updated(wire, value);
-	}
+        final AssetRecord assetRecord = new AssetRecord(channel.getId());
+        assetRecord.setValue(value);
+        return assetRecord;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void producersConnected(final Wire[] wires) {
+        this.wireSupport.producersConnected(wires);
+    }
+
+    private void readChannels(final List<Long> channelsToRead) {
+        try {
+            List<AssetRecord> recentlyReadRecords = null;
+            if ((channelsToRead != null) && !channelsToRead.isEmpty()) {
+                recentlyReadRecords = this.read(channelsToRead);
+            }
+            if (recentlyReadRecords != null) {
+                this.emitAssetRecords(recentlyReadRecords);
+            }
+        } catch (final KuraException e) {
+            s_logger.error(s_message.errorPerformingRead() + ThrowableUtil.stackTraceAsString(e));
+        }
+    }
+
+    /**
+     * Unbinds the Wire Helper Service.
+     *
+     * @param wireHelperService
+     *            the new Wire Helper Service
+     */
+    public synchronized void unbindWireHelperService(final WireHelperService wireHelperService) {
+        if (this.wireHelperService == wireHelperService) {
+            this.wireHelperService = null;
+        }
+    }
+
+    /**
+     * OSGi service component callback while updation.
+     *
+     * @param properties
+     *            the service properties
+     */
+    @Override
+    public synchronized void updated(final Map<String, Object> properties) {
+        s_logger.debug(s_message.updatingWireAsset());
+        super.updated(properties);
+        s_logger.debug(s_message.updatingWireAssetDone());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void updated(final Wire wire, final Object value) {
+        this.wireSupport.updated(wire, value);
+    }
+
+    private void writeChannels(final List<AssetRecord> assetRecordsToWriteChannels) {
+        try {
+            if ((assetRecordsToWriteChannels != null) && !assetRecordsToWriteChannels.isEmpty()) {
+                this.write(assetRecordsToWriteChannels);
+            }
+        } catch (final KuraException e) {
+            s_logger.error(s_message.errorPerformingWrite() + ThrowableUtil.stackTraceAsString(e));
+        }
+    }
 
 }

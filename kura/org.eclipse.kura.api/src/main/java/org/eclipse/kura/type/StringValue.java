@@ -25,77 +25,77 @@ import org.eclipse.kura.annotation.ThreadSafe;
 @ThreadSafe
 public final class StringValue implements TypedValue<String> {
 
-	/**
-	 * The actual contained value that will be represented as
-	 * {@link TypedValue}.
-	 */
-	private final String value;
+    /**
+     * The actual contained value that will be represented as
+     * {@link TypedValue}.
+     */
+    private final String value;
 
-	/**
-	 * Instantiates a new string value.
-	 *
-	 * @param value
-	 *            the value
-	 */
-	public StringValue(@Nullable final String value) {
-		this.value = value == null ? "" : value;
-	}
+    /**
+     * Instantiates a new string value.
+     *
+     * @param value
+     *            the value
+     */
+    public StringValue(@Nullable final String value) {
+        this.value = value == null ? "" : value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int compareTo(final TypedValue<String> otherTypedValue) {
-		checkNull(otherTypedValue, "Typed Value cannot be null");
-		return this.value.compareTo(otherTypedValue.getValue());
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(final TypedValue<String> otherTypedValue) {
+        checkNull(otherTypedValue, "Typed Value cannot be null");
+        return this.value.compareTo(otherTypedValue.getValue());
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (this.getClass() != obj.getClass()) {
-			return false;
-		}
-		final StringValue other = (StringValue) obj;
-		if (this.value == null) {
-			if (other.value != null) {
-				return false;
-			}
-		} else if (!this.value.equals(other.value)) {
-			return false;
-		}
-		return true;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        final StringValue other = (StringValue) obj;
+        if (this.value == null) {
+            if (other.value != null) {
+                return false;
+            }
+        } else if (!this.value.equals(other.value)) {
+            return false;
+        }
+        return true;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public DataType getType() {
-		return STRING;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public DataType getType() {
+        return STRING;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String getValue() {
-		return this.value;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String getValue() {
+        return this.value;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = (prime * result) + ((this.value == null) ? 0 : this.value.hashCode());
-		return result;
-	}
+    /** {@inheritDoc} */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + ((this.value == null) ? 0 : this.value.hashCode());
+        return result;
+    }
 
-	/** {@inheritDoc} */
-	@Override
-	public String toString() {
-		return "StringValue [value=" + this.value + "]";
-	}
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "StringValue [value=" + this.value + "]";
+    }
 
 }
