@@ -11,5 +11,7 @@
  *******************************************************************************/
 /**
  * Provides all necessary APIs for Kura Asset Component Model
+ *
+ * @since 1.0.10
  */
 package org.eclipse.kura.asset;

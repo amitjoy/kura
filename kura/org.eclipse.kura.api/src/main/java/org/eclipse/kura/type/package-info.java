@@ -13,5 +13,7 @@
  * This package provides wrapper value types which represents actual Java value
  * types as {@link org.eclipse.kura.type.TypedValue} and all utility classes
  * comprising necessary static factory methods
+ *
+ * @since 1.0.10
  */
 package org.eclipse.kura.type;

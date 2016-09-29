@@ -17,7 +17,7 @@
  * Contains the necessary classes for the following framework related operations
  * <ul>
  * <li>Management of Exceptions</li>
- * <li>Preconditions for Defensive Programming</li>
+ * <li>Preconditions for Defensive Programming - @since 1.0.10</li>
  * </ul>
  */
 package org.eclipse.kura;

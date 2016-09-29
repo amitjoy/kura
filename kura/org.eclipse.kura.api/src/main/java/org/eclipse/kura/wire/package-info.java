@@ -12,5 +12,7 @@
 /**
  * Provides all necessary APIs and all utility classes comprising necessary
  * static factory methods to manipulate Kura Wires topology
+ *
+ * @since 1.0.10
  */
 package org.eclipse.kura.wire;

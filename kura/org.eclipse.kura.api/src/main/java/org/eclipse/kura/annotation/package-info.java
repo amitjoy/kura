@@ -11,5 +11,7 @@
  *******************************************************************************/
 /**
  * Provides all necessary annotations required for Kura
+ *
+ * @since 1.0.10
  */
 package org.eclipse.kura.annotation;

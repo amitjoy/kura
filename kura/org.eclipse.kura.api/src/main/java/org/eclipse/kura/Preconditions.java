@@ -18,6 +18,8 @@ import org.eclipse.kura.annotation.Nullable;
  * methods to check for conditions or predicates and it throws
  * {@link KuraRuntimeException} with {@link KuraErrorCode#INTERNAL_ERROR} if the
  * condition is satisfied
+ *
+ * @since 1.0.10
  */
 public final class Preconditions {
 
