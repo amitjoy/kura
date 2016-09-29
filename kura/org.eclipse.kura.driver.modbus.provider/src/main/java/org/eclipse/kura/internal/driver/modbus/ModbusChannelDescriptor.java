@@ -17,8 +17,8 @@ import org.eclipse.kura.core.configuration.metatype.Tad;
 import org.eclipse.kura.core.configuration.metatype.Toption;
 import org.eclipse.kura.core.configuration.metatype.Tscalar;
 import org.eclipse.kura.driver.ChannelDescriptor;
+import org.eclipse.kura.driver.modbus.localization.ModbusDriverMessages;
 import org.eclipse.kura.localization.LocalizationAdapter;
-import org.eclipse.kura.localization.resources.ModbusDriverMessages;
 import org.eclipse.kura.util.collection.CollectionUtil;
 
 /**

@@ -21,8 +21,8 @@ import static org.eclipse.kura.internal.driver.modbus.ModbusType.UDP;
 
 import java.util.Map;
 
+import org.eclipse.kura.driver.modbus.localization.ModbusDriverMessages;
 import org.eclipse.kura.localization.LocalizationAdapter;
-import org.eclipse.kura.localization.resources.ModbusDriverMessages;
 
 import com.fazecast.jSerialComm.SerialPort;
 

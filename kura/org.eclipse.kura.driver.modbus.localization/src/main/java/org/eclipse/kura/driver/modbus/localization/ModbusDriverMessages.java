@@ -9,7 +9,7 @@
  * Contributors:
  *   Amit Kumar Mondal (admin@amitinside.com)
  */
-package org.eclipse.kura.localization.resources;
+package org.eclipse.kura.driver.modbus.localization;
 
 import com.github.rodionmoiseev.c10n.annotations.En;
 

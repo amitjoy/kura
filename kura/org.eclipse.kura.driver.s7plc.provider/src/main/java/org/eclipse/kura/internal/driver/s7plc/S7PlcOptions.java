@@ -15,8 +15,8 @@ import static org.eclipse.kura.Preconditions.checkNull;
 
 import java.util.Map;
 
+import org.eclipse.kura.driver.s7plc.localization.S7PlcMessages;
 import org.eclipse.kura.localization.LocalizationAdapter;
-import org.eclipse.kura.localization.resources.S7PlcMessages;
 
 /**
  * The Class S7PlcOptions is responsible to provide all the required
