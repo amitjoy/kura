@@ -51,8 +51,17 @@ public interface AssetMessages {
     @En("Asset Records cannot be null")
     public String assetRecordsNonNull();
 
+    @En("BOOLEAN")
+    public String booleanString();
+
     @En("Bundle context cannot be null")
     public String bundleContextNonNull();
+
+    @En("BYTE_ARRAY")
+    public String byteArray();
+
+    @En("BYTE")
+    public String byteStr();
 
     @En("Channel ID must be provided as an integer")
     public String channelAsInteger();
@@ -65,6 +74,9 @@ public interface AssetMessages {
 
     @En("channel_name")
     public String channelName();
+
+    @En("Name of the Channel")
+    public String channelNameDesc();
 
     @En("Channel name cannot be null")
     public String channelNameNonNull();
@@ -110,6 +122,9 @@ public interface AssetMessages {
 
     @En("Asset Description")
     public String description();
+
+    @En("DOUBLE")
+    public String doubleStr();
 
     @En("Attaching driver instance...")
     public String driverAttach();
@@ -162,8 +177,14 @@ public interface AssetMessages {
     @En("INFO")
     public String info();
 
+    @En("INTEGER")
+    public String integerStr();
+
     @En("Asset Listener cannot be null")
     public String listenerNonNull();
+
+    @En("LONG")
+    public String longStr();
 
     @En("Asset Name")
     public String name();
@@ -183,11 +204,17 @@ public interface AssetMessages {
     @En("Properties cannot be null")
     public String propertiesNonNull();
 
+    @En("READ")
+    public String read();
+
     @En("Reading asset channels...")
     public String readingChannels();
 
     @En("Reading asset channels...Done")
     public String readingChannelsDone();
+
+    @En("READ_WRITE")
+    public String readWrite();
 
     @En("Registering Asset Listener for monitoring...")
     public String registeringListener();
@@ -213,8 +240,20 @@ public interface AssetMessages {
     @En("It signifies severity level of Wire Fields to be accepted by this Wire Component")
     public String severityLevelDesc();
 
+    @En("SHORT")
+    public String shortStr();
+
+    @En("STRING")
+    public String string();
+
     @En("timestamp")
     public String timestamp();
+
+    @En("Type of the channel")
+    public String type();
+
+    @En("Value type of the channel")
+    public String typeChannel();
 
     @En("Unregistering Asset Listener...")
     public String unregisteringListener();
@@ -239,6 +278,9 @@ public interface AssetMessages {
 
     @En("Wire Enveloped received...")
     public String wireEnvelopeReceived();
+
+    @En("WRITE")
+    public String write();
 
     @En("Writing to channels...")
     public String writing();

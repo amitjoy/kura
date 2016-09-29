@@ -23,7 +23,7 @@ import org.eclipse.kura.core.configuration.metatype.Toption;
 import org.eclipse.kura.core.configuration.metatype.Tscalar;
 import org.eclipse.kura.driver.ChannelDescriptor;
 import org.eclipse.kura.localization.LocalizationAdapter;
-import org.eclipse.kura.localization.resources.WireMessages;
+import org.eclipse.kura.localization.resources.AssetMessages;
 import org.eclipse.kura.util.collection.CollectionUtil;
 
 /**
@@ -62,7 +62,7 @@ import org.eclipse.kura.util.collection.CollectionUtil;
 public final class BaseChannelDescriptor implements ChannelDescriptor {
 
     /** Localization Resource */
-    private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
+    private static final AssetMessages s_message = LocalizationAdapter.adapt(AssetMessages.class);
 
     /** The default elements. */
     private final List<Tad> defaultElements;

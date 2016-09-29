@@ -89,26 +89,14 @@ public interface WireMessages {
     @En("Asset Records cannot be null")
     public String assetRecordsNonNull();
 
-    @En("BOOLEAN")
-    public String booleanString();
-
     @En("Bundle context cannot be null")
     public String bundleContextNonNull();
-
-    @En("BYTE_ARRAY")
-    public String byteArray();
-
-    @En("BYTE")
-    public String byteStr();
 
     @En("channel_id")
     public String channelId();
 
     @En("channel_name")
     public String channelName();
-
-    @En("Name of the Channel")
-    public String channelNameDesc();
 
     @En("Channel cannot be null")
     public String channelNonNull();
@@ -251,9 +239,6 @@ public interface WireMessages {
     @En("WireService leverages Kura Wiring communication functionalities between Wire Components")
     public String description();
 
-    @En("DOUBLE")
-    public String doubleStr();
-
     @En("Driver Name")
     public String driverName();
 
@@ -344,9 +329,6 @@ public interface WireMessages {
     @En("Insertion failed. Reconciling Table and Columns...")
     public String insertionFailed();
 
-    @En("INTEGER")
-    public String integerStr();
-
     @En("Interface class cannot be null")
     public String interfaceClassNonNull();
 
@@ -361,9 +343,6 @@ public interface WireMessages {
 
     @En("longitude")
     public String longitude();
-
-    @En("LONG")
-    public String longStr();
 
     @En("Minutes cannot be negative")
     public String minutesNonNegative();
@@ -406,12 +385,6 @@ public interface WireMessages {
 
     @En("Properties cannot be null")
     public String propertiesNonNull();
-
-    @En("READ")
-    public String read();
-
-    @En("READ_WRITE")
-    public String readWrite();
 
     @En("receiver")
     public String receiver();
@@ -488,9 +461,6 @@ public interface WireMessages {
     @En("Severity Level")
     public String severityLevel();
 
-    @En("SHORT")
-    public String shortStr();
-
     @En("speed")
     public String speed();
 
@@ -527,9 +497,6 @@ public interface WireMessages {
     @En("Storing data into table {0}...")
     public String storingRecord(String emitterName);
 
-    @En("STRING")
-    public String string();
-
     @En("Provided string cannot be null")
     public String stringNonNull();
 
@@ -547,12 +514,6 @@ public interface WireMessages {
 
     @En("Truncating table DR_{0}...")
     public String truncatingTable(String tableName);
-
-    @En("Type of the channel")
-    public String type();
-
-    @En("Value type of the channel")
-    public String typeChannel();
 
     @En("typed_value")
     public String typedValue();
@@ -658,8 +619,5 @@ public interface WireMessages {
 
     @En("Wire supported component cannot be null")
     public String wireSupportedComponentNonNull();
-
-    @En("WRITE")
-    public String write();
 
 }
