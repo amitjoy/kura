@@ -121,7 +121,7 @@ public final class OpcUaDriver implements Driver {
      *            the crypto service dependency
      */
     protected synchronized void bindCryptoService(final CryptoService cryptoService) {
-        if (cryptoService == null) {
+        if (this.cryptoService == null) {
             this.cryptoService = cryptoService;
         }
     }
