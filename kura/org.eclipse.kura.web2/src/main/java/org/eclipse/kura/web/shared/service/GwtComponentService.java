@@ -39,7 +39,7 @@ public interface GwtComponentService extends RemoteService
 	
 	public void createFactoryComponent(GwtXSRFToken xsrfToken, String factoryPid, String pid) throws GwtKuraException;
 	
-	public void deleteFactoryConfiguration(GwtXSRFToken xsrfToken, String pid) throws GwtKuraException;
+	public void deleteFactoryConfiguration(GwtXSRFToken xsrfToken, String pid, boolean takeSnapshot) throws GwtKuraException;
 	
 	public void updateComponentConfiguration(GwtXSRFToken xsrfToken, GwtConfigComponent configComponent) throws GwtKuraException; 
 }

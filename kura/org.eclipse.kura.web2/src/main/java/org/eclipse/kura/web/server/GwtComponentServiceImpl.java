@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.configuration.ComponentConfiguration;
@@ -317,12 +319,12 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
 	}
 
 	@Override
-	public void deleteFactoryConfiguration(GwtXSRFToken xsrfToken, String pid) throws GwtKuraException {
+	public void deleteFactoryConfiguration(GwtXSRFToken xsrfToken, String pid, boolean takeSnapshot) throws GwtKuraException {
 		checkXSRFToken(xsrfToken);
 		ConfigurationService cs = ServiceLocator.getInstance().getService(ConfigurationService.class);
 		
 		try {
-			cs.deleteFactoryConfiguration(pid, true);
+			cs.deleteFactoryConfiguration(pid, takeSnapshot);
 		} catch (KuraException e) {
 			throw new GwtKuraException("Could not delete component configuration!");
 		}
@@ -330,43 +332,50 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
 
 	@Override
 	public GwtConfigComponent findComponentConfigurationFromPid(GwtXSRFToken xsrfToken, String pid, String factoryPid, Map<String, Object> extraProps) throws GwtKuraException {
-		checkXSRFToken(xsrfToken);
-		ConfigurationService cs = ServiceLocator.getInstance().getService(ConfigurationService.class);
-		
-		try {
-			ComponentConfiguration conf = cs.getComponentConfiguration(pid);
-			if(conf == null){
-				conf = cs.getDefaultComponentConfiguration(factoryPid);
-				if(conf != null){
-					conf.getConfigurationProperties().put(ConfigurationAdmin.SERVICE_FACTORYPID, factoryPid);
-				}
-				if(conf != null && conf.getDefinition()==null){
-				   String tempName = String.valueOf(System.nanoTime());
-				   cs.createFactoryConfiguration(factoryPid, tempName, extraProps, false);
-				   try{
-					   final BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-					   String filterString = "("+ConfigurationService.KURA_SERVICE_PID+"=" + tempName + ")";
-				       Filter filter = bundleContext.createFilter(filterString);
-				       final ServiceTracker tempTracker = new ServiceTracker(bundleContext, filter, null);
-				       tempTracker.open();
-				       tempTracker.waitForService(5000);
-				       tempTracker.close();
-				       conf = cs.getComponentConfiguration(tempName);
-				   }catch(Exception ex){
-					   throw new GwtKuraException(GwtKuraErrorCode.INTERNAL_ERROR, ex);
-				   }finally{
-					   cs.deleteFactoryConfiguration(tempName, false);
-				   }
-			   }
-			
-			}
-			GwtConfigComponent comp = createConfigFromConfiguration(conf); 
-					
-			return comp;
-			
-		} catch (KuraException e) {
-			throw new GwtKuraException("Could not retrieve component configuration!");
-		}
+        checkXSRFToken(xsrfToken);
+        ConfigurationService cs = ServiceLocator.getInstance().getService(ConfigurationService.class);
+        GwtConfigComponent comp = null;
+        String tempName = null;
+        final Lock lock = new ReentrantLock();
+        try {
+            ComponentConfiguration conf = cs.getComponentConfiguration(pid);
+            if (conf == null) {
+                conf = cs.getDefaultComponentConfiguration(factoryPid);
+                if (conf != null) {
+                    conf.getConfigurationProperties().put(ConfigurationAdmin.SERVICE_FACTORYPID, factoryPid);
+                }
+                if (conf != null && conf.getDefinition() == null) {
+                    tempName = String.valueOf(System.nanoTime());
+                    cs.createFactoryConfiguration(factoryPid, tempName, extraProps, false);
+                    try {
+                        final BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
+                        String filterString = "(" + ConfigurationService.KURA_SERVICE_PID + "=" + tempName + ")";
+                        Filter filter = bundleContext.createFilter(filterString);
+                        final ServiceTracker tempTracker = new ServiceTracker(bundleContext, filter, null);
+                        tempTracker.open();
+                        tempTracker.waitForService(5000);
+                        tempTracker.close();
+                        lock.lock();
+                        try {
+                            conf = cs.getComponentConfiguration(tempName);
+                            comp = createConfigFromConfiguration(conf);
+                            // needed to put the temporary name as we need to delete the component
+                            // as soon as it is shown in the WiresPanelUI
+                            comp.getProperties().put("temp", tempName);
+                            return comp;
+                        } finally {
+                            lock.unlock();
+                        }
+                    } catch (Exception ex) {
+                        throw new GwtKuraException(ex.getMessage());
+                    }
+                }
+            }
+            comp = createConfigFromConfiguration(conf);
+        } catch (KuraException e) {
+            throw new GwtKuraException("Could not retrieve component configuration!");
+        }
+        return comp;
 	}
 	
 	private GwtConfigComponent createConfigFromConfiguration(ComponentConfiguration config) throws GwtKuraException{

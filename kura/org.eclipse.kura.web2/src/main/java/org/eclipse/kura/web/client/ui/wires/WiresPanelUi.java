@@ -418,7 +418,6 @@ public class WiresPanelUi extends Composite {
 		if (m_configs.get(pid) != null) {
 			fillProperties(m_configs.get(pid), pid);
 		} else {
-			// EntryClassUi.showWaitModal();
 			// else we get the GwtComponentConfiguration from the
 			// ConfigurationService
 			gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
@@ -455,6 +454,16 @@ public class WiresPanelUi extends Composite {
 										m_propertiesUis.remove(pid);
 									}
 									fillProperties(result, pid);
+									//check if it is an Asset for which we needed to create a 
+									//temporary factory instance. If there exists a temporary
+									//factory instance for this, then delete that temporary instance
+									Map<String, Object> props = result.getProperties();
+									String temp;
+									String tempKey = "temp";
+                                    if(props != null && props.containsKey(tempKey)){
+									    temp = String.valueOf(props.get(tempKey));
+									    deleteTemporaryFactory(temp);
+									}
 									EntryClassUi.hideWaitModal();
 								}
 							});
@@ -462,6 +471,35 @@ public class WiresPanelUi extends Composite {
 			});
 		}
 	}
+	
+	private static void deleteTemporaryFactory(final String temp) {
+	    gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
+
+            @Override
+            public void onFailure(Throwable caught) {
+                EntryClassUi.hideWaitModal();
+                FailureHandler.handle(caught);  
+            }
+
+            @Override
+            public void onSuccess(GwtXSRFToken token) {
+                gwtComponentService.deleteFactoryConfiguration(token, temp, false, new AsyncCallback<Void>() {
+
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        EntryClassUi.hideWaitModal();
+                        FailureHandler.handle(caught);  
+                    }
+
+                    @Override
+                    public void onSuccess(Void result) {
+                        EntryClassUi.hideWaitModal();
+                    }
+                }); 
+            }
+        });
+        
+    }
 
 	public static int jsniUpdateWireConfig(final String obj) {
 

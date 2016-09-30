@@ -823,7 +823,7 @@ public class EntryClassUi extends Composite {
 			@Override
 			public void onSuccess(GwtXSRFToken token) {
 				String pid = component.getComponentId();
-				gwtComponentService.deleteFactoryConfiguration(token, pid, new AsyncCallback<Void>() {
+				gwtComponentService.deleteFactoryConfiguration(token, pid, true, new AsyncCallback<Void>() {
 
 							@Override
 							public void onFailure(Throwable ex) {

@@ -230,6 +230,10 @@
 					<i18nMessagesBundle>org.eclipse.kura.web.client.messages.Messages</i18nMessagesBundle>
 					<i18nConstantsWithLookupBundle>org.eclipse.kura.web.client.messages.ValidationMessages</i18nConstantsWithLookupBundle>
                     <webappDirectory>src/main/webapp</webappDirectory>
+                    <!-- Performance Optimization: http://stackoverflow.com/questions/14497973/minimizing-compile-size-of-a-gwt-application -->
+                    <disableCastChecking>true</disableCastChecking>
+                    <disableClassMetadata>true</disableClassMetadata>
+                    <optimizationLevel>9</optimizationLevel>
 				</configuration>
 			</plugin>
 

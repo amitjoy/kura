@@ -364,7 +364,8 @@ public final class ModbusDriver implements Driver {
             }
             try {
                 // always read single register
-                final Object response = this.readRequest(unitId, this.modbusMaster, functionCode, memoryAddr, 1);
+                final Object response = this.readRequest(channelConfig, unitId, this.modbusMaster, functionCode,
+                        memoryAddr, 1);
                 final TypedValue<?> value = this.getValue(response, record);
                 if (value == null) {
                     record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
@@ -377,8 +378,9 @@ public final class ModbusDriver implements Driver {
             } catch (final ModbusException e) {
                 record.setDriverStatus(new DriverStatus(READ_FAILURE, null, e));
             } catch (final KuraRuntimeException e) {
-                record.setDriverStatus(new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE,
-                        s_message.connectorNonNull() + " OR " + s_message.wrongUnitId(), e));
+                record.setDriverStatus(
+                        new DriverStatus(DRIVER_ERROR_CHANNEL_NOT_ACCESSIBLE, s_message.connectorNonNull() + " OR "
+                                + s_message.wrongUnitId() + " OR " + s_message.wrongValueType(), e));
             }
             record.setTimestamp(System.currentTimeMillis());
         }
@@ -389,6 +391,8 @@ public final class ModbusDriver implements Driver {
     /**
      * Executes a read transaction using the function code, register and count.
      *
+     * @param channelConfig
+     *            the properties to check for expected value type
      * @param unitId
      *            the Unit ID to connect
      * @param modbusMaster
@@ -403,13 +407,20 @@ public final class ModbusDriver implements Driver {
      * @throws ModbusException
      *             the Modbus exception
      * @throws KuraRuntimeException
-     *             if the transport is null
+     *             if the transport or the channel configuration is null
      */
-    private synchronized Object readRequest(final int unitId, final AbstractModbusMaster modbusMaster,
-            final int functionCode, final int register, final int count) throws ModbusException {
+    private synchronized Object readRequest(final Map<String, Object> channelConfig, final int unitId,
+            final AbstractModbusMaster modbusMaster, final int functionCode, final int register, final int count)
+            throws ModbusException {
+        checkNull(channelConfig, s_message.channelConfigNonNull());
         checkNull(modbusMaster, s_message.connectorNonNull());
+
+        final DataType expectedValueType = (DataType) channelConfig.get(CHANNEL_VALUE_TYPE.value());
         switch (functionCode) {
         case READ_COILS:
+            if (expectedValueType != BOOLEAN) {
+                throw new KuraRuntimeException(KuraErrorCode.CONFIGURATION_ERROR);
+            }
             BitVector coilResponseVector = null;
             if (modbusMaster instanceof ModbusSerialMaster) {
                 coilResponseVector = ((ModbusSerialMaster) modbusMaster).readCoils(unitId, register, count);
@@ -422,6 +433,9 @@ public final class ModbusDriver implements Driver {
             }
             return coilResponseVector;
         case READ_INPUT_DISCRETES:
+            if (expectedValueType != BOOLEAN) {
+                throw new KuraRuntimeException(KuraErrorCode.CONFIGURATION_ERROR);
+            }
             BitVector discreteInputResponseVector = null;
             if (modbusMaster instanceof ModbusSerialMaster) {
                 discreteInputResponseVector = ((ModbusSerialMaster) modbusMaster).readInputDiscretes(unitId, register,
@@ -437,6 +451,9 @@ public final class ModbusDriver implements Driver {
             }
             return discreteInputResponseVector;
         case READ_INPUT_REGISTERS:
+            if (expectedValueType == BOOLEAN) {
+                throw new KuraRuntimeException(KuraErrorCode.CONFIGURATION_ERROR);
+            }
             InputRegister[] inputRegisters = null;
             if (modbusMaster instanceof ModbusSerialMaster) {
                 inputRegisters = ((ModbusSerialMaster) modbusMaster).readInputRegisters(unitId, register, count);
@@ -449,6 +466,9 @@ public final class ModbusDriver implements Driver {
             }
             return inputRegisters;
         case READ_HOLDING_REGISTERS:
+            if (expectedValueType == BOOLEAN) {
+                throw new KuraRuntimeException(KuraErrorCode.CONFIGURATION_ERROR);
+            }
             InputRegister[] multipleRegisters = null;
             if (modbusMaster instanceof ModbusSerialMaster) {
                 multipleRegisters = ((ModbusSerialMaster) modbusMaster).readMultipleRegisters(unitId, register, count);

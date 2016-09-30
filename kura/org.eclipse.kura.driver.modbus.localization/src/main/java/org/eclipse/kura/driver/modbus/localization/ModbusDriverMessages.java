@@ -26,6 +26,9 @@ public interface ModbusDriverMessages {
     @En("Activating Modbus Driver.....Done")
     public String activatingDone();
 
+    @En("Channel Configuration cannot be null")
+    public String channelConfigNonNull();
+
     @En("COILS")
     public String coils();
 
@@ -133,5 +136,8 @@ public interface ModbusDriverMessages {
 
     @En("Unit ID must a positive number greater than 0 but less than or equal to 247")
     public String wrongUnitId();
+
+    @En("Provided Value Type is erroneous")
+    public String wrongValueType();
 
 }

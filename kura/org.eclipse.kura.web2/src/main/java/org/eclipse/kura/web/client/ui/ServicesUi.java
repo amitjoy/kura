@@ -250,7 +250,7 @@ public class ServicesUi extends Composite {
 
 				@Override
 				public void onSuccess(GwtXSRFToken token) {
-					gwtComponentService.deleteFactoryConfiguration(token, m_configurableComponent.getComponentId(), new AsyncCallback<Void>() {
+					gwtComponentService.deleteFactoryConfiguration(token, m_configurableComponent.getComponentId(), true, new AsyncCallback<Void>() {
 
 						@Override
 						public void onFailure(Throwable caught) {

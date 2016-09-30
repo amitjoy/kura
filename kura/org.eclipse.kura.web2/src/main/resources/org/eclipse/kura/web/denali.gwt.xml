@@ -52,4 +52,8 @@
   <source path='client' />
   <source path='shared' />
   
+  <!-- Performance Optimization : http://stackoverflow.com/questions/14497973/minimizing-compile-size-of-a-gwt-application -->
+  <set-property name="compiler.stackMode" value="strip" />
+  <inherits name="com.google.gwt.user.RemoteServiceObfuscateTypeNames"/>
+  
 </module>
