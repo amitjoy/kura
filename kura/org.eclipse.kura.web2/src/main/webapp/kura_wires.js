@@ -25,6 +25,9 @@ var kuraWires = (function() {
 	var selectedElement, oldSelectedPid;
 	var oldCellView;
 	var elementsContainerTemp = [];
+	// used to disallow adding new instance to the Wire
+	// Graph if any instance is recently deleted.
+	var isComponentDeleted;
 
 	/*
 	 * / Public functions
@@ -267,7 +270,7 @@ var kuraWires = (function() {
 			createLinkBetween(emitter, receiver);
 		}
 	}
-	
+
 	function getLocationFromJsonByPid(pid) {
 		for (var i = 0; i < Object.keys(clientConfig.pGraph).length; i++) {
 			var obj = clientConfig.pGraph[i];
@@ -414,7 +417,7 @@ var kuraWires = (function() {
 		// PID with the new element then it would show an error modal
 		var isFoundExistingElementWithSamePid;
 		_.each(elementsContainerTemp, function(c) {
-			if (c === comp.name) {
+			if (c.toUpperCase() === comp.name.toUpperCase()) {
 				isFoundExistingElementWithSamePid = true;
 			}
 		});
@@ -532,6 +535,7 @@ var kuraWires = (function() {
 			wiregraph : graphToSave
 		}
 		elementsContainerTemp = [];
+		isComponentDeleted = false;
 		if (!checkForCycleExistence()) {
 			top.jsniUpdateWireConfig(JSON.stringify(newConfig));
 		}
@@ -622,12 +626,15 @@ var kuraWires = (function() {
 		if (selectedElement !== ""
 				&& selectedElement.attributes.type === 'devs.Atomic') {
 			selectedElement.remove();
-			var i = elementsContainerTemp
-					.indexOf(selectedElement.attributes.label);
+			var pid = selectedElement.attributes.label;
+			var i = elementsContainerTemp.indexOf(pid);
 			if (i != -1) {
 				elementsContainerTemp.splice(i, 1);
 			}
 			top.jsniUpdateSelection("", "");
+			if (clientConfig.wireComponentsJson.length !== "0") {
+				isComponentDeleted = true;
+			}
 		}
 	}
 
@@ -639,21 +646,21 @@ var kuraWires = (function() {
 	}
 
 	function regiterFormInputFieldValidation() {
-		$("#componentName").alphanum({
-			allowSpace : true,
-			allowUpper : true,
-			allowOtherCharSets : false,
-			allowLower : true,
-			allowNumeric : true,
-			allowNewline : false,
-			maxLength : 25,
-			forceUpper : false,
-			forceLower : false,
-			allowLatin : true
+		$("#componentName").bind('keypress', function (event) {
+		    var regex = new RegExp("^[0-9a-zA-Z \b]+$"); //allow 0-9, aA-zZ, space 
+		    var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+		    if (!regex.test(key)) {
+		       event.preventDefault();
+		       return false;
+		    }
 		});
 	}
 
 	function createNewComponent() {
+		if (isComponentDeleted) {
+			top.jsniShowAddNotAllowedModal();
+			return;
+		}
 		var newComp;
 		// Determine whether component can be producer, consumer, or both
 		fPid = $("#factoryPid").val();

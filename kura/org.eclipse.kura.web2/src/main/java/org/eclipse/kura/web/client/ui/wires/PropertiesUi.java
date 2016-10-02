@@ -174,6 +174,22 @@ public class PropertiesUi extends Composite {
 			this.channelTitle
 					.setText(MSGS.channelTableTitle(this.m_configurableComponent.get("driver.pid").toString()));
 		}
+		
+		btn_download.addClickHandler(new ClickHandler() {
+            
+            @Override
+            public void onClick(ClickEvent event) {
+               for (GwtChannelInfo info : channelsDataProvider.getList()) {
+                   logger.log(Level.SEVERE, info.getName());
+                   for (Map.Entry<String, Object> entry : info.getProperties().entrySet()) {
+                       String key = entry.getKey();
+                       String value = String.valueOf(entry.getValue());
+                       logger.log(Level.SEVERE, key + "<==>" + value);
+                   }
+               }
+                
+            }
+        });
 
 		this.btn_add.addClickHandler(new ClickHandler() {
 

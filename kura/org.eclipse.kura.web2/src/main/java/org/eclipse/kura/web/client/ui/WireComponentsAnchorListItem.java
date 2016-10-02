@@ -20,43 +20,43 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 
 public class WireComponentsAnchorListItem extends AnchorListItem {
-	String factoryPid;
-	WireComponentsAnchorListItem instance;
-	boolean isEmitter, isReceiver;
-	WiresPanelUi ui;
 
-	public WireComponentsAnchorListItem(final String factoryPid, final boolean isEmitter, final boolean isReceiver,
-			final WiresPanelUi mainUi) {
-		super();
-		this.ui = mainUi;
-		this.instance = this;
-		this.isEmitter = isEmitter;
-		this.isReceiver = isReceiver;
-		super.setIcon(this.getFactoryIcon());
-		super.setText(WiresPanelUi.getFormattedPid(factoryPid));
+    String factoryPid;
+    WireComponentsAnchorListItem instance;
+    boolean isEmitter, isReceiver;
+    WiresPanelUi ui;
 
-		super.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(final ClickEvent event) {
-				if (factoryPid.contains("WireAsset")) {
-					WiresPanelUi.driverInstanceForm.setVisible(true);
-				} else {
-					WiresPanelUi.driverInstanceForm.setVisible(false);
-				}
-				WiresPanelUi.factoryPid.setValue(factoryPid);
-				mainUi.assetModal.show();
-			}
-		});
-	}
+    public WireComponentsAnchorListItem(final String factoryPid, final boolean isEmitter, final boolean isReceiver) {
+        super();
+        this.instance = this;
+        this.isEmitter = isEmitter;
+        this.isReceiver = isReceiver;
+        super.setIcon(this.getFactoryIcon());
+        super.setText(WiresPanelUi.getFormattedPid(factoryPid));
 
-	private IconType getFactoryIcon() {
-		if (this.isEmitter && this.isReceiver) {
-			return IconType.EXCHANGE;
-		}
-		if (this.isEmitter) {
-			return IconType.LONG_ARROW_LEFT;
-		}
-		return IconType.LONG_ARROW_RIGHT;
-	}
+        super.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(final ClickEvent event) {
+                if (factoryPid.contains("WireAsset")) {
+                    WiresPanelUi.driverInstanceForm.setVisible(true);
+                } else {
+                    WiresPanelUi.driverInstanceForm.setVisible(false);
+                }
+                WiresPanelUi.factoryPid.setValue(factoryPid);
+                WiresPanelUi.assetModal.show();
+            }
+        });
+    }
+
+    private IconType getFactoryIcon() {
+        if (this.isEmitter && this.isReceiver) {
+            return IconType.EXCHANGE;
+        }
+        if (this.isEmitter) {
+            return IconType.LONG_ARROW_LEFT;
+        }
+        return IconType.LONG_ARROW_RIGHT;
+    }
 
 }

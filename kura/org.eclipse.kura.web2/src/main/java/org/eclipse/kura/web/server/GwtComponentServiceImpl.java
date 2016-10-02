@@ -19,9 +19,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.configuration.ComponentConfiguration;
 import org.eclipse.kura.configuration.ConfigurationService;
@@ -33,16 +30,13 @@ import org.eclipse.kura.configuration.Password;
 import org.eclipse.kura.web.server.util.GwtServerUtil;
 import org.eclipse.kura.web.server.util.KuraExceptionHandler;
 import org.eclipse.kura.web.server.util.ServiceLocator;
-import org.eclipse.kura.web.shared.GwtKuraErrorCode;
 import org.eclipse.kura.web.shared.GwtKuraException;
 import org.eclipse.kura.web.shared.model.GwtConfigComponent;
 import org.eclipse.kura.web.shared.model.GwtConfigParameter;
 import org.eclipse.kura.web.shared.model.GwtXSRFToken;
 import org.eclipse.kura.web.shared.model.GwtConfigParameter.GwtConfigParameterType;
 import org.eclipse.kura.web.shared.service.GwtComponentService;
-import org.eclipse.kura.wire.WireEmitter;
 import org.eclipse.kura.wire.WireHelperService;
-import org.eclipse.kura.wire.WireReceiver;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Filter;
 import org.osgi.framework.FrameworkUtil;
@@ -335,8 +329,6 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
         checkXSRFToken(xsrfToken);
         ConfigurationService cs = ServiceLocator.getInstance().getService(ConfigurationService.class);
         GwtConfigComponent comp = null;
-        String tempName = null;
-        final Lock lock = new ReentrantLock();
         try {
             ComponentConfiguration conf = cs.getComponentConfiguration(pid);
             if (conf == null) {
@@ -345,29 +337,23 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
                     conf.getConfigurationProperties().put(ConfigurationAdmin.SERVICE_FACTORYPID, factoryPid);
                 }
                 if (conf != null && conf.getDefinition() == null) {
-                    tempName = String.valueOf(System.nanoTime());
-                    cs.createFactoryConfiguration(factoryPid, tempName, extraProps, false);
+                    String temporaryName = String.valueOf(System.nanoTime());
+                    cs.createFactoryConfiguration(factoryPid, temporaryName, extraProps, false);
                     try {
                         final BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-                        String filterString = "(" + ConfigurationService.KURA_SERVICE_PID + "=" + tempName + ")";
+                        String filterString = "(" + ConfigurationService.KURA_SERVICE_PID + "=" + temporaryName + ")";
                         Filter filter = bundleContext.createFilter(filterString);
                         final ServiceTracker tempTracker = new ServiceTracker(bundleContext, filter, null);
                         tempTracker.open();
-                        tempTracker.waitForService(5000);
+                        tempTracker.waitForService(3000);
                         tempTracker.close();
-                        lock.lock();
-                        try {
-                            conf = cs.getComponentConfiguration(tempName);
-                            comp = createConfigFromConfiguration(conf);
-                            // needed to put the temporary name as we need to delete the component
-                            // as soon as it is shown in the WiresPanelUI
-                            comp.getProperties().put("temp", tempName);
-                            return comp;
-                        } finally {
-                            lock.unlock();
-                        }
+                        conf = cs.getComponentConfiguration(temporaryName);
+                        comp = createConfigFromConfiguration(conf);
+                        return comp;
                     } catch (Exception ex) {
                         throw new GwtKuraException(ex.getMessage());
+                    } finally {
+                        cs.deleteFactoryConfiguration(temporaryName, false);
                     }
                 }
             }
