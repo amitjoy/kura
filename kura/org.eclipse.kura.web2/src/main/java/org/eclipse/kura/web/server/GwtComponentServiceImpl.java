@@ -346,9 +346,9 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
                         final ServiceTracker tempTracker = new ServiceTracker(bundleContext, filter, null);
                         tempTracker.open();
                         tempTracker.waitForService(3000);
-                        tempTracker.close();
                         conf = cs.getComponentConfiguration(temporaryName);
                         comp = createConfigFromConfiguration(conf);
+                        tempTracker.close();
                         return comp;
                     } catch (Exception ex) {
                         throw new GwtKuraException(ex.getMessage());
