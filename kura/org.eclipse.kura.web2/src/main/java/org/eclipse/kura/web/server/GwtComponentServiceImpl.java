@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.configuration.ComponentConfiguration;
 import org.eclipse.kura.configuration.ConfigurationService;
@@ -340,15 +342,10 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
                     String temporaryName = String.valueOf(System.nanoTime());
                     cs.createFactoryConfiguration(factoryPid, temporaryName, extraProps, false);
                     try {
-                        final BundleContext bundleContext = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
-                        String filterString = "(" + ConfigurationService.KURA_SERVICE_PID + "=" + temporaryName + ")";
-                        Filter filter = bundleContext.createFilter(filterString);
-                        final ServiceTracker tempTracker = new ServiceTracker(bundleContext, filter, null);
-                        tempTracker.open();
-                        tempTracker.waitForService(3000);
+                        //wait for the services to be up
+                        TimeUnit.MILLISECONDS.sleep(500);
                         conf = cs.getComponentConfiguration(temporaryName);
                         comp = createConfigFromConfiguration(conf);
-                        tempTracker.close();
                         return comp;
                     } catch (Exception ex) {
                         throw new GwtKuraException(ex.getMessage());
