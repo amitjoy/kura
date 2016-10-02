@@ -39,6 +39,7 @@ import org.eclipse.kura.web.shared.service.GwtSecurityTokenService;
 import org.eclipse.kura.web.shared.service.GwtSecurityTokenServiceAsync;
 import org.gwtbootstrap3.client.shared.event.ModalHideEvent;
 import org.gwtbootstrap3.client.shared.event.ModalHideHandler;
+import org.gwtbootstrap3.client.ui.Alert;
 import org.gwtbootstrap3.client.ui.AnchorListItem;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Icon;
@@ -53,6 +54,7 @@ import org.gwtbootstrap3.client.ui.PanelBody;
 import org.gwtbootstrap3.client.ui.PanelHeader;
 import org.gwtbootstrap3.client.ui.TabListItem;
 import org.gwtbootstrap3.client.ui.TextBox;
+import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconSize;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.client.ui.html.Span;
@@ -120,6 +122,7 @@ public class EntryClassUi extends Composite {
 	private boolean networkDirty;
 	private boolean firewallDirty;
 	private boolean settingsDirty;
+	private boolean wiresPanelDirty;
 
 
 	@UiField
@@ -601,7 +604,9 @@ public class EntryClassUi extends Composite {
 		modal.add(header);
 
 		ModalBody body = new ModalBody();
-		body.add(new Span(MSGS.deviceConfigDirty()));
+		Strong strong = new Strong(MSGS.deviceConfigDirty());
+		Alert alert = new Alert(strong.getHTML(), AlertType.DANGER);
+		body.add(alert);
 		modal.add(body);
 
 		ModalFooter footer = new ModalFooter();
@@ -634,10 +639,14 @@ public class EntryClassUi extends Composite {
 			settingsDirty= settingsBinder.isDirty(); 
 		}
 		
+		if (wires.isVisible()) {
+		    wiresPanelDirty = WiresPanelUi.isDirty(); 
+		}
+		
 		if (	(servicesUi!=null && servicesUi.isDirty()) || 
 				networkDirty  || 
 				firewallDirty || 
-				settingsDirty || WiresPanelUi.isDirty()) {
+				settingsDirty || wiresPanelDirty) {
 			modal.show();
 		} else {
 			b.click();
