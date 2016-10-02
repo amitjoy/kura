@@ -10,9 +10,8 @@
  *   Eurotech
  *   Amit Kumar Mondal (admin@amitinside.com)
  */
-package org.eclipse.kura.web.client.ui;
+package org.eclipse.kura.web.client.ui.wires;
 
-import org.eclipse.kura.web.client.ui.wires.WiresPanelUi;
 import org.gwtbootstrap3.client.ui.AnchorListItem;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 
@@ -45,6 +44,7 @@ public class WireComponentsAnchorListItem extends AnchorListItem {
                 }
                 WiresPanelUi.factoryPid.setValue(factoryPid);
                 WiresPanelUi.assetModal.show();
+                setActive(true);
             }
         });
     }

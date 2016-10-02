@@ -122,6 +122,7 @@ var kuraWires = (function() {
 		// Instantiate JointJS graph and paper
 		if (!initialized) {
 			$("#btn-create-comp").on("click", createNewComponent);
+			$("#btn-create-comp-cancel").on("click", cancelCreateNewComponent);
 			$("#btn-save-graph").on("click", saveConfig);
 			$("#btn-delete-comp").on("click", deleteComponent);
 			$("#btn-delete-graph-confirm").on("click", deleteGraph);
@@ -655,6 +656,10 @@ var kuraWires = (function() {
 		    }
 		});
 	}
+	
+	function cancelCreateNewComponent() {
+		top.jsniDeactivateNavPils();
+	}
 
 	function createNewComponent() {
 		if (isComponentDeleted) {
@@ -715,6 +720,7 @@ var kuraWires = (function() {
 				}
 			}
 			top.jsniMakeUiDirty();
+			top.jsniDeactivateNavPils();
 			toggleDeleteGraphButton(false);
 			// Create the new component and store information in array
 			createComponent(newComp);

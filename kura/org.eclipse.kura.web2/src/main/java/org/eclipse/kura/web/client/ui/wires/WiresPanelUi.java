@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.eclipse.kura.web.client.ui.EntryClassUi;
-import org.eclipse.kura.web.client.ui.WireComponentsAnchorListItem;
 import org.eclipse.kura.web.client.util.FailureHandler;
 import org.eclipse.kura.web.shared.model.GwtConfigComponent;
 import org.eclipse.kura.web.shared.model.GwtWiresConfiguration;
@@ -32,6 +31,7 @@ import org.eclipse.kura.web.shared.service.GwtSecurityTokenServiceAsync;
 import org.eclipse.kura.web.shared.service.GwtWireService;
 import org.eclipse.kura.web.shared.service.GwtWireServiceAsync;
 import org.gwtbootstrap3.client.ui.Alert;
+import org.gwtbootstrap3.client.ui.AnchorListItem;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.FormGroup;
 import org.gwtbootstrap3.client.ui.ListBox;
@@ -168,6 +168,13 @@ public class WiresPanelUi extends Composite {
 
         return components;
     }
+
+    public static native void exportJSNIDeactivateNavPils()
+    /*-{
+    $wnd.jsniDeactivateNavPils = $entry(
+    @org.eclipse.kura.web.client.ui.wires.WiresPanelUi::jsniDeactivateNavPils()
+    );
+    }-*/;
 
     public static native void exportJSNImakeUiDirty()
     /*-{
@@ -382,6 +389,7 @@ public class WiresPanelUi extends Composite {
         exportJSNIShowAddNotAllowedModal();
         exportJSNIshowCycleExistenceError();
         exportJSNImakeUiDirty();
+        exportJSNIDeactivateNavPils();
     }
 
     public static boolean isDirty() {
@@ -393,6 +401,15 @@ public class WiresPanelUi extends Composite {
     // JSNI
     //
     // ----------------------------------------------------------------
+    public static void jsniDeactivateNavPils() {
+        for (int i = 0; i < wireComponentsMenu.getWidgetCount(); i++) {
+            final AnchorListItem item = (AnchorListItem) wireComponentsMenu.getWidget(i);
+            if (item.isActive()) {
+                item.setActive(false);
+            }
+        }
+    }
+
     public static void jsniMakeUiDirty() {
         WiresPanelUi.setDirty(true);
     }
