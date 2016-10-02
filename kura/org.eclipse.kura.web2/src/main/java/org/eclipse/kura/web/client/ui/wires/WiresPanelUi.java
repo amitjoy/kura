@@ -77,6 +77,8 @@ public class WiresPanelUi extends Composite {
 
     @UiField
     public static Button btnSaveYes;
+    @UiField
+    public static TextBox componentName;
     private static GwtConfigComponent currentSelection = null;
     @UiField
     public static Modal deleteGraphModal;
@@ -96,22 +98,22 @@ public class WiresPanelUi extends Composite {
     private static final GwtWireServiceAsync gwtWireService = GWT.create(GwtWireService.class);
     private static final GwtSecurityTokenServiceAsync gwtXSRFService = GWT.create(GwtSecurityTokenService.class);
     private static boolean isDirty;
-    private static final Logger logger = Logger.getLogger(WiresPanelUi.class.getSimpleName());
 
+    private static final Logger logger = Logger.getLogger(WiresPanelUi.class.getSimpleName());
     private static List<String> m_components;
     private static Map<String, GwtConfigComponent> m_configs = new HashMap<String, GwtConfigComponent>();
     private static List<String> m_drivers;
     private static List<String> m_emitters;
-    private static String m_graph;
 
+    private static String m_graph;
     private static Map<String, PropertiesUi> m_propertiesUis;
     private static List<String> m_receivers;
     private static String m_wireComponentsConfigJson;
     private static String m_wireConfigsJson;
     private static String m_wires;
+
     @UiField
     public static Panel propertiesPanel;
-
     @UiField
     public static PanelBody propertiesPanelBody;
     @UiField
@@ -119,19 +121,17 @@ public class WiresPanelUi extends Composite {
     private static PropertiesUi propertiesUi;
     @UiField
     public static Alert saveGraphAlert;
+
     @UiField
     public static Strong saveGraphAlertText;
-
     @UiField
     public static Modal saveModal;
     private static WiresPanelUiUiBinder uiBinder = GWT.create(WiresPanelUiUiBinder.class);
+
     @UiField
     static NavPills wireComponentsMenu;
 
     private static WiresPanelUi wiresPanelUi;
-
-    @UiField
-    public TextBox componentName;
 
     public WiresPanelUi() {
         this.initWidget(uiBinder.createAndBindUi(this));
@@ -408,6 +408,7 @@ public class WiresPanelUi extends Composite {
                 item.setActive(false);
             }
         }
+        componentName.clear();
     }
 
     public static void jsniMakeUiDirty() {

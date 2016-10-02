@@ -64,6 +64,7 @@ public class ServicesAnchorListItem extends AnchorListItem {
 		super.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
+			    EntryClassUi.setActive(ServicesAnchorListItem.this);
 				if ((ui.selected != null && ui.selected != item && ui.servicesUi.isDirty()) || 
 						ui.isNetworkDirty()  ||
 						ui.isFirewallDirty() ||

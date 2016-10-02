@@ -161,6 +161,8 @@ public class EntryClassUi extends Composite {
 	Button factoriesButton;
 	@UiField
 	TextBox componentName;
+	
+	static AnchorListItem previousSelection;
 
 
 	public EntryClassUi() {
@@ -206,6 +208,13 @@ public class EntryClassUi extends Composite {
 		}
 
 	}
+	
+	static void setActive(AnchorListItem item) {
+        if (previousSelection != null)
+            previousSelection.setActive(false);
+        item.setActive(true);
+        previousSelection = item;
+    }
 
 	public void initSystemPanel(GwtSession GwtSession, boolean connectionStatus) {
 		final EntryClassUi m_instanceReference= this;
@@ -213,7 +222,7 @@ public class EntryClassUi extends Composite {
 			network.setVisible(false);
 			firewall.setVisible(false);
 		}
-
+		
 		// Status Panel
 		updateConnectionStatusImage(connectionStatus);
 		status.addClickHandler(new ClickHandler() {
@@ -233,6 +242,7 @@ public class EntryClassUi extends Composite {
 						statusBinder.setParent(m_instanceReference);
 						statusBinder.loadStatusData();
 						discardWiresPanelChanges();
+						setActive(status);
 					}
 				});
 
@@ -262,6 +272,7 @@ public class EntryClassUi extends Composite {
 						deviceBinder.setSession(currentSession);
 						deviceBinder.initDevicePanel();
 						discardWiresPanelChanges();
+						setActive(device);
 					}
 				});
 				renderDirtyConfigModal(b);
@@ -290,6 +301,7 @@ public class EntryClassUi extends Composite {
 							networkBinder.setSession(currentSession);
 							networkBinder.initNetworkPanel();
 							discardWiresPanelChanges();
+							setActive(network);
 						}
 					});
 					renderDirtyConfigModal(b);
@@ -318,6 +330,7 @@ public class EntryClassUi extends Composite {
 							contentPanelBody.add(firewallBinder);
 							firewallBinder.initFirewallPanel();
 							discardWiresPanelChanges();
+							setActive(firewall);
 						}
 					});
 					renderDirtyConfigModal(b);
@@ -347,6 +360,7 @@ public class EntryClassUi extends Composite {
 						packagesBinder.setMainUi(ui);
 						packagesBinder.refresh();
 						discardWiresPanelChanges();
+						setActive(packages);
 					}
 				});
 				renderDirtyConfigModal(b);
@@ -374,6 +388,7 @@ public class EntryClassUi extends Composite {
 						settingsBinder.setSession(currentSession);
 						settingsBinder.load();
 						discardWiresPanelChanges();
+						setActive(settings);
 					}
 				});
 				renderDirtyConfigModal(b);
@@ -397,6 +412,7 @@ public class EntryClassUi extends Composite {
 						contentPanelBody.add(wiresBinder);
 						wiresBinder.load();
 						discardWiresPanelChanges();
+						setActive(wires);
 					}
 				});
 				renderDirtyConfigModal(b);
