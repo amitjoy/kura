@@ -91,7 +91,7 @@
 														iconFixedWidth="true" text="Settings" ui:field="settings" />
 													  
 													<b:AnchorListItem icon="RETWEET"
-														iconFixedWidth="true" text="Kura Wires" ui:field="wires"/>
+														iconFixedWidth="true" text="Wires" ui:field="wires"/>
 												</b:NavPills>
 											</b:PanelBody>
 										</b:Panel>

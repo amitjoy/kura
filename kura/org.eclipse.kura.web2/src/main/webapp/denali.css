@@ -271,6 +271,28 @@ img.x-tree3-node-icon {
 	fill: #ccffcc;
 }
 
+/** highlight */
+/* Cell highlighting - e.g a cell underneath the dragged link get highlighted.
+    See joint.dia.cell.js highlight(); */
+ .highlighted {
+     opacity: 0.7;
+ }
+ 
+ /* For some reason, CSS `outline` property
+    does not work on `<text>` elements. */
+ text.highlighted {
+     fill: #FF0000;
+ }
+ 
+ /* `outline` doesn't work in Firefox, Opera and IE9+.
+    The only engine supporting outlines on SVG elements is Webkit. */
+ @media screen and (-webkit-min-device-pixel-ratio:0) {
+     .highlighted {
+        outline: -webkit-focus-ring-color auto 4px;
+         opacity: initial;
+     }
+ }
+
 /******************************
 ***
 *** gwtbootstrap3 CSS rules 
