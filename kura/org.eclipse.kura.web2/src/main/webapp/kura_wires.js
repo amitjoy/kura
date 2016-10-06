@@ -39,6 +39,10 @@ var kuraWires = (function() {
 		setup();
 		regiterFormInputFieldValidation();
 	};
+	
+	client.resetDeleteComponentState = function() {
+		isComponentDeleted = false;
+	};
 
 	client.getDriver = function(assetPid) {
 		var _elements = graph.getElements();
@@ -321,7 +325,7 @@ var kuraWires = (function() {
 			paper.scale(currentZoomLevel);
 		}
 	}
-
+	
 	function fireTransition(t) {
 		var inbound = graph.getConnectedLinks(t, {
 			inbound : false

@@ -612,29 +612,7 @@ public class EntryClassUi extends Composite {
 
 	// create the prompt for dirty configuration before switching to another tab
 	private void renderDirtyConfigModal(Button b) {
-		
-		modal = new Modal();
-
-		ModalHeader header = new ModalHeader();
-		header.setTitle(MSGS.warning());
-		modal.add(header);
-
-		ModalBody body = new ModalBody();
-		Strong strong = new Strong(MSGS.deviceConfigDirty());
-		Alert alert = new Alert(strong.getHTML(), AlertType.DANGER);
-		body.add(alert);
-		modal.add(body);
-
-		ModalFooter footer = new ModalFooter();
-		footer.add(b);
-		footer.add(new Button(MSGS.noButton(), new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				modal.hide();
-			}
-		}));
-		modal.add(footer);
-		
+	    
 		if (servicesUi != null) {
 			servicesDirty= servicesUi.isDirty();
 		}
@@ -663,6 +641,26 @@ public class EntryClassUi extends Composite {
 				networkDirty  || 
 				firewallDirty || 
 				settingsDirty || wiresPanelDirty) {
+		    this.modal = new Modal();
+
+            ModalHeader header = new ModalHeader();
+            header.setTitle(MSGS.warning());
+            this.modal.add(header);
+
+            ModalBody body = new ModalBody();
+            body.add(new Span(MSGS.deviceConfigDirty()));
+            this.modal.add(body);
+
+            ModalFooter footer = new ModalFooter();
+            footer.add(b);
+            footer.add(new Button(MSGS.noButton(), new ClickHandler() {
+
+                @Override
+                public void onClick(ClickEvent event) {
+                    EntryClassUi.this.modal.hide();
+                }
+            }));
+            this.modal.add(footer);
 			modal.show();
 		} else {
 			b.click();

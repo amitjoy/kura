@@ -148,6 +148,7 @@ public class WiresPanelUi extends Composite {
         btnSave.setText("Save");
         isDirty = false;
         m_configs.clear();
+        resetDeleteComponentState();
     }
 
     private static JSONArray createComponentsJson() {
@@ -700,6 +701,11 @@ public class WiresPanelUi extends Composite {
             }
         });
     }
+
+    public static native void resetDeleteComponentState()
+    /*-{
+        $wnd.kuraWires.resetDeleteComponentState();
+    }-*/;
 
     public static void setDirty(final boolean flag) {
         // if WiresPanelUI is already dirty, there is no need to make it dirty
