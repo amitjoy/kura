@@ -39,7 +39,6 @@ import org.eclipse.kura.web.shared.service.GwtSecurityTokenService;
 import org.eclipse.kura.web.shared.service.GwtSecurityTokenServiceAsync;
 import org.gwtbootstrap3.client.shared.event.ModalHideEvent;
 import org.gwtbootstrap3.client.shared.event.ModalHideHandler;
-import org.gwtbootstrap3.client.ui.Alert;
 import org.gwtbootstrap3.client.ui.AnchorListItem;
 import org.gwtbootstrap3.client.ui.Button;
 import org.gwtbootstrap3.client.ui.Icon;
@@ -54,7 +53,6 @@ import org.gwtbootstrap3.client.ui.PanelBody;
 import org.gwtbootstrap3.client.ui.PanelHeader;
 import org.gwtbootstrap3.client.ui.TabListItem;
 import org.gwtbootstrap3.client.ui.TextBox;
-import org.gwtbootstrap3.client.ui.constants.AlertType;
 import org.gwtbootstrap3.client.ui.constants.IconSize;
 import org.gwtbootstrap3.client.ui.constants.IconType;
 import org.gwtbootstrap3.client.ui.html.Span;
@@ -85,810 +83,833 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class EntryClassUi extends Composite {
-	
-	private static final String SELECT_COMPONENT = "--- Select Component ---";
 
-	interface EntryClassUIUiBinder extends UiBinder<Widget, EntryClassUi> {
-	}
-
-	private static EntryClassUIUiBinder uiBinder = GWT.create(EntryClassUIUiBinder.class);
-	private static final Messages MSGS = GWT.create(Messages.class);
-	private static final Logger logger = Logger.getLogger(EntryClassUi.class.getSimpleName());
-	private static Logger errorLogger = Logger.getLogger("ErrorLogger");
-
-	private final StatusPanelUi statusBinder     = GWT.create(StatusPanelUi.class);
-	private final DevicePanelUi deviceBinder     = GWT.create(DevicePanelUi.class);
-	private final PackagesPanelUi packagesBinder = GWT.create(PackagesPanelUi.class);
-	private final SettingsPanelUi settingsBinder = GWT.create(SettingsPanelUi.class);
-	private final FirewallPanelUi firewallBinder = GWT.create(FirewallPanelUi.class);
-	private final NetworkPanelUi networkBinder   = GWT.create(NetworkPanelUi.class);
-	private final WiresPanelUi   wiresBinder     = GWT.create(WiresPanelUi.class);
-
-	private final GwtPackageServiceAsync gwtPackageService = GWT.create(GwtPackageService.class);
-	private final GwtComponentServiceAsync gwtComponentService = GWT.create(GwtComponentService.class);
-	private final GwtSecurityTokenServiceAsync gwtXSRFService = GWT.create(GwtSecurityTokenService.class);
-
-	public GwtConfigComponent selected = null;
-
-	static PopupPanel m_waitModal;
-	GwtSession currentSession;
-	AnchorListItem service;
-	GwtConfigComponent addedItem;
-	EntryClassUi ui;
-	Modal modal;
-	ServicesUi servicesUi;
-
-	private boolean servicesDirty;
-	private boolean networkDirty;
-	private boolean firewallDirty;
-	private boolean settingsDirty;
-	private boolean wiresPanelDirty;
-
-
-	@UiField
-	Panel header;
-	@UiField
-	Label footerLeft, footerCenter, footerRight;
-	@UiField
-	Panel contentPanel;
-	@UiField
-	public Strong errorAlertText;
-	@UiField
-	public static Modal errorModal;
-	@UiField
-	PanelHeader contentPanelHeader;
-	@UiField
-	PanelBody contentPanelBody;
-	@UiField
-	TabListItem status;
-	@UiField
-	AnchorListItem device, network, firewall, packages, settings, wires;
-	@UiField
-	ScrollPanel servicesPanel;
-	@UiField
-	TextBox textSearch;
-	@UiField
-	NavPills servicesMenu;
-	@UiField
-	VerticalPanel errorLogArea;
-	@UiField
-	Modal errorPopup;
-	@UiField
-	Button buttonNewComponent;
-	@UiField
-	ListBox factoriesList;
-	@UiField
-	Button factoriesButton;
-	@UiField
-	TextBox componentName;
-	
-	static AnchorListItem previousSelection;
-
-
-	public EntryClassUi() {
-		logger.log(Level.FINER, "Initiating UiBinder");
-		ui = this;
-		initWidget(uiBinder.createAndBindUi(this));
-
-		// TODO : standardize the URL?
-		//		header.setUrl("eclipse/kura/icons/kura_logo_small.png");
-		header.setStyleName("headerLogo");
-		Date now = new Date();
-		@SuppressWarnings("deprecation")
-		int year = now.getYear() + 1900;
-		footerLeft.setText(MSGS.copyright(String.valueOf(year)));
-		footerLeft.setStyleName("copyright");
-		contentPanel.setVisible(false);
-
-		// Set client side logging
-		errorLogger.addHandler(new HasWidgetsLogHandler(errorLogArea));
-		errorPopup.addHideHandler(new ModalHideHandler() {
-			@Override
-			public void onHide(ModalHideEvent evt) {
-				errorLogArea.clear();
-			}
-		});
-		
-		//
-		dragDropInit(this);
-		
-		FailureHandler.setPopup(errorPopup);
-	}
-
-	public void setSession(GwtSession GwtSession) {
-		currentSession = GwtSession;
-	}
-
-	public void setFooter(GwtSession GwtSession) {
-
-		footerRight.setText(GwtSession.getKuraVersion());
-
-		if (GwtSession.isDevelopMode()) {
-			footerCenter.setText(MSGS.developmentMode());
-		}
-
-	}
-	
-	static void setActive(AnchorListItem item) {
-        if (previousSelection != null)
-            previousSelection.setActive(false);
-        item.setActive(true);
-        previousSelection = item;
+    interface EntryClassUIUiBinder extends UiBinder<Widget, EntryClassUi> {
     }
 
-	public void initSystemPanel(GwtSession GwtSession, boolean connectionStatus) {
-		final EntryClassUi m_instanceReference= this;
-		if (!GwtSession.isNetAdminAvailable()) {
-			network.setVisible(false);
-			firewall.setVisible(false);
-		}
-		
-		// Status Panel
-		updateConnectionStatusImage(connectionStatus);
-		status.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Button b = new Button(MSGS.yesButton(), new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						if (modal != null) {
-							modal.hide();
-						}
-						contentPanel.setVisible(true);
-						contentPanelHeader.setText("Status");
-						contentPanelBody.clear();
-						contentPanelBody.add(statusBinder);
-						statusBinder.setSession(currentSession);
-						statusBinder.setParent(m_instanceReference);
-						statusBinder.loadStatusData();
-						discardWiresPanelChanges();
-						setActive(status);
-					}
-				});
+    private class SelectValueChangeEvent extends ValueChangeEvent<String> {
 
-				renderDirtyConfigModal(b);
-			}
-		});
+        protected SelectValueChangeEvent(final String value) {
+            super(value);
+        }
 
-		// Device Panel
-		device.addClickHandler(new ClickHandler() {
+    }
 
-			@Override
-			public void onClick(ClickEvent event) {
-				Button b = new Button(MSGS.yesButton(), new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						forceTabsCleaning();
-						if (modal != null ) {
-							modal.hide();
-						}
-						if (servicesUi != null) {
-							servicesUi.renderForm();
-						}
-						contentPanel.setVisible(true);
-						contentPanelHeader.setText(MSGS.device());
-						contentPanelBody.clear();
-						contentPanelBody.add(deviceBinder);
-						deviceBinder.setSession(currentSession);
-						deviceBinder.initDevicePanel();
-						discardWiresPanelChanges();
-						setActive(device);
-					}
-				});
-				renderDirtyConfigModal(b);
-			}
-		});
+    private static Logger errorLogger = Logger.getLogger("ErrorLogger");
+    @UiField
+    public static Modal errorModal;
+    private static final Logger logger = Logger.getLogger(EntryClassUi.class.getSimpleName());
+    static PopupPanel m_waitModal;
 
-		// Network Panel
-		if (network.isVisible()) {
-			network.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					Button b = new Button(MSGS.yesButton(), new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent event) {
-							forceTabsCleaning();
-							if (modal != null ) {
-								modal.hide();
-							}
-							if (servicesUi != null) {
-								servicesUi.renderForm();
-							}
-							contentPanel.setVisible(true);
-							contentPanelHeader.setText(MSGS.network());
-							contentPanelBody.clear();
-							contentPanelBody.add(networkBinder);
-							networkBinder.setSession(currentSession);
-							networkBinder.initNetworkPanel();
-							discardWiresPanelChanges();
-							setActive(network);
-						}
-					});
-					renderDirtyConfigModal(b);
-				}
-			});
-		}
+    private static final Messages MSGS = GWT.create(Messages.class);
+    static AnchorListItem previousSelection;
+    private static final String SELECT_COMPONENT = "--- Select Component ---";
+    private static EntryClassUIUiBinder uiBinder = GWT.create(EntryClassUIUiBinder.class);
+    GwtConfigComponent addedItem;
+    @UiField
+    Button buttonNewComponent;
+    private final ValueChangeHandler changeHandler = new ValueChangeHandler() {
 
-		// Firewall Panel
-		if (firewall.isVisible()) {
-			firewall.addClickHandler(new ClickHandler() {
-				@Override
-				public void onClick(ClickEvent event) {
-					Button b = new Button(MSGS.yesButton(),	new ClickHandler() {
-						@Override
-						public void onClick(ClickEvent event) {
-							forceTabsCleaning();
-							if (modal != null ) {
-								modal.hide();
-							}
-							if (servicesUi != null) {
-								servicesUi.renderForm();
-							}
-							contentPanel.setVisible(true);
-							contentPanelHeader.setText(MSGS.firewall());
-							contentPanelBody.clear();
-							contentPanelBody.add(firewallBinder);
-							firewallBinder.initFirewallPanel();
-							discardWiresPanelChanges();
-							setActive(firewall);
-						}
-					});
-					renderDirtyConfigModal(b);
-				}
-			});
-		}
+        @Override
+        public void onValueChange(final ValueChangeEvent event) {
 
-		// Packages Panel
-		packages.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Button b = new Button(MSGS.yesButton(), new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						forceTabsCleaning();
-						if (modal != null ) {
-							modal.hide();
-						}
-						if (servicesUi != null) {
-							servicesUi.renderForm();
-						}
-						contentPanel.setVisible(true);
-						contentPanelHeader.setText(MSGS.packages());
-						contentPanelBody.clear();
-						contentPanelBody.add(packagesBinder);
-						packagesBinder.setSession(currentSession);
-						packagesBinder.setMainUi(ui);
-						packagesBinder.refresh();
-						discardWiresPanelChanges();
-						setActive(packages);
-					}
-				});
-				renderDirtyConfigModal(b);
-			}
-		});
+            EntryClassUi.this.gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
 
-		// Settings Panel
-		settings.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Button b = new Button(MSGS.yesButton(), new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						forceTabsCleaning();
-						if (modal != null ) {
-							modal.hide();
-						}
-						if (servicesUi != null) {
-							servicesUi.renderForm();
-						}
-						contentPanel.setVisible(true);
-						contentPanelHeader.setText(MSGS.settings());
-						contentPanelBody.clear();
-						contentPanelBody.add(settingsBinder);
-						settingsBinder.setSession(currentSession);
-						settingsBinder.load();
-						discardWiresPanelChanges();
-						setActive(settings);
-					}
-				});
-				renderDirtyConfigModal(b);
-			}
-		});
-		
-		// Wires Panel
-		wires.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Button b = new Button(MSGS.yesButton(), new ClickHandler() {
-					@Override
-					public void onClick(ClickEvent event) {
-						forceTabsCleaning();
-						if (modal != null ) {
-							modal.hide();
-						}
-						contentPanel.setVisible(true);
-						contentPanelHeader.setText("Wire Graph");
-						contentPanelBody.clear();
-						contentPanelBody.add(wiresBinder);
-						wiresBinder.load();
-						discardWiresPanelChanges();
-						setActive(wires);
-					}
-				});
-				renderDirtyConfigModal(b);
-			}
-		});
-	}
+                @Override
+                public void onFailure(final Throwable ex) {
+                    FailureHandler.handle(ex, EntryClassUi.class.getName());
+                }
 
-	public void initServicesTree() {
-		// (Re)Fetch Available Services
-		gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+                @Override
+                public void onSuccess(final GwtXSRFToken token) {
+                    EntryClassUi.this.gwtComponentService.findComponentConfigurations(token,
+                            new AsyncCallback<List<GwtConfigComponent>>() {
 
-			@Override
-			public void onFailure(Throwable ex) {
-				FailureHandler.handle(ex, EntryClassUi.class.getName());
-			}
+                                @Override
+                                public void onFailure(final Throwable ex) {
+                                    logger.log(Level.SEVERE, ex.getMessage(), ex);
+                                    FailureHandler.handle(ex, EntryClassUi.class.getName());
+                                }
 
-			@Override
-			public void onSuccess(GwtXSRFToken token) {
-				gwtComponentService.findComponentConfigurations(token, new AsyncCallback<List<GwtConfigComponent>>() {
-					@Override
-					public void onFailure(Throwable ex) {
-						logger.log(Level.SEVERE, ex.getMessage(), ex);
-						FailureHandler.handle(ex, EntryClassUi.class.getName());
-					}
+                                @Override
+                                public void onSuccess(final List<GwtConfigComponent> result) {
+                                    EntryClassUi.this.servicesMenu.clear();
+                                    for (final GwtConfigComponent pair : result) {
+                                        final String filter = event.getValue().toString();
+                                        final String compName = pair.getComponentName();
+                                        if (!pair.isWireComponent() && compName.toLowerCase().contains(filter)) {
+                                            EntryClassUi.this.servicesMenu
+                                                    .add(new ServicesAnchorListItem(pair, EntryClassUi.this.ui));
+                                        }
+                                    }
+                                }
+                            });
+                }
+            });
+        }
+    };
 
-					@Override
-					public void onSuccess(List<GwtConfigComponent> result) {
-						servicesMenu.clear();
-						for (GwtConfigComponent pair : result) {
-							if (!pair.isWireComponent()) {
-								servicesMenu.add(new ServicesAnchorListItem(pair, ui));
-							}
-						}
-					}
-				});
-			}
-		});
-		
-		// Keypress handler
-		textSearch.addValueChangeHandler(changeHandler);
-		
-		// New factory configuration handler
-		buttonNewComponent.addClickHandler(new ClickHandler(){
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				
-				gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+    @UiField
+    TextBox componentName;
+    @UiField
+    Panel contentPanel;
+    @UiField
+    PanelBody contentPanelBody;
 
-					@Override
-					public void onFailure(Throwable ex) {
-						FailureHandler.handle(ex, EntryClassUi.class.getName());
-					}
+    @UiField
+    PanelHeader contentPanelHeader;
 
-					@Override
-					public void onSuccess(GwtXSRFToken token) {
-						String factoryPid = factoriesList.getSelectedValue();
-						String pid = componentName.getValue();
-						if (SELECT_COMPONENT.equalsIgnoreCase(factoryPid) || "".equals(pid)){
-							errorAlertText.setText("Component must be selected and the name must be non-empty");
-							errorModal.show();
-							return;
-						}
-						gwtComponentService.createFactoryComponent(token, factoryPid, pid, new AsyncCallback<Void>() {
+    GwtSession currentSession;
+    @UiField
+    AnchorListItem device, network, firewall, packages, settings, wires;
+    private final DevicePanelUi deviceBinder = GWT.create(DevicePanelUi.class);
+    @UiField
+    public Strong errorAlertText;
+    @UiField
+    VerticalPanel errorLogArea;
+    @UiField
+    Modal errorPopup;
+    @UiField
+    Button factoriesButton;
 
-							@Override
-							public void onFailure(Throwable ex) {
-								logger.log(Level.SEVERE, ex.getMessage(), ex);
-								FailureHandler.handle(ex, EntryClassUi.class.getName());
-							}
+    @UiField
+    ListBox factoriesList;
+    private final FirewallPanelUi firewallBinder = GWT.create(FirewallPanelUi.class);
+    private boolean firewallDirty;
+    @UiField
+    Label footerLeft, footerCenter, footerRight;
+    private final GwtComponentServiceAsync gwtComponentService = GWT.create(GwtComponentService.class);
 
-							@Override
-							public void onSuccess(Void result) {
-								ValueChangeEvent event = new SelectValueChangeEvent(textSearch.getValue());
-								changeHandler.onValueChange(event);
-							}
-						});
-					}
-				});
-			}
-		});
-		
-		factoriesButton.addClickHandler(new ClickHandler(){
+    private final GwtPackageServiceAsync gwtPackageService = GWT.create(GwtPackageService.class);
+    private final GwtSecurityTokenServiceAsync gwtXSRFService = GWT.create(GwtSecurityTokenService.class);
+    @UiField
+    Panel header;
+    Modal modal;
+    private final NetworkPanelUi networkBinder = GWT.create(NetworkPanelUi.class);
+    private boolean networkDirty;
+    private final PackagesPanelUi packagesBinder = GWT.create(PackagesPanelUi.class);
+    public GwtConfigComponent selected = null;
+    AnchorListItem service;
+    private boolean servicesDirty;
+    @UiField
+    NavPills servicesMenu;
+    @UiField
+    ScrollPanel servicesPanel;
+    ServicesUi servicesUi;
+    private final SettingsPanelUi settingsBinder = GWT.create(SettingsPanelUi.class);
+    private boolean settingsDirty;
+    @UiField
+    TabListItem status;
+    private final StatusPanelUi statusBinder = GWT.create(StatusPanelUi.class);
+    @UiField
+    TextBox textSearch;
 
-			@Override
-			public void onClick(ClickEvent event) {
-				//always empty the PID input field
-				componentName.setValue("");
-				gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+    EntryClassUi ui;
 
-					@Override
-					public void onFailure(Throwable ex) {
-						FailureHandler.handle(ex, EntryClassUi.class.getName());
-					}
+    private final WiresPanelUi wiresBinder = GWT.create(WiresPanelUi.class);
 
-					@Override
-					public void onSuccess(GwtXSRFToken token) {
-						gwtComponentService.getFactoryComponents(token, new AsyncCallback<List<String>>() {
+    private boolean wiresPanelDirty;
 
-							@Override
-							public void onFailure(Throwable ex) {
-								logger.log(Level.SEVERE, ex.getMessage(), ex);
-								FailureHandler.handle(ex, EntryClassUi.class.getName());
-							}
+    public EntryClassUi() {
+        logger.log(Level.FINER, "Initiating UiBinder");
+        this.ui = this;
+        this.initWidget(uiBinder.createAndBindUi(this));
 
-							@Override
-							public void onSuccess(List<String> result) {
-								factoriesList.clear();
-								factoriesList.addItem(SELECT_COMPONENT);
-								for(String s : result){
-									factoriesList.addItem(s);
-								}
-							}
-						});
-					}
-				});
-			}
-		});
-	}
-	
-	private ValueChangeHandler changeHandler = new ValueChangeHandler(){
-		@Override
-		public void onValueChange(final ValueChangeEvent event) {
-			
-			gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+        // TODO : standardize the URL?
+        // header.setUrl("eclipse/kura/icons/kura_logo_small.png");
+        this.header.setStyleName("headerLogo");
+        final Date now = new Date();
+        @SuppressWarnings("deprecation")
+        final int year = now.getYear() + 1900;
+        this.footerLeft.setText(MSGS.copyright(String.valueOf(year)));
+        this.footerLeft.setStyleName("copyright");
+        this.contentPanel.setVisible(false);
 
-				@Override
-				public void onFailure(Throwable ex) {
-					FailureHandler.handle(ex, EntryClassUi.class.getName());
-				}
+        // Set client side logging
+        errorLogger.addHandler(new HasWidgetsLogHandler(this.errorLogArea));
+        this.errorPopup.addHideHandler(new ModalHideHandler() {
 
-				@Override
-				public void onSuccess(GwtXSRFToken token) {
-					gwtComponentService.findComponentConfigurations(token, new AsyncCallback<List<GwtConfigComponent>>() {
-						@Override
-						public void onFailure(Throwable ex) {
-							logger.log(Level.SEVERE, ex.getMessage(), ex);
-							FailureHandler.handle(ex, EntryClassUi.class.getName());
-						}
+            @Override
+            public void onHide(final ModalHideEvent evt) {
+                EntryClassUi.this.errorLogArea.clear();
+            }
+        });
 
-						@Override
-						public void onSuccess(List<GwtConfigComponent> result) {
-							servicesMenu.clear();
-							for (GwtConfigComponent pair : result) {
-								String filter = event.getValue().toString(); 
-								String compName = pair.getComponentName();
-								if(!pair.isWireComponent() && compName.toLowerCase().contains(filter) ){
-									servicesMenu.add(new ServicesAnchorListItem(pair, ui));
-								}
-							}
-						}
-					});
-				}
-			});
-		}
-	};
+        //
+        dragDropInit(this);
 
-	public void render(GwtConfigComponent item) {
-		// Do everything Content Panel related in ServicesUi
-		contentPanelBody.clear();
-		servicesUi = new ServicesUi(item, this);
-		contentPanel.setVisible(true);
-		if (item != null) {
-			contentPanelHeader.setText(item.getComponentName());
-		}
-		contentPanelBody.add(servicesUi);
-	}
+        FailureHandler.setPopup(this.errorPopup);
+    }
 
-	public void updateConnectionStatusImage(boolean isConnected) {
+    public void deleteFactoryConfiguration(final GwtConfigComponent component) {
+        this.gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
 
-		Image img;
-		String statusMessage;
+            @Override
+            public void onFailure(final Throwable ex) {
+                FailureHandler.handle(ex, EntryClassUi.class.getName());
+            }
 
+            @Override
+            public void onSuccess(final GwtXSRFToken token) {
+                final String pid = component.getComponentId();
+                EntryClassUi.this.gwtComponentService.deleteFactoryConfiguration(token, pid, true,
+                        new AsyncCallback<Void>() {
 
-		if (isConnected) {
-			img= new Image(Resources.INSTANCE.greenPlug32().getSafeUri());
-			statusMessage= MSGS.connectionStatusConnected();
-		} else {
-			img= new Image(Resources.INSTANCE.redPlug32().getSafeUri());
-			statusMessage= MSGS.connectionStatusDisconnected();
-		}
+                            @Override
+                            public void onFailure(final Throwable ex) {
+                                logger.log(Level.SEVERE, ex.getMessage(), ex);
+                                FailureHandler.handle(ex, EntryClassUi.class.getName());
+                            }
 
-		StringBuilder imageSB= new StringBuilder();
-		imageSB.append("<image src=\"");
-		imageSB.append(img.getUrl());
-		imageSB.append("\" ");
-		imageSB.append("width=\"23\" height=\"23\" style=\"vertical-align: middle; float: right;\" title=\"");
-		imageSB.append(statusMessage);
-		imageSB.append("\"/>");
+                            @Override
+                            public void onSuccess(final Void result) {
+                                EntryClassUi.this.changeHandler.onValueChange(
+                                        new SelectValueChangeEvent(EntryClassUi.this.textSearch.getValue()));
+                            }
+                        });
+            }
+        });
+    }
 
-		String baseStatusHTML= status.getHTML().split("<im")[0];
-		StringBuilder statusHTML= new StringBuilder(baseStatusHTML);
-		statusHTML.append(imageSB.toString());
-		status.setHTML(statusHTML.toString());
-	}
+    public void discardWiresPanelChanges() {
+        if (WiresPanelUi.isDirty()) {
+            WiresPanelUi.clearUnsavedPanelChanges();
+            WiresPanelUi.loadGraph();
+        }
+    }
 
+    private void eclipseMarketplaceInstall(final String url) {
 
-	// create the prompt for dirty configuration before switching to another tab
-	private void renderDirtyConfigModal(Button b) {
-	    
-		if (servicesUi != null) {
-			servicesDirty= servicesUi.isDirty();
-		}
+        // Construct the REST URL for Eclipse Marketplace
+        final String appId = url.split("=")[1];
+        final String empApi = "http://marketplace.eclipse.org/node/" + appId + "/api/p";
 
-		if (network.isVisible()) {
-			networkDirty= networkBinder.isDirty();
-		} else {
-			networkDirty= false;
-		}
+        // Generate security token
+        EntryClassUi.showWaitModal();
+        this.gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
 
-		if (firewall.isVisible()) {
-			firewallDirty= firewallBinder.isDirty();
-		} else {
-			firewallDirty= false;
-		}
+            @Override
+            public void onFailure(final Throwable ex) {
+                EntryClassUi.hideWaitModal();
+                FailureHandler.handle(ex, EntryClassUi.class.getName());
+            }
 
-		if (settings.isVisible()) {
-			settingsDirty= settingsBinder.isDirty(); 
-		}
-		
-		if (wires.isVisible()) {
-		    wiresPanelDirty = WiresPanelUi.isDirty(); 
-		}
-		
-		if (	(servicesUi!=null && servicesUi.isDirty()) || 
-				networkDirty  || 
-				firewallDirty || 
-				settingsDirty || wiresPanelDirty) {
-		    this.modal = new Modal();
+            @Override
+            public void onSuccess(final GwtXSRFToken token) {
+                // Retrieve the URL of the DP via the Eclipse Marketplace API
+                EntryClassUi.this.gwtPackageService.getMarketplaceUri(token, empApi, new AsyncCallback<String>() {
 
-            ModalHeader header = new ModalHeader();
+                    @Override
+                    public void onFailure(final Throwable ex) {
+                        EntryClassUi.hideWaitModal();
+                        logger.log(Level.SEVERE, ex.getMessage(), ex);
+                        FailureHandler.handle(ex, EntryClassUi.class.getName());
+                    }
+
+                    @Override
+                    public void onSuccess(final String result) {
+                        EntryClassUi.this.installMarketplaceDp(result);
+                        final Timer timer = new Timer() {
+
+                            @Override
+                            public void run() {
+                                EntryClassUi.this.initServicesTree();
+                                EntryClassUi.hideWaitModal();
+                            }
+                        };
+                        timer.schedule(2000);
+                    }
+                });
+
+            }
+        });
+    }
+
+    private void forceTabsCleaning() {
+        if (this.servicesUi != null) {
+            this.servicesUi.setDirty(false);
+        }
+        if (this.network.isVisible()) {
+            this.networkBinder.setDirty(false);
+        }
+        if (this.firewall.isVisible()) {
+            this.firewallBinder.setDirty(false);
+        }
+        if (this.settings.isVisible()) {
+            this.settingsBinder.setDirty(false);
+        }
+    }
+
+    public void initServicesTree() {
+        // (Re)Fetch Available Services
+        this.gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
+
+            @Override
+            public void onFailure(final Throwable ex) {
+                FailureHandler.handle(ex, EntryClassUi.class.getName());
+            }
+
+            @Override
+            public void onSuccess(final GwtXSRFToken token) {
+                EntryClassUi.this.gwtComponentService.findComponentConfigurations(token,
+                        new AsyncCallback<List<GwtConfigComponent>>() {
+
+                            @Override
+                            public void onFailure(final Throwable ex) {
+                                logger.log(Level.SEVERE, ex.getMessage(), ex);
+                                FailureHandler.handle(ex, EntryClassUi.class.getName());
+                            }
+
+                            @Override
+                            public void onSuccess(final List<GwtConfigComponent> result) {
+                                EntryClassUi.this.servicesMenu.clear();
+                                for (final GwtConfigComponent pair : result) {
+                                    if (!pair.isWireComponent()) {
+                                        EntryClassUi.this.servicesMenu
+                                                .add(new ServicesAnchorListItem(pair, EntryClassUi.this.ui));
+                                    }
+                                }
+                            }
+                        });
+            }
+        });
+
+        // Keypress handler
+        this.textSearch.addValueChangeHandler(this.changeHandler);
+
+        // New factory configuration handler
+        this.buttonNewComponent.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(final ClickEvent event) {
+
+                EntryClassUi.this.gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
+
+                    @Override
+                    public void onFailure(final Throwable ex) {
+                        FailureHandler.handle(ex, EntryClassUi.class.getName());
+                    }
+
+                    @Override
+                    public void onSuccess(final GwtXSRFToken token) {
+                        final String factoryPid = EntryClassUi.this.factoriesList.getSelectedValue();
+                        final String pid = EntryClassUi.this.componentName.getValue();
+                        if (SELECT_COMPONENT.equalsIgnoreCase(factoryPid) || "".equals(pid)) {
+                            EntryClassUi.this.errorAlertText
+                                    .setText("Component must be selected and the name must be non-empty");
+                            errorModal.show();
+                            return;
+                        }
+                        EntryClassUi.this.gwtComponentService.createFactoryComponent(token, factoryPid, pid,
+                                new AsyncCallback<Void>() {
+
+                                    @Override
+                                    public void onFailure(final Throwable ex) {
+                                        logger.log(Level.SEVERE, ex.getMessage(), ex);
+                                        FailureHandler.handle(ex, EntryClassUi.class.getName());
+                                    }
+
+                                    @Override
+                                    public void onSuccess(final Void result) {
+                                        final ValueChangeEvent event = new SelectValueChangeEvent(
+                                                EntryClassUi.this.textSearch.getValue());
+                                        EntryClassUi.this.changeHandler.onValueChange(event);
+                                    }
+                                });
+                    }
+                });
+            }
+        });
+
+        this.factoriesButton.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(final ClickEvent event) {
+                // always empty the PID input field
+                EntryClassUi.this.componentName.setValue("");
+                EntryClassUi.this.gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
+
+                    @Override
+                    public void onFailure(final Throwable ex) {
+                        FailureHandler.handle(ex, EntryClassUi.class.getName());
+                    }
+
+                    @Override
+                    public void onSuccess(final GwtXSRFToken token) {
+                        EntryClassUi.this.gwtComponentService.getFactoryComponents(token,
+                                new AsyncCallback<List<String>>() {
+
+                                    @Override
+                                    public void onFailure(final Throwable ex) {
+                                        logger.log(Level.SEVERE, ex.getMessage(), ex);
+                                        FailureHandler.handle(ex, EntryClassUi.class.getName());
+                                    }
+
+                                    @Override
+                                    public void onSuccess(final List<String> result) {
+                                        EntryClassUi.this.factoriesList.clear();
+                                        EntryClassUi.this.factoriesList.addItem(SELECT_COMPONENT);
+                                        for (final String s : result) {
+                                            EntryClassUi.this.factoriesList.addItem(s);
+                                        }
+                                    }
+                                });
+                    }
+                });
+            }
+        });
+    }
+
+    public void initSystemPanel(final GwtSession GwtSession, final boolean connectionStatus) {
+        final EntryClassUi m_instanceReference = this;
+        if (!GwtSession.isNetAdminAvailable()) {
+            this.network.setVisible(false);
+            this.firewall.setVisible(false);
+        }
+
+        // Status Panel
+        this.updateConnectionStatusImage(connectionStatus);
+        this.status.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(final ClickEvent event) {
+                final Button b = new Button(MSGS.yesButton(), new ClickHandler() {
+
+                    @Override
+                    public void onClick(final ClickEvent event) {
+                        if (EntryClassUi.this.modal != null) {
+                            EntryClassUi.this.modal.hide();
+                        }
+                        EntryClassUi.this.contentPanel.setVisible(true);
+                        EntryClassUi.this.contentPanelHeader.setText("Status");
+                        EntryClassUi.this.contentPanelBody.clear();
+                        EntryClassUi.this.contentPanelBody.add(EntryClassUi.this.statusBinder);
+                        EntryClassUi.this.statusBinder.setSession(EntryClassUi.this.currentSession);
+                        EntryClassUi.this.statusBinder.setParent(m_instanceReference);
+                        EntryClassUi.this.statusBinder.loadStatusData();
+                        EntryClassUi.this.discardWiresPanelChanges();
+                        setActive(EntryClassUi.this.status);
+                    }
+                });
+
+                EntryClassUi.this.renderDirtyConfigModal(b);
+            }
+        });
+
+        // Device Panel
+        this.device.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(final ClickEvent event) {
+                final Button b = new Button(MSGS.yesButton(), new ClickHandler() {
+
+                    @Override
+                    public void onClick(final ClickEvent event) {
+                        EntryClassUi.this.forceTabsCleaning();
+                        if (EntryClassUi.this.modal != null) {
+                            EntryClassUi.this.modal.hide();
+                        }
+                        if (EntryClassUi.this.servicesUi != null) {
+                            EntryClassUi.this.servicesUi.renderForm();
+                        }
+                        EntryClassUi.this.contentPanel.setVisible(true);
+                        EntryClassUi.this.contentPanelHeader.setText(MSGS.device());
+                        EntryClassUi.this.contentPanelBody.clear();
+                        EntryClassUi.this.contentPanelBody.add(EntryClassUi.this.deviceBinder);
+                        EntryClassUi.this.deviceBinder.setSession(EntryClassUi.this.currentSession);
+                        EntryClassUi.this.deviceBinder.initDevicePanel();
+                        EntryClassUi.this.discardWiresPanelChanges();
+                        setActive(EntryClassUi.this.device);
+                    }
+                });
+                EntryClassUi.this.renderDirtyConfigModal(b);
+            }
+        });
+
+        // Network Panel
+        if (this.network.isVisible()) {
+            this.network.addClickHandler(new ClickHandler() {
+
+                @Override
+                public void onClick(final ClickEvent event) {
+                    final Button b = new Button(MSGS.yesButton(), new ClickHandler() {
+
+                        @Override
+                        public void onClick(final ClickEvent event) {
+                            EntryClassUi.this.forceTabsCleaning();
+                            if (EntryClassUi.this.modal != null) {
+                                EntryClassUi.this.modal.hide();
+                            }
+                            if (EntryClassUi.this.servicesUi != null) {
+                                EntryClassUi.this.servicesUi.renderForm();
+                            }
+                            EntryClassUi.this.contentPanel.setVisible(true);
+                            EntryClassUi.this.contentPanelHeader.setText(MSGS.network());
+                            EntryClassUi.this.contentPanelBody.clear();
+                            EntryClassUi.this.contentPanelBody.add(EntryClassUi.this.networkBinder);
+                            EntryClassUi.this.networkBinder.setSession(EntryClassUi.this.currentSession);
+                            EntryClassUi.this.networkBinder.initNetworkPanel();
+                            EntryClassUi.this.discardWiresPanelChanges();
+                            setActive(EntryClassUi.this.network);
+                        }
+                    });
+                    EntryClassUi.this.renderDirtyConfigModal(b);
+                }
+            });
+        }
+
+        // Firewall Panel
+        if (this.firewall.isVisible()) {
+            this.firewall.addClickHandler(new ClickHandler() {
+
+                @Override
+                public void onClick(final ClickEvent event) {
+                    final Button b = new Button(MSGS.yesButton(), new ClickHandler() {
+
+                        @Override
+                        public void onClick(final ClickEvent event) {
+                            EntryClassUi.this.forceTabsCleaning();
+                            if (EntryClassUi.this.modal != null) {
+                                EntryClassUi.this.modal.hide();
+                            }
+                            if (EntryClassUi.this.servicesUi != null) {
+                                EntryClassUi.this.servicesUi.renderForm();
+                            }
+                            EntryClassUi.this.contentPanel.setVisible(true);
+                            EntryClassUi.this.contentPanelHeader.setText(MSGS.firewall());
+                            EntryClassUi.this.contentPanelBody.clear();
+                            EntryClassUi.this.contentPanelBody.add(EntryClassUi.this.firewallBinder);
+                            EntryClassUi.this.firewallBinder.initFirewallPanel();
+                            EntryClassUi.this.discardWiresPanelChanges();
+                            setActive(EntryClassUi.this.firewall);
+                        }
+                    });
+                    EntryClassUi.this.renderDirtyConfigModal(b);
+                }
+            });
+        }
+
+        // Packages Panel
+        this.packages.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(final ClickEvent event) {
+                final Button b = new Button(MSGS.yesButton(), new ClickHandler() {
+
+                    @Override
+                    public void onClick(final ClickEvent event) {
+                        EntryClassUi.this.forceTabsCleaning();
+                        if (EntryClassUi.this.modal != null) {
+                            EntryClassUi.this.modal.hide();
+                        }
+                        if (EntryClassUi.this.servicesUi != null) {
+                            EntryClassUi.this.servicesUi.renderForm();
+                        }
+                        EntryClassUi.this.contentPanel.setVisible(true);
+                        EntryClassUi.this.contentPanelHeader.setText(MSGS.packages());
+                        EntryClassUi.this.contentPanelBody.clear();
+                        EntryClassUi.this.contentPanelBody.add(EntryClassUi.this.packagesBinder);
+                        EntryClassUi.this.packagesBinder.setSession(EntryClassUi.this.currentSession);
+                        EntryClassUi.this.packagesBinder.setMainUi(EntryClassUi.this.ui);
+                        EntryClassUi.this.packagesBinder.refresh();
+                        EntryClassUi.this.discardWiresPanelChanges();
+                        setActive(EntryClassUi.this.packages);
+                    }
+                });
+                EntryClassUi.this.renderDirtyConfigModal(b);
+            }
+        });
+
+        // Settings Panel
+        this.settings.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(final ClickEvent event) {
+                final Button b = new Button(MSGS.yesButton(), new ClickHandler() {
+
+                    @Override
+                    public void onClick(final ClickEvent event) {
+                        EntryClassUi.this.forceTabsCleaning();
+                        if (EntryClassUi.this.modal != null) {
+                            EntryClassUi.this.modal.hide();
+                        }
+                        if (EntryClassUi.this.servicesUi != null) {
+                            EntryClassUi.this.servicesUi.renderForm();
+                        }
+                        EntryClassUi.this.contentPanel.setVisible(true);
+                        EntryClassUi.this.contentPanelHeader.setText(MSGS.settings());
+                        EntryClassUi.this.contentPanelBody.clear();
+                        EntryClassUi.this.contentPanelBody.add(EntryClassUi.this.settingsBinder);
+                        EntryClassUi.this.settingsBinder.setSession(EntryClassUi.this.currentSession);
+                        EntryClassUi.this.settingsBinder.load();
+                        EntryClassUi.this.discardWiresPanelChanges();
+                        setActive(EntryClassUi.this.settings);
+                    }
+                });
+                EntryClassUi.this.renderDirtyConfigModal(b);
+            }
+        });
+
+        // Wires Panel
+        this.wires.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(final ClickEvent event) {
+                final Button b = new Button(MSGS.yesButton(), new ClickHandler() {
+
+                    @Override
+                    public void onClick(final ClickEvent event) {
+                        EntryClassUi.this.forceTabsCleaning();
+                        if (EntryClassUi.this.modal != null) {
+                            EntryClassUi.this.modal.hide();
+                        }
+                        EntryClassUi.this.contentPanel.setVisible(true);
+                        EntryClassUi.this.contentPanelHeader.setText("Wire Graph");
+                        EntryClassUi.this.contentPanelBody.clear();
+                        EntryClassUi.this.contentPanelBody.add(EntryClassUi.this.wiresBinder);
+                        EntryClassUi.this.wiresBinder.load();
+                        EntryClassUi.this.discardWiresPanelChanges();
+                        setActive(EntryClassUi.this.wires);
+                    }
+                });
+                EntryClassUi.this.renderDirtyConfigModal(b);
+            }
+        });
+    }
+
+    private void installMarketplaceDp(final String uri) {
+        final String url = "/" + GWT.getModuleName() + "/file/deploy/url";
+        final RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
+
+        this.gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken>() {
+
+            @Override
+            public void onFailure(final Throwable ex) {
+                EntryClassUi.hideWaitModal();
+                FailureHandler.handle(ex, EntryClassUi.class.getName());
+            }
+
+            @Override
+            public void onSuccess(final GwtXSRFToken token) {
+                final StringBuilder sb = new StringBuilder();
+                sb.append("xsrfToken=" + token.getToken());
+                sb.append("&packageUrl=" + uri);
+
+                builder.setHeader("Content-type", "application/x-www-form-urlencoded");
+                try {
+                    builder.sendRequest(sb.toString(), new RequestCallback() {
+
+                        @Override
+                        public void onError(final Request request, final Throwable ex) {
+                            logger.log(Level.SEVERE, ex.getMessage(), ex);
+                            FailureHandler.handle(ex, EntryClassUi.class.getName());
+                        }
+
+                        @Override
+                        public void onResponseReceived(final Request request, final Response response) {
+                            logger.info(response.getText());
+                        }
+
+                    });
+                } catch (final RequestException e) {
+                    logger.log(Level.SEVERE, e.getMessage(), e);
+                    FailureHandler.handle(e, EntryClassUi.class.getName());
+                }
+            }
+        });
+    }
+
+    public boolean isFirewallDirty() {
+        if (this.firewall.isVisible()) {
+            return this.firewallBinder.isDirty();
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isNetworkDirty() {
+        if (this.network.isVisible()) {
+            return this.networkBinder.isDirty();
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isSettingsDirty() {
+        if (this.settings.isVisible()) {
+            return this.settingsBinder.isDirty();
+        } else {
+            return false;
+        }
+    }
+
+    public void render(final GwtConfigComponent item) {
+        // Do everything Content Panel related in ServicesUi
+        this.contentPanelBody.clear();
+        this.servicesUi = new ServicesUi(item, this);
+        this.contentPanel.setVisible(true);
+        if (item != null) {
+            this.contentPanelHeader.setText(item.getComponentName());
+        }
+        this.contentPanelBody.add(this.servicesUi);
+    }
+
+    // create the prompt for dirty configuration before switching to another tab
+    private void renderDirtyConfigModal(final Button b) {
+
+        if (this.servicesUi != null) {
+            this.servicesDirty = this.servicesUi.isDirty();
+        }
+
+        if (this.network.isVisible()) {
+            this.networkDirty = this.networkBinder.isDirty();
+        } else {
+            this.networkDirty = false;
+        }
+
+        if (this.firewall.isVisible()) {
+            this.firewallDirty = this.firewallBinder.isDirty();
+        } else {
+            this.firewallDirty = false;
+        }
+
+        if (this.settings.isVisible()) {
+            this.settingsDirty = this.settingsBinder.isDirty();
+        }
+
+        if (this.wires.isVisible()) {
+            this.wiresPanelDirty = WiresPanelUi.isDirty();
+        }
+
+        if (((this.servicesUi != null) && this.servicesUi.isDirty()) || this.networkDirty || this.firewallDirty
+                || this.settingsDirty || this.wiresPanelDirty) {
+            this.modal = new Modal();
+
+            final ModalHeader header = new ModalHeader();
             header.setTitle(MSGS.warning());
             this.modal.add(header);
 
-            ModalBody body = new ModalBody();
+            final ModalBody body = new ModalBody();
             body.add(new Span(MSGS.deviceConfigDirty()));
             this.modal.add(body);
 
-            ModalFooter footer = new ModalFooter();
+            final ModalFooter footer = new ModalFooter();
             footer.add(b);
             footer.add(new Button(MSGS.noButton(), new ClickHandler() {
 
                 @Override
-                public void onClick(ClickEvent event) {
+                public void onClick(final ClickEvent event) {
                     EntryClassUi.this.modal.hide();
                 }
             }));
             this.modal.add(footer);
-			modal.show();
-		} else {
-			b.click();
-		}
+            this.modal.show();
+        } else {
+            b.click();
+        }
 
-	}
-	
-	public void discardWiresPanelChanges() {
-		if (WiresPanelUi.isDirty()) {
-			WiresPanelUi.clearUnsavedPanelChanges();
-			WiresPanelUi.loadGraph();
-		}
-	}
+    }
 
-	public boolean isNetworkDirty(){
-		if (network.isVisible()) {
-			return networkBinder.isDirty();
-		} else {
-			return false;
-		}
-	}
+    public void setDirty(final boolean b) {
+        if (this.servicesUi != null) {
+            this.servicesUi.setDirty(false);
+        }
+        if (this.network.isVisible()) {
+            this.networkBinder.setDirty(false);
+        }
+        if (this.firewall.isVisible()) {
+            this.firewallBinder.setDirty(false);
+        }
+        if (this.settings.isVisible()) {
+            this.settingsBinder.setDirty(false);
+        }
+    }
 
-	public boolean isFirewallDirty(){
-		if (firewall.isVisible()) {
-			return firewallBinder.isDirty();
-		} else {
-			return false;
-		}
-	}
+    public void setFooter(final GwtSession GwtSession) {
 
-	public boolean isSettingsDirty(){
-		if (settings.isVisible()) {
-			return settingsBinder.isDirty();
-		} else {
-			return false;
-		}
-	}
+        this.footerRight.setText(GwtSession.getKuraVersion());
 
-	public void setDirty(boolean b) {
-		if (servicesUi != null){
-			servicesUi.setDirty(false);
-		}
-		if (network.isVisible()) {
-			networkBinder.setDirty(false);
-		}
-		if (firewall.isVisible()) {
-			firewallBinder.setDirty(false);
-		}
-		if (settings.isVisible()) {
-			settingsBinder.setDirty(false);
-		}
-	}
+        if (GwtSession.isDevelopMode()) {
+            this.footerCenter.setText(MSGS.developmentMode());
+        }
 
-	public static void showWaitModal() {
-		m_waitModal = new PopupPanel(false, true);
-		Icon icon = new Icon();
-		icon.setType(IconType.COG);
-		icon.setSize(IconSize.TIMES4);
-		icon.setSpin(true);
-		m_waitModal.setWidget(icon);
-		m_waitModal.setGlassEnabled(true);
-		m_waitModal.center();
-		m_waitModal.show();
-	}
+    }
 
-	public static void hideWaitModal() {
-		if (m_waitModal != null) {
-			m_waitModal.hide();
-		}
-	}
+    public void setSession(final GwtSession GwtSession) {
+        this.currentSession = GwtSession;
+    }
 
-	private void forceTabsCleaning() {
-		if (servicesUi != null){
-			servicesUi.setDirty(false);
-		}
-		if (network.isVisible()) {
-			networkBinder.setDirty(false);
-		}
-		if (firewall.isVisible()) {
-			firewallBinder.setDirty(false);
-		}
-		if (settings.isVisible()) {
-			settingsBinder.setDirty(false);
-		}
-	}
-	
-	private void eclipseMarketplaceInstall(String url) {
-		
-		// Construct the REST URL for Eclipse Marketplace
-		String appId = url.split("=")[1];
-		final String empApi = "http://marketplace.eclipse.org/node/" + appId + "/api/p";
-		
-		// Generate security token
-		EntryClassUi.showWaitModal();
-		gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+    public void updateConnectionStatusImage(final boolean isConnected) {
 
-			@Override
-			public void onFailure(Throwable ex) {
-				EntryClassUi.hideWaitModal();
-				FailureHandler.handle(ex, EntryClassUi.class.getName());
-			}
+        Image img;
+        String statusMessage;
 
-			@Override
-			public void onSuccess(GwtXSRFToken token) {
-				// Retrieve the URL of the DP via the Eclipse Marketplace API
-				gwtPackageService.getMarketplaceUri(token, empApi, new AsyncCallback<String>() {
+        if (isConnected) {
+            img = new Image(Resources.INSTANCE.greenPlug32().getSafeUri());
+            statusMessage = MSGS.connectionStatusConnected();
+        } else {
+            img = new Image(Resources.INSTANCE.redPlug32().getSafeUri());
+            statusMessage = MSGS.connectionStatusDisconnected();
+        }
 
-					@Override
-					public void onFailure(Throwable ex) {
-						EntryClassUi.hideWaitModal();
-						logger.log(Level.SEVERE, ex.getMessage(), ex);
-						FailureHandler.handle(ex, EntryClassUi.class.getName());
-					}
+        final StringBuilder imageSB = new StringBuilder();
+        imageSB.append("<image src=\"");
+        imageSB.append(img.getUrl());
+        imageSB.append("\" ");
+        imageSB.append("width=\"23\" height=\"23\" style=\"vertical-align: middle; float: right;\" title=\"");
+        imageSB.append(statusMessage);
+        imageSB.append("\"/>");
 
-					@Override
-					public void onSuccess(String result) {
-						installMarketplaceDp(result);
-						Timer timer = new Timer() {
-				            @Override
-				            public void run() {
-				                initServicesTree();
-		                        EntryClassUi.hideWaitModal();
-				            }
-				        };
-				        timer.schedule(2000);
-					}
-				});
-				
-			}
-		});
-	}
-	
-	private void installMarketplaceDp(final String uri) {
-		String url = "/" + GWT.getModuleName()	+ "/file/deploy/url";
-		final RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, URL.encode(url));
-		
-		gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
+        final String baseStatusHTML = this.status.getHTML().split("<im")[0];
+        final StringBuilder statusHTML = new StringBuilder(baseStatusHTML);
+        statusHTML.append(imageSB.toString());
+        this.status.setHTML(statusHTML.toString());
+    }
 
-			@Override
-			public void onFailure(Throwable ex) {
-				EntryClassUi.hideWaitModal();
-				FailureHandler.handle(ex, EntryClassUi.class.getName());
-			}
+    public static native void dragDropInit(EntryClassUi ecu) /*-{
+                                                             $wnd.$("html").on("dragover", function(event) {
+                                                             event.preventDefault();  
+                                                             event.stopPropagation();
+                                                             });
+                                                             
+                                                             $wnd.$("html").on("dragleave", function(event) {
+                                                             event.preventDefault();  
+                                                             event.stopPropagation();
+                                                             });
+                                                             
+                                                             $wnd.$("html").on("drop", function(event) {
+                                                             event.preventDefault();  
+                                                             event.stopPropagation();
+                                                             console.log(event.originalEvent.dataTransfer.getData("text"));
+                                                             if (confirm("Install file?") == true) {
+                                                             ecu.@org.eclipse.kura.web.client.ui.EntryClassUi::eclipseMarketplaceInstall(Ljava/lang/String;)(event.originalEvent.dataTransfer.getData("text"));
+                                                             }
+                                                             });
+                                                             }-*/;
 
-			@Override
-			public void onSuccess(GwtXSRFToken token) {
-				StringBuilder sb = new StringBuilder();
-				sb.append("xsrfToken=" + token.getToken());
-				sb.append("&packageUrl=" + uri);
-				
-				builder.setHeader("Content-type", "application/x-www-form-urlencoded");
-				try {
-					builder.sendRequest(sb.toString(), new RequestCallback() {
+    public static void hideWaitModal() {
+        if (m_waitModal != null) {
+            m_waitModal.hide();
+        }
+    }
 
-						@Override
-						public void onResponseReceived(Request request, Response response) {
-							logger.info(response.getText());
-						}
+    static void setActive(final AnchorListItem item) {
+        if (previousSelection != null) {
+            previousSelection.setActive(false);
+        }
+        item.setActive(true);
+        previousSelection = item;
+    }
 
-						@Override
-						public void onError(Request request, Throwable ex) {
-							logger.log(Level.SEVERE, ex.getMessage(), ex);
-							FailureHandler.handle(ex, EntryClassUi.class.getName());
-						}
-						
-					});
-				} catch (RequestException e) {
-					logger.log(Level.SEVERE, e.getMessage(), e);
-					FailureHandler.handle(e, EntryClassUi.class.getName());
-				}
-			}
-		});
-	}
-	
-	public void deleteFactoryConfiguration(final GwtConfigComponent component){
-		gwtXSRFService.generateSecurityToken(new AsyncCallback<GwtXSRFToken> () {
-
-			@Override
-			public void onFailure(Throwable ex) {
-				FailureHandler.handle(ex, EntryClassUi.class.getName());
-			}
-
-			@Override
-			public void onSuccess(GwtXSRFToken token) {
-				String pid = component.getComponentId();
-				gwtComponentService.deleteFactoryConfiguration(token, pid, true, new AsyncCallback<Void>() {
-
-							@Override
-							public void onFailure(Throwable ex) {
-								logger.log(Level.SEVERE, ex.getMessage(), ex);
-								FailureHandler.handle(ex, EntryClassUi.class.getName());
-							}
-
-							@Override
-							public void onSuccess(Void result) {
-								changeHandler.onValueChange(new SelectValueChangeEvent(textSearch.getValue()));								
-							}
-				});
-			}
-		});	
-	}
-	
-	public static native void dragDropInit(EntryClassUi ecu) /*-{
-		$wnd.$("html").on("dragover", function(event) {
-		    event.preventDefault();  
-		    event.stopPropagation();
-		});
-		
-		$wnd.$("html").on("dragleave", function(event) {
-		    event.preventDefault();  
-		    event.stopPropagation();
-		});
-		
-		$wnd.$("html").on("drop", function(event) {
-		    event.preventDefault();  
-		    event.stopPropagation();
-		    console.log(event.originalEvent.dataTransfer.getData("text"));
-		    if (confirm("Install file?") == true) {
-		    	ecu.@org.eclipse.kura.web.client.ui.EntryClassUi::eclipseMarketplaceInstall(Ljava/lang/String;)(event.originalEvent.dataTransfer.getData("text"));
-		    }
-		});
-	}-*/;
-	
-	private class SelectValueChangeEvent extends ValueChangeEvent<String>{
-
-		protected SelectValueChangeEvent(String value) {
-			super(value);
-		}
-		
-	}
+    public static void showWaitModal() {
+        m_waitModal = new PopupPanel(false, true);
+        final Icon icon = new Icon();
+        icon.setType(IconType.COG);
+        icon.setSize(IconSize.TIMES4);
+        icon.setSpin(true);
+        m_waitModal.setWidget(icon);
+        m_waitModal.setGlassEnabled(true);
+        m_waitModal.center();
+        m_waitModal.show();
+    }
 }

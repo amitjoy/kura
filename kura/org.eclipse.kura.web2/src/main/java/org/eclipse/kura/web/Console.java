@@ -9,7 +9,7 @@
  * Contributors:
  *     Eurotech
  *     Jens Reimann <jreimann@redhat.com> - Fix possible NPE, cleanup
- *     Amit Kumar Mondal (admin@amitinside.com) 
+ *     Amit Kumar Mondal (admin@amitinside.com)
  *******************************************************************************/
 package org.eclipse.kura.web;
 
@@ -50,233 +50,236 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Console implements ConfigurableComponent {
-	private static final Logger s_logger = LoggerFactory.getLogger(Console.class);
 
-	private static final String SERVLET_ALIAS_ROOT = "servlet.alias.root";
-	private static final String APP_ROOT = "app.root";
+    private static final String APP_ROOT = "app.root";
 
-	private static final String CONSOLE_PASSWORD = "console.password.value";
-	private static final String CONSOLE_USERNAME = "console.username.value";
+    private static final String CONSOLE_PASSWORD = "console.password.value";
+    private static final String CONSOLE_USERNAME = "console.username.value";
 
-	private static String s_aliasRoot;
-	private static String s_appRoot;
-	private static ComponentContext s_context;
+    private static String s_aliasRoot;
+    private static String s_appRoot;
 
-	private HttpService m_httpService;
+    private static ComponentContext s_context;
+    private static final Logger s_logger = LoggerFactory.getLogger(Console.class);
+    private static final String SERVLET_ALIAS_ROOT = "servlet.alias.root";
 
-	private SystemService m_systemService;
-	private CryptoService m_cryptoService;
+    private AuthenticationManager authMgr;
 
-	private Map<String, Object> m_properties;
+    private CryptoService m_cryptoService;
+    private EventAdmin m_eventAdmin;
 
-	private EventAdmin m_eventAdmin;
-	private AuthenticationManager authMgr;
+    private HttpService m_httpService;
 
-	// ----------------------------------------------------------------
-	//
-	// Dependencies
-	//
-	// ----------------------------------------------------------------
+    private Map<String, Object> m_properties;
+    private SystemService m_systemService;
 
-	public void setHttpService(HttpService httpService) {
-		this.m_httpService = httpService;
-	}
+    // ----------------------------------------------------------------
+    //
+    // Dependencies
+    //
+    // ----------------------------------------------------------------
 
-	public void unsetHttpService(HttpService httpService) {
-		this.m_httpService = null;
-	}
+    protected void activate(final ComponentContext context, final Map<String, Object> properties) {
+        try {
+            // Check if web interface is enabled.
+            final boolean webEnabled = Boolean.parseBoolean((this.m_systemService.getKuraWebEnabled()));
 
-	public void setSystemService(SystemService systemService) {
-		this.m_systemService = systemService;
-	}
+            if (webEnabled) {
+                s_logger.info("activate...");
 
-	public void unsetSystemService(SystemService systemService) {
-		this.m_systemService = null;
-	}
+                s_context = context;
+                s_aliasRoot = (String) properties.get(SERVLET_ALIAS_ROOT);
+                s_appRoot = (String) properties.get(APP_ROOT);
+                final String servletRoot = s_aliasRoot;
 
-	public void setCryptoService(CryptoService cryptoService) {
-		this.m_cryptoService = cryptoService;
-	}
+                this.m_properties = new HashMap<String, Object>();
+                final Iterator<String> keys = properties.keySet().iterator();
+                while (keys.hasNext()) {
+                    final String key = keys.next();
+                    final Object value = properties.get(key);
+                    this.m_properties.put(key, value);
+                }
 
-	public void unsetCryptoService(CryptoService cryptoService) {
-		this.m_cryptoService = null;
-	}
+                final Object pwdProp = properties.get(CONSOLE_PASSWORD);
+                char[] propertyPassword = null;
+                if (pwdProp instanceof char[]) {
+                    propertyPassword = (char[]) properties.get(CONSOLE_PASSWORD);
+                } else {
+                    propertyPassword = properties.get(CONSOLE_PASSWORD).toString().toCharArray();
+                }
 
-	public void setEventAdminService(EventAdmin eventAdmin) {
-		m_eventAdmin = eventAdmin;
-	}
+                try {
+                    propertyPassword = this.m_cryptoService.decryptAes(propertyPassword);
+                } catch (final Exception e) {
+                }
 
-	public void unsetEventAdminService(EventAdmin eventAdmin) {
-		m_eventAdmin = null;
-	}
+                final Object value = properties.get(CONSOLE_PASSWORD);
+                char[] decryptedPassword = null;
+                try {
+                    decryptedPassword = this.m_cryptoService.decryptAes(((String) value).toCharArray());
+                } catch (final Exception e) {
+                    decryptedPassword = value.toString().toCharArray();
+                }
+                propertyPassword = this.m_cryptoService.sha1Hash(new String(decryptedPassword)).toCharArray();
 
-	// ----------------------------------------------------------------
-	//
-	// Activation APIs
-	//
-	// ----------------------------------------------------------------
+                final String registeredUsername = (String) properties.get(CONSOLE_USERNAME);
+                this.authMgr = new AuthenticationManager(registeredUsername, propertyPassword);
+                this.initHTTPService(this.authMgr, servletRoot);
 
-	protected void activate(ComponentContext context, Map<String, Object> properties) {
-		try {
-			// Check if web interface is enabled.
-			boolean webEnabled = Boolean.parseBoolean((m_systemService.getKuraWebEnabled()));
+                final Map<String, Object> props = new HashMap<String, Object>();
+                props.put("kura.version", this.m_systemService.getKuraVersion());
+                final EventProperties eventProps = new EventProperties(props);
+                s_logger.info("postInstalledEvent() :: posting KuraConfigReadyEvent");
+                this.m_eventAdmin.postEvent(new Event(KuraConfigReadyEvent.KURA_CONFIG_EVENT_READY_TOPIC, eventProps));
+            } else {
+                s_logger.info("Web interface disabled in Kura properties file.");
+            }
+        } catch (final Throwable t) {
+            s_logger.warn("Error Registering Web Resources", t);
+        }
 
-			if (webEnabled) {
-				s_logger.info("activate...");
+    }
 
-				s_context = context;
-				s_aliasRoot = (String) properties.get(SERVLET_ALIAS_ROOT);
-				s_appRoot = (String) properties.get(APP_ROOT);
-				String servletRoot = s_aliasRoot;
+    protected void deactivate(final BundleContext context) {
+        s_logger.info("deactivate...");
 
-				m_properties = new HashMap<String, Object>();
-				Iterator<String> keys = properties.keySet().iterator();
-				while (keys.hasNext()) {
-					String key = keys.next();
-					Object value = properties.get(key);
-					m_properties.put(key, value);
-				}
+        s_context = null;
 
-				Object pwdProp = properties.get(CONSOLE_PASSWORD);
-				char[] propertyPassword = null;
-				if (pwdProp instanceof char[]) {
-					propertyPassword = (char[]) properties.get(CONSOLE_PASSWORD);
-				} else {
-					propertyPassword = properties.get(CONSOLE_PASSWORD).toString().toCharArray();
-				}
+        this.unregisterServlet();
+    }
 
-				try {
-					propertyPassword = m_cryptoService.decryptAes(propertyPassword);
-				} catch (Exception e) {
-				}
+    private void initHTTPService(final AuthenticationManager authMgr, final String servletRoot)
+            throws NamespaceException, ServletException {
+        // Initialize HttpService
 
-				Object value = properties.get(CONSOLE_PASSWORD);
-				char[] decryptedPassword = null;
-				try {
-					decryptedPassword = m_cryptoService.decryptAes(((String) value).toCharArray());
-				} catch (Exception e) {
-					decryptedPassword = value.toString().toCharArray();
-				}
-				propertyPassword = m_cryptoService.sha1Hash(new String(decryptedPassword)).toCharArray();
+        final HttpContext httpCtx = new SecureBasicHttpContext(this.m_httpService.createDefaultHttpContext(), authMgr);
+        this.m_httpService.registerResources("/", "www", httpCtx);
+        this.m_httpService.registerResources(s_appRoot, "www/denali.html", httpCtx);
+        this.m_httpService.registerResources(s_aliasRoot, "www" + s_aliasRoot, httpCtx);
 
-				String registeredUsername = (String) properties.get(CONSOLE_USERNAME);
-				authMgr = new AuthenticationManager(registeredUsername, propertyPassword);
-				initHTTPService(authMgr, servletRoot);
+        this.m_httpService.registerServlet(servletRoot + "/xsrf", new GwtSecurityTokenServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/status", new GwtStatusServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/device", new GwtDeviceServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/network", new GwtNetworkServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/component", new GwtComponentServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/package", new GwtPackageServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/snapshot", new GwtSnapshotServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/setting", new GwtSettingServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/certificate", new GwtCertificatesServiceImpl(), null,
+                httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/security", new GwtSecurityServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/file", new FileServlet(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/device_snapshots", new DeviceSnapshotsServlet(), null,
+                httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/skin", new SkinServlet(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/ssl", new GwtSslServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet(servletRoot + "/wires", new GwtWireServiceImpl(), null, httpCtx);
+        this.m_httpService.registerServlet("/sse", new EventHandlerServlet(), null, httpCtx);
+    }
 
-				Map<String, Object> props = new HashMap<String, Object>();
-				props.put("kura.version", m_systemService.getKuraVersion());
-				EventProperties eventProps = new EventProperties(props);
-				s_logger.info("postInstalledEvent() :: posting KuraConfigReadyEvent");
-				m_eventAdmin.postEvent(new Event(KuraConfigReadyEvent.KURA_CONFIG_EVENT_READY_TOPIC, eventProps));
-			} else {
-				s_logger.info("Web interface disabled in Kura properties file.");
-			}
-		} catch (Throwable t) {
-			s_logger.warn("Error Registering Web Resources", t);
-		}
+    public void setCryptoService(final CryptoService cryptoService) {
+        this.m_cryptoService = cryptoService;
+    }
 
-	}
+    public void setEventAdminService(final EventAdmin eventAdmin) {
+        this.m_eventAdmin = eventAdmin;
+    }
 
-	protected void updated(Map<String, Object> properties) {
+    public void setHttpService(final HttpService httpService) {
+        this.m_httpService = httpService;
+    }
 
-		boolean webEnabled = Boolean.parseBoolean((m_systemService.getKuraWebEnabled()));
-		if (!webEnabled) {
-			return;
-		}
+    public void setSystemService(final SystemService systemService) {
+        this.m_systemService = systemService;
+    }
 
-		char[] propertyPassword = null;
+    private void unregisterServlet() {
+        final String servletRoot = s_aliasRoot;
+        this.m_httpService.unregister("/");
+        this.m_httpService.unregister(s_appRoot);
+        this.m_httpService.unregister(s_aliasRoot);
+        this.m_httpService.unregister(servletRoot + "/status");
+        this.m_httpService.unregister(servletRoot + "/device");
+        this.m_httpService.unregister(servletRoot + "/network");
+        this.m_httpService.unregister(servletRoot + "/component");
+        this.m_httpService.unregister(servletRoot + "/package");
+        this.m_httpService.unregister(servletRoot + "/snapshot");
+        this.m_httpService.unregister(servletRoot + "/setting");
+        this.m_httpService.unregister(servletRoot + "/file");
+        this.m_httpService.unregister(servletRoot + "/device_snapshots");
+        this.m_httpService.unregister(servletRoot + "/skin");
+        this.m_httpService.unregister(servletRoot + "/wires");
+        this.m_httpService.unregister("/sse");
 
-		String registeredUsername = (String) properties.get(CONSOLE_USERNAME);
-		authMgr.updateUsername(registeredUsername);
+    }
 
-		try {
-			Object value = properties.get(CONSOLE_PASSWORD);
-			char[] decryptedPassword = null;
-			try {
-				decryptedPassword = m_cryptoService.decryptAes(((String) value).toCharArray());
-			} catch (Exception e) {
-				decryptedPassword = value.toString().toCharArray();
-			}
+    // ----------------------------------------------------------------
+    //
+    // Activation APIs
+    //
+    // ----------------------------------------------------------------
 
-			propertyPassword = m_cryptoService.sha1Hash(new String(decryptedPassword)).toCharArray();
+    public void unsetCryptoService(final CryptoService cryptoService) {
+        this.m_cryptoService = null;
+    }
 
-			authMgr.updatePassword(propertyPassword);
-		} catch (Exception e) {
-			s_logger.warn("Error Updating Web properties", e);
-		}
+    public void unsetEventAdminService(final EventAdmin eventAdmin) {
+        this.m_eventAdmin = null;
+    }
 
-	}
+    public void unsetHttpService(final HttpService httpService) {
+        this.m_httpService = null;
+    }
 
-	protected void deactivate(BundleContext context) {
-		s_logger.info("deactivate...");
+    // ----------------------------------------------------------------
+    //
+    // Private methods
+    //
+    // ----------------------------------------------------------------
 
-		s_context = null;
+    public void unsetSystemService(final SystemService systemService) {
+        this.m_systemService = null;
+    }
 
-		unregisterServlet();
-	}
+    protected void updated(final Map<String, Object> properties) {
 
-	// ----------------------------------------------------------------
-	//
-	// Private methods
-	//
-	// ----------------------------------------------------------------
+        final boolean webEnabled = Boolean.parseBoolean((this.m_systemService.getKuraWebEnabled()));
+        if (!webEnabled) {
+            return;
+        }
 
-	private void unregisterServlet() {
-		String servletRoot = s_aliasRoot;
-		m_httpService.unregister("/");
-		m_httpService.unregister(s_appRoot);
-		m_httpService.unregister(s_aliasRoot);
-		m_httpService.unregister(servletRoot + "/status");
-		m_httpService.unregister(servletRoot + "/device");
-		m_httpService.unregister(servletRoot + "/network");
-		m_httpService.unregister(servletRoot + "/component");
-		m_httpService.unregister(servletRoot + "/package");
-		m_httpService.unregister(servletRoot + "/snapshot");
-		m_httpService.unregister(servletRoot + "/setting");
-		m_httpService.unregister(servletRoot + "/file");
-		m_httpService.unregister(servletRoot + "/device_snapshots");
-		m_httpService.unregister(servletRoot + "/skin");
-		m_httpService.unregister(servletRoot + "/wires");
-		m_httpService.unregister("/sse");
+        char[] propertyPassword = null;
 
-	}
+        final String registeredUsername = (String) properties.get(CONSOLE_USERNAME);
+        this.authMgr.updateUsername(registeredUsername);
 
-	public static BundleContext getBundleContext() {
-		return s_context.getBundleContext();
-	}
+        try {
+            final Object value = properties.get(CONSOLE_PASSWORD);
+            char[] decryptedPassword = null;
+            try {
+                decryptedPassword = this.m_cryptoService.decryptAes(((String) value).toCharArray());
+            } catch (final Exception e) {
+                decryptedPassword = value.toString().toCharArray();
+            }
 
-	public static String getApplicationRoot() {
-		return s_appRoot;
-	}
+            propertyPassword = this.m_cryptoService.sha1Hash(new String(decryptedPassword)).toCharArray();
 
-	public static String getServletRoot() {
-		return s_aliasRoot;
-	}
+            this.authMgr.updatePassword(propertyPassword);
+        } catch (final Exception e) {
+            s_logger.warn("Error Updating Web properties", e);
+        }
 
-	private void initHTTPService(AuthenticationManager authMgr, String servletRoot)
-			throws NamespaceException, ServletException {
-		// Initialize HttpService
+    }
 
-		HttpContext httpCtx = new SecureBasicHttpContext(m_httpService.createDefaultHttpContext(), authMgr);
-		m_httpService.registerResources("/", "www", httpCtx);
-		m_httpService.registerResources(s_appRoot, "www/denali.html", httpCtx);
-		m_httpService.registerResources(s_aliasRoot, "www" + s_aliasRoot, httpCtx);
+    public static String getApplicationRoot() {
+        return s_appRoot;
+    }
 
-		m_httpService.registerServlet(servletRoot + "/xsrf", new GwtSecurityTokenServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/status", new GwtStatusServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/device", new GwtDeviceServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/network", new GwtNetworkServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/component", new GwtComponentServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/package", new GwtPackageServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/snapshot", new GwtSnapshotServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/setting", new GwtSettingServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/certificate", new GwtCertificatesServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/security", new GwtSecurityServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/file", new FileServlet(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/device_snapshots", new DeviceSnapshotsServlet(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/skin", new SkinServlet(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/ssl", new GwtSslServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet(servletRoot + "/wires", new GwtWireServiceImpl(), null, httpCtx);
-		m_httpService.registerServlet("/sse", new EventHandlerServlet(), null, httpCtx);
-	}
+    public static BundleContext getBundleContext() {
+        return s_context.getBundleContext();
+    }
+
+    public static String getServletRoot() {
+        return s_aliasRoot;
+    }
 }

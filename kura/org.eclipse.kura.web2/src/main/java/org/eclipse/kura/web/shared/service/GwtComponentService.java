@@ -22,24 +22,28 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
 @RemoteServiceRelativePath("component")
-public interface GwtComponentService extends RemoteService 
-{	
-	/**
-	 * Returns the configuration of a Device as the list of all the configurable components.
-	 * @param device
-	 * @return
-	 */
-	public List<GwtConfigComponent> findComponentConfigurations(GwtXSRFToken xsrfToken) throws GwtKuraException;
-	
-	public List<GwtConfigComponent> findComponentConfiguration(GwtXSRFToken xsrfToken) throws GwtKuraException;
-	
-	public GwtConfigComponent findComponentConfigurationFromPid(GwtXSRFToken xsrfToken, String pid, String factoryPid, Map<String, Object> extraProps) throws GwtKuraException;
-	
-	public List<String> getFactoryComponents(GwtXSRFToken xsrfToken) throws GwtKuraException;
-	
-	public void createFactoryComponent(GwtXSRFToken xsrfToken, String factoryPid, String pid) throws GwtKuraException;
-	
-	public void deleteFactoryConfiguration(GwtXSRFToken xsrfToken, String pid, boolean takeSnapshot) throws GwtKuraException;
-	
-	public void updateComponentConfiguration(GwtXSRFToken xsrfToken, GwtConfigComponent configComponent) throws GwtKuraException; 
+public interface GwtComponentService extends RemoteService {
+
+    public void createFactoryComponent(GwtXSRFToken xsrfToken, String factoryPid, String pid) throws GwtKuraException;
+
+    public void deleteFactoryConfiguration(GwtXSRFToken xsrfToken, String pid, boolean takeSnapshot)
+            throws GwtKuraException;
+
+    public List<GwtConfigComponent> findComponentConfiguration(GwtXSRFToken xsrfToken) throws GwtKuraException;
+
+    public GwtConfigComponent findComponentConfigurationFromPid(GwtXSRFToken xsrfToken, String pid, String factoryPid,
+            Map<String, Object> extraProps) throws GwtKuraException;
+
+    /**
+     * Returns the configuration of a Device as the list of all the configurable components.
+     * 
+     * @param device
+     * @return
+     */
+    public List<GwtConfigComponent> findComponentConfigurations(GwtXSRFToken xsrfToken) throws GwtKuraException;
+
+    public List<String> getFactoryComponents(GwtXSRFToken xsrfToken) throws GwtKuraException;
+
+    public void updateComponentConfiguration(GwtXSRFToken xsrfToken, GwtConfigComponent configComponent)
+            throws GwtKuraException;
 }
