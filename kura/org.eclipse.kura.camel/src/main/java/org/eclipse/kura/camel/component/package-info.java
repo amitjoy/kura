@@ -6,13 +6,13 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     Red Hat Inc - initial API and implementation
+ * Red Hat Inc - initial API and implementation
  *******************************************************************************/
 /**
  * Components for building Kura application based on Apache Camel™
  * <p>
  * This package provides a few classes which are intended as based classes
- * helping to impelement simple Camel based components.
+ * helping to implement simple Camel based components.
  * </p>
  */
 package org.eclipse.kura.camel.component;

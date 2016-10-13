@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.kura.KuraException;
 import org.eclipse.kura.configuration.ComponentConfiguration;
 import org.eclipse.kura.configuration.ConfigurationService;
+import org.eclipse.kura.configuration.Password;
 import org.eclipse.kura.configuration.metatype.AD;
 import org.eclipse.kura.configuration.metatype.Icon;
 import org.eclipse.kura.configuration.metatype.OCD;
@@ -35,8 +36,8 @@ import org.eclipse.kura.web.server.util.ServiceLocator;
 import org.eclipse.kura.web.shared.GwtKuraException;
 import org.eclipse.kura.web.shared.model.GwtConfigComponent;
 import org.eclipse.kura.web.shared.model.GwtConfigParameter;
-import org.eclipse.kura.web.shared.model.GwtXSRFToken;
 import org.eclipse.kura.web.shared.model.GwtConfigParameter.GwtConfigParameterType;
+import org.eclipse.kura.web.shared.model.GwtXSRFToken;
 import org.eclipse.kura.web.shared.service.GwtComponentService;
 import org.eclipse.kura.wire.WireHelperService;
 import org.osgi.framework.BundleContext;
@@ -46,8 +47,10 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
 
 public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements GwtComponentService {
+
     private static final long serialVersionUID = -4176701819112753800L;
 
+    @Override
     public List<GwtConfigComponent> findComponentConfigurations(GwtXSRFToken xsrfToken) throws GwtKuraException {
         checkXSRFToken(xsrfToken);
         ConfigurationService cs = ServiceLocator.getInstance().getService(ConfigurationService.class);
@@ -57,6 +60,7 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
             List<ComponentConfiguration> configs = cs.getComponentConfigurations();
             // sort the list alphabetically by service name
             Collections.sort(configs, new Comparator<ComponentConfiguration>() {
+
                 @Override
                 public int compare(ComponentConfiguration arg0, ComponentConfiguration arg1) {
                     String name0;
@@ -82,12 +86,12 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
             for (ComponentConfiguration config : configs) {
 
                 // ignore items we want to hide
-                if (config.getPid().endsWith("SystemPropertiesService") ||
-                        config.getPid().endsWith("NetworkAdminService") ||
-                        config.getPid().endsWith("NetworkConfigurationService") ||
-                        config.getPid().endsWith("SslManagerService") ||
-                        config.getPid().endsWith("FirewallConfigurationService") ||
-                        config.getPid().endsWith("WireService")) {
+                if (config.getPid().endsWith("SystemPropertiesService")
+                        || config.getPid().endsWith("NetworkAdminService")
+                        || config.getPid().endsWith("NetworkConfigurationService")
+                        || config.getPid().endsWith("SslManagerService")
+                        || config.getPid().endsWith("FirewallConfigurationService")
+                        || config.getPid().endsWith("WireService")) {
                     continue;
                 }
 
@@ -104,6 +108,7 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
         return gwtConfigs;
     }
 
+    @Override
     public List<GwtConfigComponent> findComponentConfiguration(GwtXSRFToken xsrfToken) throws GwtKuraException {
         checkXSRFToken(xsrfToken);
         ConfigurationService cs = ServiceLocator.getInstance().getService(ConfigurationService.class);
@@ -113,6 +118,7 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
             List<ComponentConfiguration> configs = cs.getComponentConfigurations();
             // sort the list alphabetically by service name
             Collections.sort(configs, new Comparator<ComponentConfiguration>() {
+
                 @Override
                 public int compare(ComponentConfiguration arg0, ComponentConfiguration arg1) {
                     String name0;
@@ -218,7 +224,9 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
         return gwtConfigs;
     }
 
-    public void updateComponentConfiguration(GwtXSRFToken xsrfToken, GwtConfigComponent gwtCompConfig) throws GwtKuraException {
+    @Override
+    public void updateComponentConfiguration(GwtXSRFToken xsrfToken, GwtConfigComponent gwtCompConfig)
+            throws GwtKuraException {
         checkXSRFToken(xsrfToken);
         ConfigurationService cs = ServiceLocator.getInstance().getService(ConfigurationService.class);
         try {
@@ -240,7 +248,7 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
 
                     String strValue = gwtConfigParam.getValue();
 
-                    if ((currentObjValue instanceof Password) && PLACEHOLDER.equals(strValue)) {
+                    if (currentObjValue instanceof Password && PLACEHOLDER.equals(strValue)) {
                         objValue = currentConfigProp.get(gwtConfigParam.getId());
                     } else {
                         objValue = GwtServerUtil.getObjectValue(gwtConfigParam, strValue);
@@ -359,6 +367,135 @@ public class GwtComponentServiceImpl extends OsgiRemoteServiceServlet implements
             throw new GwtKuraException("Could not retrieve component configuration!");
         }
         return comp;
+	}
+
+    private Object getObjectValue(GwtConfigParameter gwtConfigParam, String strValue) {
+        Object objValue = null;
+        GwtConfigParameterType gwtType = gwtConfigParam.getType();
+        if (gwtType == GwtConfigParameterType.STRING) {
+            objValue = strValue;
+        } else if (strValue != null && !strValue.trim().isEmpty()) {
+            switch (gwtType) {
+            case LONG:
+                objValue = Long.parseLong(strValue);
+                break;
+            case DOUBLE:
+                objValue = Double.parseDouble(strValue);
+                break;
+            case FLOAT:
+                objValue = Float.parseFloat(strValue);
+                break;
+            case INTEGER:
+                objValue = Integer.parseInt(strValue);
+                break;
+            case SHORT:
+                objValue = Short.parseShort(strValue);
+                break;
+            case BYTE:
+                objValue = Byte.parseByte(strValue);
+                break;
+            case BOOLEAN:
+                objValue = Boolean.parseBoolean(strValue);
+                break;
+            case PASSWORD:
+                objValue = new Password(strValue);
+                break;
+            case CHAR:
+                objValue = Character.valueOf(strValue.charAt(0));
+                break;
+            default:
+                break;
+            }
+        }
+        return objValue;
+    }
+
+    private Object[] getObjectValue(GwtConfigParameter gwtConfigParam, String[] defaultValues) {
+        List<Object> values = new ArrayList<Object>();
+        GwtConfigParameterType type = gwtConfigParam.getType();
+        switch (type) {
+        case BOOLEAN:
+            for (String value : defaultValues) {
+                if (!value.trim().isEmpty()) {
+                    values.add(Boolean.valueOf(value));
+                }
+            }
+            return values.toArray(new Boolean[] {});
+
+        case BYTE:
+            for (String value : defaultValues) {
+                if (!value.trim().isEmpty()) {
+                    values.add(Byte.valueOf(value));
+                }
+            }
+            return values.toArray(new Byte[] {});
+
+        case CHAR:
+            for (String value : defaultValues) {
+                if (!value.trim().isEmpty()) {
+                    values.add(new Character(value.charAt(0)));
+                }
+            }
+            return values.toArray(new Character[] {});
+
+        case DOUBLE:
+            for (String value : defaultValues) {
+                if (!value.trim().isEmpty()) {
+                    values.add(Double.valueOf(value));
+                }
+            }
+            return values.toArray(new Double[] {});
+
+        case FLOAT:
+            for (String value : defaultValues) {
+                if (!value.trim().isEmpty()) {
+                    values.add(Float.valueOf(value));
+                }
+            }
+            return values.toArray(new Float[] {});
+
+        case INTEGER:
+            for (String value : defaultValues) {
+                if (!value.trim().isEmpty()) {
+                    values.add(Integer.valueOf(value));
+                }
+            }
+            return values.toArray(new Integer[] {});
+
+        case LONG:
+            for (String value : defaultValues) {
+                if (!value.trim().isEmpty()) {
+                    values.add(Long.valueOf(value));
+                }
+            }
+            return values.toArray(new Long[] {});
+
+        case SHORT:
+            for (String value : defaultValues) {
+                if (!value.trim().isEmpty()) {
+                    values.add(Short.valueOf(value));
+                }
+            }
+            return values.toArray(new Short[] {});
+
+        case PASSWORD:
+            for (String value : defaultValues) {
+                if (!value.trim().isEmpty()) {
+                    values.add(new Password(value));
+                }
+            }
+            return values.toArray(new Password[] {});
+
+        case STRING:
+            for (String value : defaultValues) {
+                if (!value.trim().isEmpty()) {
+                    values.add(value);
+                }
+            }
+            return values.toArray(new String[] {});
+        }
+        
+        return null;
 	}
 	
 	private GwtConfigComponent createConfigFromConfiguration(ComponentConfiguration config) throws GwtKuraException{
