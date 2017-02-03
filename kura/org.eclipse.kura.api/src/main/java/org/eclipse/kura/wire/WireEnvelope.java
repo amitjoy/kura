@@ -22,8 +22,8 @@ import org.osgi.service.wireadmin.BasicEnvelope;
 import org.osgi.service.wireadmin.Envelope;
 
 /**
- * The Class {@link WireEnvelope} represents a composite envelope to be used as an
- * abstract data to be transmitted between the wire emitter and the wire
+ * The Class {@link WireEnvelope} represents a composite envelope to be used as data
+ * that is transmitted between the wire emitter and the wire
  * receiver
  *
  * @see Envelope
@@ -49,7 +49,7 @@ public class WireEnvelope extends BasicEnvelope {
      * @param emitterPid
      *            the wire emitter PID
      * @param wireRecords
-     *            the {@link WireRecord}s
+     *            the list of {@link WireRecord}s
      */
     public WireEnvelope(final String emitterPid, final List<WireRecord> wireRecords) {
         super(wireRecords, emitterPid, SCOPE);
@@ -65,9 +65,9 @@ public class WireEnvelope extends BasicEnvelope {
     }
 
     /**
-     * Gets the {@link WireRecord}s.
+     * Gets the unmodifiable view of {@link WireRecord}s.
      *
-     * @return the {@link WireRecord}s
+     * @return the unmodifiable view of {@link WireRecord}s
      */
     @SuppressWarnings("unchecked")
     public List<WireRecord> getRecords() {

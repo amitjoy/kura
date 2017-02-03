@@ -60,7 +60,7 @@
             type="String"
             cardinality="0"
             required="true"
-            default="SEVERE"
+            default="ALL"
             description="It signifies severity level of Wire Fields to be accepted by this Wire Component">
             <Option label="ALL" value="ALL" />
             <Option label="ERROR" value="ERROR" />

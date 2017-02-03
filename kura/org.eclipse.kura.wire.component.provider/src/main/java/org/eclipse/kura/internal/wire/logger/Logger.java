@@ -22,6 +22,7 @@ import org.eclipse.kura.configuration.ConfigurableComponent;
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.WireMessages;
 import org.eclipse.kura.wire.WireEnvelope;
+import org.eclipse.kura.wire.WireField;
 import org.eclipse.kura.wire.WireHelperService;
 import org.eclipse.kura.wire.WireReceiver;
 import org.eclipse.kura.wire.WireRecord;
@@ -36,11 +37,20 @@ import org.slf4j.LoggerFactory;
  */
 public final class Logger implements WireReceiver, ConfigurableComponent {
 
+    /** Default Log Level */
+    private static final String DEFAULT_LOG_LEVEL = "INFO";
+
     /** The Logger instance. */
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Logger.class);
 
     /** Localization Resource */
     private static final WireMessages message = LocalizationAdapter.adapt(WireMessages.class);
+
+    /** Constant denoting log level property */
+    private static final String PROP_LOG_LEVEL = "log.level";
+
+    /** Component Configured Properties */
+    private Map<String, Object> properties;
 
     /** The Wire Helper Service. */
     private volatile WireHelperService wireHelperService;
@@ -60,6 +70,7 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
             final Map<String, Object> properties) {
         logger.debug(message.activatingLogger());
         this.wireSupport = this.wireHelperService.newWireSupport(this);
+        this.properties = properties;
         logger.debug(message.activatingLoggerDone());
     }
 
@@ -87,6 +98,73 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
         logger.debug(message.deactivatingLoggerDone());
     }
 
+    /**
+     * Returns the log level as configured
+     *
+     * @return the configured log level
+     */
+    private LogLevel getLoggingLevel() {
+        String logLevel = DEFAULT_LOG_LEVEL;
+        final Object configuredLogLevel = this.properties.get(PROP_LOG_LEVEL);
+        if ((configuredLogLevel != null) && (configuredLogLevel instanceof String)) {
+            logLevel = String.valueOf(configuredLogLevel);
+        }
+        return LogLevel.getLevel(logLevel);
+    }
+
+    /**
+     * Log the provided list of {@link WireRecord} in the log file based on the provided
+     * log level
+     *
+     * @param wireRecords
+     *            the records to log
+     * @param logLevel
+     *            the logging level
+     * @throws NullPointerException
+     *             if any of the provided arguments is null
+     */
+    private void log(final List<WireRecord> wireRecords, final LogLevel logLevel) {
+        requireNonNull(wireRecords, message.wireRecordsNonNull());
+        requireNonNull(logLevel, message.logLevelNonNull());
+
+        switch (logLevel) {
+        case DEBUG:
+            logger.debug("-------------------------------------------------------------");
+
+            int i = 0;
+            for (final WireRecord record : wireRecords) {
+                logger.debug("Wire Record " + ++i);
+                int j = 0;
+                for (final WireField field : record.getFields()) {
+                    logger.debug("       " + "Wire Field " + ++j);
+                    logger.debug("                " + "Name: " + field.getName());
+                    logger.debug("                " + "Value: " + field.getValue().getValue());
+                    logger.debug("                " + "Severity: " + field.getSeverityLevel());
+                }
+            }
+
+            logger.debug("-------------------------------------------------------------");
+            break;
+        case INFO:
+            logger.info("-------------------------------------------------------------");
+
+            int k = 0;
+            for (final WireRecord record : wireRecords) {
+                logger.info("Wire Record " + ++k);
+                int j = 0;
+                for (final WireField field : record.getFields()) {
+                    logger.info("       " + "Wire Field " + ++j);
+                    logger.info("                " + "Name: " + field.getName());
+                    logger.info("                " + "Value: " + field.getValue().getValue());
+                    logger.info("                " + "Severity: " + field.getSeverityLevel());
+                }
+            }
+
+            logger.info("-------------------------------------------------------------");
+            break;
+        }
+    }
+
     /** {@inheritDoc} */
     @Override
     public void onWireReceive(final WireEnvelope wireEnvelope) {
@@ -94,7 +172,7 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
         logger.info(message.wireEnvelopeReceived(wireEnvelope.getEmitterPid()));
         // filtering list of wire records based on the provided severity level
         final List<WireRecord> records = this.wireSupport.filter(wireEnvelope.getRecords());
-        logger.info(message.loggerReceive(records.toString()));
+        log(records, getLoggingLevel());
     }
 
     /** {@inheritDoc} */

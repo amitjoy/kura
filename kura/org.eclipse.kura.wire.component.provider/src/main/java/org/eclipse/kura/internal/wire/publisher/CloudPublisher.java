@@ -31,7 +31,6 @@ import org.eclipse.kura.configuration.ConfigurableComponent;
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.WireMessages;
 import org.eclipse.kura.message.KuraPayload;
-import org.eclipse.kura.util.base.ThrowableUtil;
 import org.eclipse.kura.wire.WireEnvelope;
 import org.eclipse.kura.wire.WireField;
 import org.eclipse.kura.wire.WireHelperService;
@@ -80,7 +79,7 @@ public final class CloudPublisher implements WireReceiver, CloudClientListener, 
                 // recreate the Cloud Client
                 setupCloudClient();
             } catch (final KuraException e) {
-                logger.error(message.cloudClientSetupProblem() + ThrowableUtil.stackTraceAsString(e));
+                logger.error(message.cloudClientSetupProblem(), e);
             }
             return CloudPublisher.this.cloudService;
         }
@@ -92,7 +91,7 @@ public final class CloudPublisher implements WireReceiver, CloudClientListener, 
                 // recreate the Cloud Client
                 setupCloudClient();
             } catch (final KuraException e) {
-                logger.error(message.cloudClientSetupProblem() + ThrowableUtil.stackTraceAsString(e));
+                logger.error(message.cloudClientSetupProblem(), e);
             }
         }
 
@@ -191,9 +190,9 @@ public final class CloudPublisher implements WireReceiver, CloudClientListener, 
         requireNonNull(wireRecord, message.wireRecordNonNull());
         requireNonNull(payload, message.payloadNonNull());
 
-        for (final WireField dataField : wireRecord.getFields()) {
-            final Object wrappedValue = dataField.getValue().getValue();
-            payload.addMetric(dataField.getName(), wrappedValue);
+        for (final WireField wireField : wireRecord.getFields()) {
+            final Object wrappedValue = wireField.getValue().getValue();
+            payload.addMetric(wireField.getName(), wrappedValue);
         }
     }
 
@@ -261,7 +260,7 @@ public final class CloudPublisher implements WireReceiver, CloudClientListener, 
         try {
             filter = this.bundleContext.createFilter(filterString);
         } catch (final InvalidSyntaxException e) {
-            logger.error("Filter setup exception " + ThrowableUtil.stackTraceAsString(e));
+            logger.error(message.filterSetupException(), e);
         }
         this.cloudServiceTracker = new ServiceTracker<>(this.bundleContext, filter, this.cloudServiceTrackerCustomizer);
         this.cloudServiceTracker.open();
@@ -339,9 +338,9 @@ public final class CloudPublisher implements WireReceiver, CloudClientListener, 
 
         final String appTopic = this.cloudPublisherOptions.getPublishingTopic();
         final PayloadType messageType = this.cloudPublisherOptions.getPayloadType();
-
-        Object payload = null;
         final Timestamp timestamp = new Timestamp(new Date().getTime());
+        Object payload = null;
+
         if (messageType == KURA_PAYLOAD) {
             payload = new KuraPayload();
             final KuraPayload kuraPayload = (KuraPayload) payload;
@@ -366,7 +365,7 @@ public final class CloudPublisher implements WireReceiver, CloudClientListener, 
                 }
             }
         } catch (final KuraException e) {
-            logger.error(message.errorPublishingWireRecords() + ThrowableUtil.stackTraceAsString(e));
+            logger.error(message.errorPublishingWireRecords(), e);
         }
     }
 
@@ -380,7 +379,7 @@ public final class CloudPublisher implements WireReceiver, CloudClientListener, 
      * @throws KuraException
      *             if publish fails
      * @throws NullPointerException
-     *             if any of the arguments if null
+     *             if any of the arguments is null
      */
     private void publishJson(final JsonObject jsonObject, final String appTopic) throws KuraException {
         requireNonNull(jsonObject, message.payloadNonNull());
@@ -459,7 +458,6 @@ public final class CloudPublisher implements WireReceiver, CloudClientListener, 
             this.cloudServiceTracker.close();
         }
         initCloudServiceTracking();
-
         logger.debug(message.updatingCloudPublisherDone());
     }
 

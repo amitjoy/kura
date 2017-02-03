@@ -106,6 +106,9 @@ public interface WireMessages {
     @En("channel_name")
     public String channelName();
 
+    @En("Channel name cannot be null")
+    public String channelNameNonNull();
+
     @En("Channel cannot be null")
     public String channelNonNull();
 
@@ -328,6 +331,9 @@ public interface WireMessages {
     @En("Filter cannot be null")
     public String filterNonNull();
 
+    @En("Filter setup exception ")
+    public String filterSetupException();
+
     @En("heading")
     public String heading();
 
@@ -348,6 +354,9 @@ public interface WireMessages {
 
     @En("Filtered Wire Envelope ==> {0}")
     public String loggerReceive(String envelope);
+
+    @En("Log level cannot be null")
+    public String logLevelNonNull();
 
     @En("longitude")
     public String longitude();

@@ -13,9 +13,12 @@
  *******************************************************************************/
 package org.eclipse.kura.internal.wire.subscriber;
 
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 import static org.eclipse.kura.internal.wire.asset.WireAsset.PROP_ERROR;
-import static org.eclipse.kura.wire.SeverityLevel.INFO;
+import static org.eclipse.kura.type.TypedValues.EMPTY_VALUE;
+import static org.eclipse.kura.wire.Severity.ERROR;
+import static org.eclipse.kura.wire.Severity.INFO;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -82,7 +85,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
                 setupCloudClient();
                 subscribeTopic();
             } catch (final KuraException e) {
-                logger.error(message.cloudClientSetupProblem() + ThrowableUtil.stackTraceAsString(e));
+                logger.error(message.cloudClientSetupProblem(), e);
             }
             return CloudSubscriber.this.cloudService;
         }
@@ -95,7 +98,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
                 setupCloudClient();
                 subscribeTopic();
             } catch (final KuraException e) {
-                logger.error(message.cloudClientSetupProblem() + ThrowableUtil.stackTraceAsString(e));
+                logger.error(message.cloudClientSetupProblem(), e);
             }
         }
 
@@ -182,10 +185,10 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
         for (final Map.Entry<String, Object> entry : payload.metrics().entrySet()) {
             final String metricKey = entry.getKey();
             final Object metricValue = entry.getValue();
-            TypedValue<?> val = TypedValues.EMPTY_VALUE;
+            TypedValue<?> val = EMPTY_VALUE;
 
             if (metricKey.endsWith(PROP_ERROR)) {
-                level = SeverityLevel.ERROR;
+                level = ERROR;
             }
 
             // check instance of this metric value properly
@@ -270,7 +273,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
         try {
             filter = this.bundleContext.createFilter(filterString);
         } catch (final InvalidSyntaxException e) {
-            logger.error("Filter setup exception " + ThrowableUtil.stackTraceAsString(e));
+            logger.error(message.filterSetupException(), e);
         }
         this.cloudServiceTracker = new ServiceTracker<>(this.bundleContext, filter, this.cloudServiceTrackerCustomizer);
         this.cloudServiceTracker.open();
@@ -284,7 +287,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
                 subscribeTopic();
             }
         } catch (final KuraException e) {
-            logger.error(message.errorCreatingCloudClinet() + e);
+            logger.error(message.errorCreatingCloudClinet(), e);
         }
     }
 
@@ -312,7 +315,7 @@ public final class CloudSubscriber implements WireEmitter, ConfigurableComponent
             } catch (final IOException e) {
                 logger.error(ThrowableUtil.stackTraceAsString(e));
             }
-            if (record != null) {
+            if (nonNull(record)) {
                 this.wireSupport.emit(Arrays.asList(record));
             }
         }

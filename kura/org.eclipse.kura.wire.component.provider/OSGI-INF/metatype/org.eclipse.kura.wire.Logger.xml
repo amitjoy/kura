@@ -16,12 +16,23 @@
          name="Logger" 
          description="A wire component which logs data as received from upstream connected Wire Components">
 
+        <AD id="log.level"
+            name="log.level"
+            type="String"
+            cardinality="0"
+            required="true"
+            default="INFO"
+            description="It specifies the logging level to be used to log the information contained in the received Wire Envelope">
+            <Option label="DEBUG" value="DEBUG" />
+            <Option label="INFO" value="INFO" />
+        </AD>
+        
         <AD id="severity.level"
             name="severity.level"
             type="String"
             cardinality="0"
             required="true"
-            default="SEVERE"
+            default="ALL"
             description="It signifies severity level of Wire Fields to be accepted by this Wire Component">
             <Option label="ALL" value="ALL" />
             <Option label="ERROR" value="ERROR" />

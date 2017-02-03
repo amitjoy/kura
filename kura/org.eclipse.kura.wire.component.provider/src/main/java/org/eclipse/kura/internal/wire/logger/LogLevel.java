@@ -10,27 +10,20 @@
  *  Amit Kumar Mondal
  *
  *******************************************************************************/
-package org.eclipse.kura.internal.wire.publisher;
+package org.eclipse.kura.internal.wire.logger;
 
-enum PayloadType {
-    JSON(2), KURA_PAYLOAD(1);
+/**
+ * This enumeration represents the allowed log levels as supported by the Logger Wire Component.
+ */
+enum LogLevel {
+    DEBUG, INFO;
 
-    private int value;
-
-    private PayloadType(final int value) {
-        this.value = value;
-    }
-
-    public static PayloadType getPayloadType(final int payloadTypeInt) {
-        for (final PayloadType tempPayloadType : PayloadType.values()) {
-            if (tempPayloadType.getValue() == payloadTypeInt) {
-                return tempPayloadType;
+    public static LogLevel getLevel(final String levelName) {
+        for (final LogLevel level : LogLevel.values()) {
+            if (level.name().equalsIgnoreCase(levelName)) {
+                return level;
             }
         }
         return null;
-    }
-
-    public int getValue() {
-        return this.value;
     }
 }

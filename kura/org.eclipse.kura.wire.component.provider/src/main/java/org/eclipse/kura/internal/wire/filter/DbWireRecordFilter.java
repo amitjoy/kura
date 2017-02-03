@@ -13,8 +13,10 @@
  *******************************************************************************/
 package org.eclipse.kura.internal.wire.filter;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
-import static org.eclipse.kura.wire.SeverityLevel.INFO;
+import static org.eclipse.kura.wire.Severity.INFO;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -38,7 +40,6 @@ import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.WireMessages;
 import org.eclipse.kura.type.DataType;
 import org.eclipse.kura.type.TypedValues;
-import org.eclipse.kura.util.base.ThrowableUtil;
 import org.eclipse.kura.util.collection.CollectionUtil;
 import org.eclipse.kura.wire.WireEmitter;
 import org.eclipse.kura.wire.WireEnvelope;
@@ -167,7 +168,7 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
         try {
             return this.refreshSQLView();
         } catch (final SQLException e) {
-            logger.error(message.errorFiltering() + ThrowableUtil.stackTraceAsString(e));
+            logger.error(message.errorFiltering(), e);
         }
         return Collections.emptyList();
     }
@@ -185,7 +186,7 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
     @Override
     public synchronized void onWireReceive(final WireEnvelope wireEnvelope) {
         requireNonNull(wireEnvelope, message.wireEnvelopeNonNull());
-        logger.debug(message.wireEnvelopeReceived() + wireEnvelope);
+        logger.debug(message.wireEnvelopeReceived(), wireEnvelope);
         this.wireSupport.emit(this.cache.get(this.cache.getLastRefreshedTime().getTimeInMillis()));
     }
 
@@ -210,22 +211,27 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
         Statement stmt = null;
         ResultSet rset = null;
         final String sqlView = this.options.getSqlView();
+
         try {
             conn = this.dbHelper.getConnection();
             stmt = conn.createStatement();
             rset = stmt.executeQuery(sqlView);
-            if (rset != null) {
+
+            if (nonNull(rset)) {
                 while (rset.next()) {
                     final Set<WireField> wireFields = CollectionUtil.newHashSet();
                     final ResultSetMetaData rmet = rset.getMetaData();
                     for (int i = 1; i <= rmet.getColumnCount(); i++) {
                         String fieldName = rmet.getColumnLabel(i);
-                        if (fieldName == null) {
+
+                        if (isNull(fieldName)) {
                             fieldName = rmet.getColumnName(i);
                         }
+
                         WireField wireField = null;
                         final int jdbcType = rmet.getColumnType(i);
                         final DataType dataType = DbDataTypeMapper.getDataType(jdbcType);
+
                         switch (dataType) {
                         case BOOLEAN:
                             final boolean boolValue = rset.getBoolean(i);
@@ -328,7 +334,7 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
      *            the updated properties
      */
     public synchronized void updated(final Map<String, Object> properties) {
-        logger.debug(message.updatingFilter() + properties);
+        logger.debug(message.updatingFilter(), properties);
         this.options = new DbWireRecordFilterOptions(properties);
         this.scheduleRefresh();
         logger.debug(message.updatingFilterDone());

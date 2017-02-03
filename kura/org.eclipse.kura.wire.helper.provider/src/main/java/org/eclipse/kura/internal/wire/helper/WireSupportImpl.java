@@ -14,11 +14,11 @@
 package org.eclipse.kura.internal.wire.helper;
 
 import static java.util.Objects.requireNonNull;
-import static org.eclipse.kura.wire.SeverityLevel.ERROR;
-import static org.eclipse.kura.wire.SeverityLevel.INFO;
+import static org.eclipse.kura.wire.Severity.ERROR;
+import static org.eclipse.kura.wire.Severity.INFO;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -84,8 +84,6 @@ final class WireSupportImpl implements WireSupport {
         requireNonNull(wireHelperService, message.wireHelperServiceNonNull());
         requireNonNull(eventAdmin, message.eventAdminNonNull());
 
-        this.outgoingWires = CollectionUtil.newArrayList();
-        this.incomingWires = CollectionUtil.newArrayList();
         this.wireSupporter = wireSupporter;
         this.wireHelperService = wireHelperService;
         this.eventAdmin = eventAdmin;
@@ -99,42 +97,42 @@ final class WireSupportImpl implements WireSupport {
 
     /** {@inheritDoc} */
     @Override
-    public synchronized void emit(final List<WireRecord> wireRecords) {
+    public void emit(final List<WireRecord> wireRecords) {
         requireNonNull(wireRecords, message.wireRecordsNonNull());
         if (this.wireSupporter instanceof WireEmitter) {
             final String emitterPid = this.wireHelperService.getServicePid(this.wireSupporter);
             final String pid = this.wireHelperService.getPid(this.wireSupporter);
-            final WireEnvelope wei = new WireEnvelope(emitterPid, wireRecords);
+            final WireEnvelope wireEnvelope = new WireEnvelope(emitterPid, wireRecords);
             for (final Wire wire : this.outgoingWires) {
-                wire.update(wei);
+                wire.update(wireEnvelope);
             }
             final Map<String, Object> properties = CollectionUtil.newHashMap();
             properties.put("emitter", pid);
-            this.eventAdmin.postEvent(new Event(WireSupport.EMIT_EVENT_TOPIC, properties));
+            this.eventAdmin.postEvent(new Event(EMIT_EVENT_TOPIC, properties));
         }
     }
 
     /** {@inheritDoc} */
     @Override
-    public List<WireRecord> filter(final List<WireRecord> records) {
-        requireNonNull(records, message.wireRecordsNonNull());
+    public List<WireRecord> filter(final List<WireRecord> wireRecords) {
+        requireNonNull(wireRecords, message.wireRecordsNonNull());
         final SeverityLevel level = this.getSeverityLevel();
-        // If the severity level is not set or it is set to ALL, then all wire fields remain
+        // If the severity level is not set or set to ALL, then all wire fields remain
         if (level == null) {
-            return records;
+            return wireRecords;
         }
-        final List<WireRecord> newRecords = CollectionUtil.newArrayList();
+        final List<WireRecord> newRecords = new ArrayList<>();
         final Set<WireField> newFields = CollectionUtil.newHashSet();
-        for (final WireRecord wireRecord : records) {
+        for (final WireRecord wireRecord : wireRecords) {
             for (final WireField wireField : wireRecord.getFields()) {
-                // If the severity level is INFO, then only info wire fields
-                // will remain
                 final SeverityLevel wireFieldLevel = wireField.getSeverityLevel();
+
+                // If the severity level is INFO, then only info wire fields will remain
                 if ((wireFieldLevel == INFO) && (level == INFO)) {
                     newFields.add(wireField);
                 }
-                // If the severity level is ERROR, then only ERROR wire fields
-                // will remain
+
+                // If the severity level is ERROR, then only ERROR wire fields will remain
                 if ((wireFieldLevel == ERROR) && (level == ERROR)) {
                     newFields.add(wireField);
                 }
@@ -143,24 +141,6 @@ final class WireSupportImpl implements WireSupport {
             newRecords.add(newWireRecord);
         }
         return newRecords;
-    }
-
-    /**
-     * Gets the incoming wires.
-     *
-     * @return the incoming wires
-     */
-    List<Wire> getIncomingWires() {
-        return Collections.unmodifiableList(this.incomingWires);
-    }
-
-    /**
-     * Gets the outgoing wires.
-     *
-     * @return the outgoing wires
-     */
-    List<Wire> getOutgoingWires() {
-        return Collections.unmodifiableList(this.outgoingWires);
     }
 
     /**
@@ -202,7 +182,7 @@ final class WireSupportImpl implements WireSupport {
     /** {@inheritDoc} */
     @Override
     public void producersConnected(final Wire[] wires) {
-        this.incomingWires = Arrays.asList(wires);
+        this.outgoingWires = Arrays.asList(wires);
     }
 
     /** {@inheritDoc} */

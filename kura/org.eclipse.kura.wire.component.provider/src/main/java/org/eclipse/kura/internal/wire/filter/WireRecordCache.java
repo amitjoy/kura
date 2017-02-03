@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2016, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *  Eurotech
+ *  Amit Kumar Mondal
  *
  *******************************************************************************/
 package org.eclipse.kura.internal.wire.filter;
@@ -14,23 +18,23 @@ import static java.util.Objects.requireNonNull;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.WireMessages;
-import org.eclipse.kura.util.collection.CollectionUtil;
 import org.eclipse.kura.wire.WireRecord;
 
 /**
- * The Class WireRecordCache is responsible to contain the Wire Record cached
+ * The Class WireRecordCache is responsible to contain the {@link WireRecord} cached
  * values.
  */
 final class WireRecordCache {
 
     /** Map that is the cache. */
-    private static final Map<Long, List<WireRecord>> m_map = CollectionUtil.newConcurrentHashMap();
+    private static final Map<Long, List<WireRecord>> cacheMap = new WeakHashMap<>();
 
     /** Localization Resource. */
-    private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
+    private static final WireMessages message = LocalizationAdapter.adapt(WireMessages.class);
 
     /** Cache Maximum Capacity as configured. */
     private int capacity;
@@ -53,7 +57,7 @@ final class WireRecordCache {
      *             if argument is null
      */
     WireRecordCache(final DbWireRecordFilter filter) {
-        requireNonNull(filter, s_message.dbFilterNonNull());
+        requireNonNull(filter, message.dbFilterNonNull());
         this.recordFilter = filter;
     }
 
@@ -66,9 +70,9 @@ final class WireRecordCache {
      */
     List<WireRecord> get(final long key) {
         if (this.refreshCache()) {
-            m_map.put(this.lastRefreshedTime.getTimeInMillis(), this.recordFilter.filter());
+            cacheMap.put(this.lastRefreshedTime.getTimeInMillis(), this.recordFilter.filter());
         }
-        return m_map.get(key);
+        return cacheMap.get(key);
     }
 
     /**
@@ -113,10 +117,10 @@ final class WireRecordCache {
     void put(final long key, final List<WireRecord> value) {
         // clears the map if the size of the map is as same as the max size
         // expected
-        if (m_map.size() == this.capacity) {
-            m_map.clear();
+        if (cacheMap.size() == this.capacity) {
+            cacheMap.clear();
         }
-        m_map.put(key, value);
+        cacheMap.put(key, value);
         this.lastRefreshedTime = Calendar.getInstance();
     }
 

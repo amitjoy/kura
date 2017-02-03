@@ -13,11 +13,8 @@
  *******************************************************************************/
 package org.eclipse.kura.internal.wire.timer;
 
-import java.util.Arrays;
+import java.util.Collections;
 
-import org.eclipse.kura.type.TypedValues;
-import org.eclipse.kura.wire.SeverityLevel;
-import org.eclipse.kura.wire.WireField;
 import org.eclipse.kura.wire.WireRecord;
 import org.eclipse.kura.wire.WireSupport;
 import org.quartz.DisallowConcurrentExecution;
@@ -26,14 +23,11 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 /**
- * The Class EmitJob is responsible for emitting Wire Record every specified
+ * The Class EmitJob is responsible for emitting {@link WireRecord} every specified
  * interval (or specified CRON job interval)
  */
 @DisallowConcurrentExecution
 public final class EmitJob implements Job {
-
-    /** Timer Field Constant */
-    private static final String PROP = "TIMER";
 
     /**
      * Emits a Wire Record every specified interval.
@@ -47,9 +41,8 @@ public final class EmitJob implements Job {
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         final TimerJobDataMap dataMap = (TimerJobDataMap) context.getJobDetail().getJobDataMap();
         final WireSupport wireSupport = dataMap.getWireSupport();
-        final WireField wireField = new WireField(PROP, TypedValues.EMPTY_VALUE, SeverityLevel.INFO);
-        final WireRecord wireRecord = new WireRecord.Builder().addField(wireField).build();
-        wireSupport.emit(Arrays.asList(wireRecord));
+        // no data actually produced by Timer and hence emitting empty list with no data
+        wireSupport.emit(Collections.emptyList());
     }
 
 }
