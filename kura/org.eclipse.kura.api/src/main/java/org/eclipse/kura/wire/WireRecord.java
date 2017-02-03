@@ -13,22 +13,21 @@
  *******************************************************************************/
 package org.eclipse.kura.wire;
 
+import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
-import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.kura.annotation.Immutable;
 import org.eclipse.kura.annotation.Nullable;
 import org.eclipse.kura.annotation.ThreadSafe;
-import org.osgi.util.position.Position;
 
 /**
- * The Class WireRecord represents a record to be transmitted during wire
- * communication between wire emitter and wire receiver
+ * The Class {@link WireRecord} represents a record to be transmitted during wire
+ * communication between wire emitter and wire receiver. It represents the actual
+ * data that travels through the wires.
  *
  * @noextend This class is not intended to be extended by clients.
  */
@@ -36,103 +35,92 @@ import org.osgi.util.position.Position;
 @ThreadSafe
 public class WireRecord {
 
+    /**
+     * {@link WireRecord} Builder class for creation of {@link WireRecord} instance.
+     * This is essentially needed for maintaining thread-safety and immutability of
+     * every {@link WireRecord} instance.
+     */
+    public static class Builder {
+
+        /** The contained wire fields. */
+        private final Set<WireField> fields;
+
+        /** Constructor */
+        public Builder() {
+            this.fields = new HashSet<>();
+        }
+
+        /**
+         * Adds the provided {@link WireField} to the {@link WireRecord} if
+         * the provided {@link WireField} is not null
+         *
+         * @param wireField
+         *            the provided {@link WireField}
+         * @return the {@link Builder} instance
+         */
+        public Builder addField(@Nullable final WireField wireField) {
+            if (nonNull(wireField)) {
+                this.fields.add(wireField);
+            }
+            return this;
+        }
+
+        /**
+         * Adds the provided {@link WireField}s to the {@link WireRecord}
+         *
+         * @param wireFields
+         *            the provided {@link WireField}s
+         * @return the {@link Builder} instance
+         * @throws NullPointerException
+         *             if the provided set is null
+         */
+        public Builder addFields(final Set<WireField> wireFields) {
+            requireNonNull(wireFields, "Wire Fields instance cannot be null");
+            this.fields.addAll(wireFields);
+            return this;
+        }
+
+        /**
+         * Builds a {@link WireRecord} instance
+         *
+         * @return {@link WireRecord} instance
+         */
+        public WireRecord build() {
+            return new WireRecord(this);
+        }
+
+        /**
+         * Gets the associated {@link WireField}s.
+         *
+         * @return the {@link WireField}s
+         */
+        public Set<WireField> getFields() {
+            return Collections.unmodifiableSet(this.fields);
+        }
+    }
+
     /** The contained wire fields. */
-    private final List<WireField> fields;
+    private final Set<WireField> fields;
 
-    /** The position. */
-    @Nullable
-    private final Position position;
-
-    /** The timestamp. */
-    private final Timestamp timestamp;
-
-    /**
-     * Instantiates a new wire record.
-     *
-     * @param timestamp
-     *            the timestamp
-     * @param fields
-     *            the wire fields
-     * @throws NullPointerException
-     *             if any of the argument is null
-     */
-    public WireRecord(final Timestamp timestamp, final List<WireField> fields) {
-        requireNonNull(timestamp, "Timestamp cannot be null");
-        requireNonNull(fields, "Wire fields cannot be null");
-
-        this.timestamp = timestamp;
-        this.position = null;
-        this.fields = Collections.unmodifiableList(fields);
+    /** Constructor */
+    private WireRecord(final Builder builder) {
+        requireNonNull(builder, "Builder cannot be null");
+        this.fields = new HashSet<>(builder.getFields());
     }
 
     /**
-     * Instantiates a new wire record.
+     * Gets the associated {@link WireField}s.
      *
-     * @param timestamp
-     *            the timestamp
-     * @param position
-     *            the position
-     * @param fields
-     *            the wire fields
-     * @throws NullPointerException
-     *             if any of the argument is null (except position)
+     * @return the {@link WireField}s
      */
-    public WireRecord(final Timestamp timestamp, @Nullable final Position position, final List<WireField> fields) {
-        requireNonNull(timestamp, "Timestamp cannot be null");
-        requireNonNull(fields, "Wire fields cannot be null");
-
-        this.timestamp = timestamp;
-        this.position = position;
-        this.fields = Collections.unmodifiableList(fields);
-    }
-
-    /**
-     * Instantiates a new wire record.
-     *
-     * @param fields
-     *            the wire fields
-     * @throws NullPointerException
-     *             if any of the argument is null
-     */
-    public WireRecord(final WireField... fields) {
-        requireNonNull(fields, "Wire fields cannot be null");
-        this.timestamp = new Timestamp(new Date().getTime());
-        this.position = null;
-        this.fields = Collections.unmodifiableList(Arrays.asList(fields));
-    }
-
-    /**
-     * Gets the associated fields.
-     *
-     * @return the fields
-     */
-    public List<WireField> getFields() {
-        return this.fields;
-    }
-
-    /**
-     * Gets the position.
-     *
-     * @return the position
-     */
-    public Position getPosition() {
-        return this.position;
-    }
-
-    /**
-     * Gets the timestamp.
-     *
-     * @return the timestamp
-     */
-    public Timestamp getTimestamp() {
-        return this.timestamp;
+    public Set<WireField> getFields() {
+        return Collections.unmodifiableSet(this.fields);
     }
 
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return "WireRecord [fields=" + this.fields + ", position=" + this.position + ", timestamp=" + this.timestamp
-                + "]";
+        return "WireRecord [fields=" + this.fields + "]";
     }
 
 }

@@ -20,7 +20,15 @@ import org.eclipse.kura.annotation.ThreadSafe;
 import org.eclipse.kura.type.TypedValue;
 
 /**
- * The WireField represents a data type to be contained in {@link WireRecord}
+ * The {@link WireField} represents a data type to be contained in {@link WireRecord}.
+ * <br/>
+ * <br/>
+ * Note that, due to optimization, a {@link WireRecord} instance cannot contain no pair
+ * of {@link WireField}s <code>w1</code> and <code>w2</code> such that
+ * <code>w1.equals(w2)</code> results in true. In addition, {@link WireRecord} cannot
+ * contain any null element as well. Hence, any endeavor to add any null {@link WireField}
+ * instance will not impact {@link WireRecord} instance as the null instance will never be
+ * added to the {@link WireRecord}.
  *
  * @noextend This class is not intended to be extended by clients.
  */
@@ -50,9 +58,9 @@ public class WireField {
      *             if any of the arguments is null
      */
     public WireField(final String name, final TypedValue<?> value, final SeverityLevel level) {
-        requireNonNull(name, "Wire field name cannot be null");
-        requireNonNull(value, "Wire field value type cannot be null");
-        requireNonNull(level, "Wire field severity level cannot be null");
+        requireNonNull(name, "Wire Field name cannot be null");
+        requireNonNull(value, "Wire Field value type cannot be null");
+        requireNonNull(level, "Wire Field severity level cannot be null");
 
         this.name = name;
         this.value = value;
@@ -68,25 +76,15 @@ public class WireField {
         if (obj == null) {
             return false;
         }
-        if (this.getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
         final WireField other = (WireField) obj;
-        if (this.level != other.level) {
-            return false;
-        }
         if (this.name == null) {
             if (other.name != null) {
                 return false;
             }
         } else if (!this.name.equals(other.name)) {
-            return false;
-        }
-        if (this.value == null) {
-            if (other.value != null) {
-                return false;
-            }
-        } else if (!this.value.equals(other.value)) {
             return false;
         }
         return true;
@@ -124,9 +122,7 @@ public class WireField {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = (prime * result) + ((this.level == null) ? 0 : this.level.hashCode());
         result = (prime * result) + ((this.name == null) ? 0 : this.name.hashCode());
-        result = (prime * result) + ((this.value == null) ? 0 : this.value.hashCode());
         return result;
     }
 
