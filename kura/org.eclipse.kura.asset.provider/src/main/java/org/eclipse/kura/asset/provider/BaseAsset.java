@@ -5,10 +5,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Eurotech
  *     Red Hat Inc
+ *     Amit Kumar Mondal
  *******************************************************************************/
 package org.eclipse.kura.asset.provider;
 
@@ -160,8 +161,8 @@ public class BaseAsset implements Asset, SelfConfiguringComponent {
         try {
             final DriverTrackerCustomizer driverTrackerCustomizer = new DriverTrackerCustomizer(
                     this.context.getBundleContext(), this, driverId);
-            this.serviceTracker = new ServiceTracker<Driver, Driver>(this.context.getBundleContext(),
-                    Driver.class.getName(), driverTrackerCustomizer);
+            this.serviceTracker = new ServiceTracker<>(this.context.getBundleContext(), Driver.class.getName(),
+                    driverTrackerCustomizer);
             this.serviceTracker.open();
         } catch (final InvalidSyntaxException e) {
             logger.error(ThrowableUtil.stackTraceAsString(e));
@@ -687,7 +688,6 @@ public class BaseAsset implements Asset, SelfConfiguringComponent {
             }
             channelConfiguration.put(CHANNEL_ID.value(), assetRecord.getChannelId());
             driverRecord.setChannelConfig(channelConfiguration);
-            driverRecords.add(driverRecord);
 
             final TypedValue<?> value = assetRecord.getValue();
             if (value != null) {

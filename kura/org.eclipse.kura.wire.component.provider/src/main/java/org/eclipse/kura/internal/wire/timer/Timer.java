@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2016, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *  Eurotech
+ *  Amit Kumar Mondal
  *
  *******************************************************************************/
 package org.eclipse.kura.internal.wire.timer;
@@ -48,10 +52,10 @@ public final class Timer implements WireEmitter, ConfigurableComponent {
     private static int id = 0;
 
     /** The Logger instance. */
-    private static final Logger s_logger = LoggerFactory.getLogger(Timer.class);
+    private static final Logger logger = LoggerFactory.getLogger(Timer.class);
 
     /** Localization Resource */
-    private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
+    private static final WireMessages message = LocalizationAdapter.adapt(WireMessages.class);
 
     /** Job Key for Quartz Scheduling */
     private JobKey jobKey;
@@ -77,16 +81,16 @@ public final class Timer implements WireEmitter, ConfigurableComponent {
      *            the configured properties
      */
     protected synchronized void activate(final ComponentContext ctx, final Map<String, Object> properties) {
-        s_logger.debug(s_message.activatingTimer());
+        logger.debug(message.activatingTimer());
         this.wireSupport = this.wireHelperService.newWireSupport(this);
         this.timerOptions = new TimerOptions(properties);
         try {
             this.scheduler = new StdSchedulerFactory().getScheduler();
             this.doUpdate();
         } catch (final SchedulerException e) {
-            s_logger.error(ThrowableUtil.stackTraceAsString(e));
+            logger.error(ThrowableUtil.stackTraceAsString(e));
         }
-        s_logger.debug(s_message.activatingTimerDone());
+        logger.debug(message.activatingTimerDone());
     }
 
     /**
@@ -114,15 +118,15 @@ public final class Timer implements WireEmitter, ConfigurableComponent {
      *            the component context
      */
     protected synchronized void deactivate(final ComponentContext ctx) {
-        s_logger.debug(s_message.deactivatingTimer());
+        logger.debug(message.deactivatingTimer());
         if (this.jobKey != null) {
             try {
                 this.scheduler.deleteJob(this.jobKey);
             } catch (final SchedulerException e) {
-                s_logger.error(ThrowableUtil.stackTraceAsString(e));
+                logger.error(ThrowableUtil.stackTraceAsString(e));
             }
         }
-        s_logger.debug(s_message.deactivatingTimerDone());
+        logger.debug(message.deactivatingTimerDone());
     }
 
     /**
@@ -177,7 +181,7 @@ public final class Timer implements WireEmitter, ConfigurableComponent {
      *             if the argument is null
      */
     private void scheduleCronInterval(final String expression) throws SchedulerException {
-        requireNonNull(expression, s_message.cronExpressionNonNull());
+        requireNonNull(expression, message.cronExpressionNonNull());
         ++id;
         if (this.jobKey != null) {
             this.scheduler.deleteJob(this.jobKey);
@@ -208,7 +212,7 @@ public final class Timer implements WireEmitter, ConfigurableComponent {
      */
     private void scheduleSimpleInterval(final int interval) throws SchedulerException {
         if (interval <= 0) {
-            throw new IllegalArgumentException(s_message.intervalNonLessThanEqualToZero());
+            throw new IllegalArgumentException(message.intervalNonLessThanEqualToZero());
         }
         ++id;
         if (this.jobKey != null) {
@@ -246,14 +250,14 @@ public final class Timer implements WireEmitter, ConfigurableComponent {
      *            the updated properties
      */
     protected synchronized void updated(final Map<String, Object> properties) {
-        s_logger.debug(s_message.updatingTimer());
+        logger.debug(message.updatingTimer());
         this.timerOptions = new TimerOptions(properties);
         try {
             this.scheduler = new StdSchedulerFactory().getScheduler();
             this.doUpdate();
         } catch (final SchedulerException e) {
-            s_logger.error(ThrowableUtil.stackTraceAsString(e));
+            logger.error(ThrowableUtil.stackTraceAsString(e));
         }
-        s_logger.debug(s_message.updatingTimerDone());
+        logger.debug(message.updatingTimerDone());
     }
 }

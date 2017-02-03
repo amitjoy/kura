@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2016, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *  Eurotech
+ *  Amit Kumar Mondal
  *
  *******************************************************************************/
 package org.eclipse.kura.internal.wire.logger;
@@ -33,10 +37,10 @@ import org.slf4j.LoggerFactory;
 public final class Logger implements WireReceiver, ConfigurableComponent {
 
     /** The Logger instance. */
-    private static final org.slf4j.Logger s_logger = LoggerFactory.getLogger(Logger.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Logger.class);
 
     /** Localization Resource */
-    private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
+    private static final WireMessages message = LocalizationAdapter.adapt(WireMessages.class);
 
     /** The Wire Helper Service. */
     private volatile WireHelperService wireHelperService;
@@ -54,9 +58,9 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
      */
     protected synchronized void activate(final ComponentContext componentContext,
             final Map<String, Object> properties) {
-        s_logger.debug(s_message.activatingLogger());
+        logger.debug(message.activatingLogger());
         this.wireSupport = this.wireHelperService.newWireSupport(this);
-        s_logger.debug(s_message.activatingLoggerDone());
+        logger.debug(message.activatingLoggerDone());
     }
 
     /**
@@ -78,25 +82,25 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
      *            the component context
      */
     protected synchronized void deactivate(final ComponentContext componentContext) {
-        s_logger.debug(s_message.deactivatingLogger());
+        logger.debug(message.deactivatingLogger());
         // remained for debugging purposes
-        s_logger.debug(s_message.deactivatingLoggerDone());
+        logger.debug(message.deactivatingLoggerDone());
     }
 
     /** {@inheritDoc} */
     @Override
     public void onWireReceive(final WireEnvelope wireEnvelope) {
-        requireNonNull(wireEnvelope, s_message.wireEnvelopeNonNull());
-        s_logger.info(s_message.wireEnvelopeReceived(wireEnvelope.getEmitterPid()));
+        requireNonNull(wireEnvelope, message.wireEnvelopeNonNull());
+        logger.info(message.wireEnvelopeReceived(wireEnvelope.getEmitterPid()));
         // filtering list of wire records based on the provided severity level
         final List<WireRecord> records = this.wireSupport.filter(wireEnvelope.getRecords());
-        s_logger.info(s_message.loggerReceive(records.toString()));
+        logger.info(message.loggerReceive(records.toString()));
     }
 
     /** {@inheritDoc} */
     @Override
     public void producersConnected(final Wire[] wires) {
-        requireNonNull(wires, s_message.wiresNonNull());
+        requireNonNull(wires, message.wiresNonNull());
         this.wireSupport.producersConnected(wires);
     }
 
@@ -119,9 +123,9 @@ public final class Logger implements WireReceiver, ConfigurableComponent {
      *            the updated properties
      */
     public synchronized void updated(final Map<String, Object> properties) {
-        s_logger.debug(s_message.updatingLogger());
+        logger.debug(message.updatingLogger());
         // remained for debugging purposes
-        s_logger.debug(s_message.updatingLoggerDone());
+        logger.debug(message.updatingLoggerDone());
     }
 
     /** {@inheritDoc} */

@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2016, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *  Eurotech
+ *  Amit Kumar Mondal
  *
  *******************************************************************************/
 package org.eclipse.kura.internal.wire.store;
@@ -17,9 +21,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.MessageFormat;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -236,80 +241,20 @@ public final class DbWireRecordStore implements WireEmitter, WireReceiver, Confi
         requireNonNull(tableName, s_message.tableNameNonNull());
         requireNonNull(wireRecord, s_message.wireRecordNonNull());
 
-        final String sqlTableName = this.dbHelper.sanitizeSqlTableAndColumnName(tableName);
-        final StringBuilder sbCols = new StringBuilder();
-        final StringBuilder sbVals = new StringBuilder();
-
-        // add the timestamp
-        sbCols.append("TIMESTAMP");
-        sbVals.append("?");
-
-        final List<WireField> dataFields = wireRecord.getFields();
-        for (final WireField dataField : dataFields) {
-            final String sqlColName = this.dbHelper.sanitizeSqlTableAndColumnName(dataField.getName());
-            sbCols.append(", " + sqlColName);
-            sbVals.append(", ?");
-        }
-
-        s_logger.info(s_message.storingRecord(sqlTableName));
-        final String sqlInsert = MessageFormat.format(SQL_INSERT_RECORD, sqlTableName, sbCols.toString(),
-                sbVals.toString());
-        Connection conn = null;
+        Connection connection = null;
         PreparedStatement stmt = null;
         try {
-            conn = this.dbHelper.getConnection();
-            stmt = conn.prepareStatement(sqlInsert);
-            stmt.setLong(1, wireRecord.getTimestamp().getTime());
-            for (int i = 0; i < dataFields.size(); i++) {
-                final WireField dataField = dataFields.get(i);
-                final DataType dataType = dataField.getValue().getType();
-                final Object value = dataField.getValue();
-                switch (dataType) {
-                case BOOLEAN:
-                    s_logger.info(s_message.storeBoolean(((BooleanValue) value).getValue()));
-                    stmt.setBoolean(2 + i, ((BooleanValue) value).getValue());
-                    break;
-                case BYTE:
-                    s_logger.info(s_message.storeByte(((ByteValue) value).getValue()));
-                    stmt.setByte(2 + i, ((ByteValue) value).getValue());
-                    break;
-                case DOUBLE:
-                    s_logger.info(s_message.storeDouble(((DoubleValue) value).getValue()));
-                    stmt.setDouble(2 + i, ((DoubleValue) value).getValue());
-                    break;
-                case INTEGER:
-                    s_logger.info(s_message.storeInteger(((IntegerValue) value).getValue()));
-                    stmt.setInt(2 + i, ((IntegerValue) value).getValue());
-                    break;
-                case LONG:
-                    s_logger.info(s_message.storelong(((LongValue) value).getValue()));
-                    stmt.setLong(2 + i, ((LongValue) value).getValue());
-                    break;
-                case BYTE_ARRAY:
-                    s_logger.info(s_message.storeByteArray(Arrays.toString(((ByteArrayValue) value).getValue())));
-                    stmt.setBytes(2 + i, ((ByteArrayValue) value).getValue());
-                    break;
-                case SHORT:
-                    s_logger.info(s_message.storeShort(((ShortValue) value).getValue()));
-                    stmt.setShort(2 + i, ((ShortValue) value).getValue());
-                    break;
-                case STRING:
-                    s_logger.info(s_message.storeString(((StringValue) value).getValue()));
-                    stmt.setString(2 + i, ((StringValue) value).getValue());
-                    break;
-                default:
-                    break;
-                }
-            }
+            connection = this.dbHelper.getConnection();
+            stmt = prepareStatement(connection, tableName, wireRecord, new Date().getTime());
             stmt.execute();
-            conn.commit();
+            connection.commit();
             s_logger.info(s_message.stored());
         } catch (final SQLException e) {
-            this.dbHelper.rollback(conn);
+            this.dbHelper.rollback(connection);
             throw e;
         } finally {
             this.dbHelper.close(stmt);
-            this.dbHelper.close(conn);
+            this.dbHelper.close(connection);
         }
     }
 
@@ -331,6 +276,101 @@ public final class DbWireRecordStore implements WireEmitter, WireReceiver, Confi
     @Override
     public Object polled(final Wire wire) {
         return this.wireSupport.polled(wire);
+    }
+
+    /**
+     * Prepares a {@link PreparedStatement} instance from the provided {@link WireRecord}
+     *
+     * @param connection
+     *            the database connection instance
+     * @param tableName
+     *            the table name to store data
+     * @param wireRecord
+     *            the provided {@link WireRecord} instance
+     * @param timestamp
+     *            the timestamp
+     * @return {@link PreparedStatement} instance
+     * @throws SQLException
+     *             if statement is not prepared
+     * @throws NullPointerException
+     *             if any of the arguments is null
+     */
+    private PreparedStatement prepareStatement(final Connection connection, final String tableName,
+            final WireRecord wireRecord, final long timestamp) throws SQLException {
+        requireNonNull(connection, s_message.connectionNonNull());
+        requireNonNull(tableName, s_message.tableNameNonNull());
+        requireNonNull(wireRecord, s_message.wireRecordNonNull());
+
+        final String sqlTableName = this.dbHelper.sanitizeSqlTableAndColumnName(tableName);
+        final StringBuilder sbCols = new StringBuilder();
+        final StringBuilder sbVals = new StringBuilder();
+
+        // add the timestamp
+        sbCols.append("TIMESTAMP");
+        sbVals.append("?");
+
+        final Set<WireField> dataFields = wireRecord.getFields();
+        for (final WireField dataField : dataFields) {
+            final String sqlColName = this.dbHelper.sanitizeSqlTableAndColumnName(dataField.getName());
+            sbCols.append(", " + sqlColName);
+            sbVals.append(", ?");
+        }
+
+        s_logger.info(s_message.storingRecord(sqlTableName));
+        final String sqlInsert = MessageFormat.format(SQL_INSERT_RECORD, sqlTableName, sbCols.toString(),
+                sbVals.toString());
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        try {
+            conn = this.dbHelper.getConnection();
+            stmt = conn.prepareStatement(sqlInsert);
+            stmt.setLong(1, timestamp);
+
+            int i = 0;
+            for (final WireField dataField : wireRecord.getFields()) {
+                final DataType dataType = dataField.getValue().getType();
+                final Object value = dataField.getValue();
+                switch (dataType) {
+                case BOOLEAN:
+                    stmt.setBoolean(2 + i, ((BooleanValue) value).getValue());
+                    break;
+                case BYTE:
+                    stmt.setByte(2 + i, ((ByteValue) value).getValue());
+                    break;
+                case DOUBLE:
+                    stmt.setDouble(2 + i, ((DoubleValue) value).getValue());
+                    break;
+                case INTEGER:
+                    stmt.setInt(2 + i, ((IntegerValue) value).getValue());
+                    break;
+                case LONG:
+                    stmt.setLong(2 + i, ((LongValue) value).getValue());
+                    break;
+                case BYTE_ARRAY:
+                    stmt.setBytes(2 + i, ((ByteArrayValue) value).getValue());
+                    break;
+                case SHORT:
+                    stmt.setShort(2 + i, ((ShortValue) value).getValue());
+                    break;
+                case STRING:
+                    stmt.setString(2 + i, ((StringValue) value).getValue());
+                    break;
+                default:
+                    break;
+                }
+                i++;
+            }
+            stmt.execute();
+            conn.commit();
+            s_logger.info(s_message.stored());
+        } catch (final SQLException e) {
+            this.dbHelper.rollback(conn);
+            throw e;
+        } finally {
+            this.dbHelper.close(stmt);
+            this.dbHelper.close(conn);
+        }
+        return stmt;
     }
 
     /** {@inheritDoc} */
@@ -376,7 +416,7 @@ public final class DbWireRecordStore implements WireEmitter, WireReceiver, Confi
             this.dbHelper.close(conn);
         }
         // reconcile columns
-        final List<WireField> dataFields = wireRecord.getFields();
+        final Set<WireField> dataFields = wireRecord.getFields();
         for (final WireField dataField : dataFields) {
             final String sqlColName = this.dbHelper.sanitizeSqlTableAndColumnName(dataField.getName());
             final Integer sqlColType = columns.get(sqlColName);
@@ -435,14 +475,8 @@ public final class DbWireRecordStore implements WireEmitter, WireReceiver, Confi
         }
         // schedule the truncation of collected wire records
         if (cleanUpRate != 0) {
-            this.tickHandle = this.executorService.schedule(new Runnable() {
-
-                /** {@inheritDoc} */
-                @Override
-                public void run() {
-                    DbWireRecordStore.this.clear(noOfRecordsToKeep);
-                }
-            }, cleanUpRate, TimeUnit.SECONDS);
+            this.tickHandle = this.executorService.schedule(() -> DbWireRecordStore.this.clear(noOfRecordsToKeep),
+                    cleanUpRate, TimeUnit.SECONDS);
         }
     }
 

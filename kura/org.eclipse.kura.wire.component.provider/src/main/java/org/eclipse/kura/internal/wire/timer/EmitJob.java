@@ -1,11 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2016, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
+ * Contributors:
+ *  Eurotech
+ *  Amit Kumar Mondal
+ *
  *******************************************************************************/
 package org.eclipse.kura.internal.wire.timer;
 
@@ -43,8 +47,9 @@ public final class EmitJob implements Job {
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         final TimerJobDataMap dataMap = (TimerJobDataMap) context.getJobDetail().getJobDataMap();
         final WireSupport wireSupport = dataMap.getWireSupport();
-        wireSupport.emit(Arrays
-                .asList(new WireRecord(new WireField(PROP, TypedValues.newStringValue(PROP), SeverityLevel.CONFIG))));
+        final WireField wireField = new WireField(PROP, TypedValues.EMPTY_VALUE, SeverityLevel.INFO);
+        final WireRecord wireRecord = new WireRecord.Builder().addField(wireField).build();
+        wireSupport.emit(Arrays.asList(wireRecord));
     }
 
 }

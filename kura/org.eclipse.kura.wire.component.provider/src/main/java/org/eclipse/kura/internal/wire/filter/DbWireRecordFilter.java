@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2016, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *  Eurotech
+ *  Amit Kumar Mondal
  *
  *******************************************************************************/
 package org.eclipse.kura.internal.wire.filter;
@@ -17,12 +21,10 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -57,10 +59,10 @@ import org.slf4j.LoggerFactory;
 public final class DbWireRecordFilter implements WireEmitter, WireReceiver, ConfigurableComponent {
 
     /** The Logger instance. */
-    private static final Logger s_logger = LoggerFactory.getLogger(DbWireRecordFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(DbWireRecordFilter.class);
 
     /** Localization Resource */
-    private static final WireMessages s_message = LocalizationAdapter.adapt(WireMessages.class);
+    private static final WireMessages message = LocalizationAdapter.adapt(WireMessages.class);
 
     /** Cache container to store values of SQL view wire records */
     private final WireRecordCache cache;
@@ -102,12 +104,12 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
      */
     protected synchronized void activate(final ComponentContext componentContext,
             final Map<String, Object> properties) {
-        s_logger.debug(s_message.activatingFilter());
+        logger.debug(message.activatingFilter());
         this.options = new DbWireRecordFilterOptions(properties);
         this.dbHelper = DbServiceHelper.getInstance(this.dbService);
         this.wireSupport = this.wireHelperService.newWireSupport(this);
         this.scheduleRefresh();
-        s_logger.debug(s_message.activatingFilterDone());
+        logger.debug(message.activatingFilterDone());
     }
 
     /**
@@ -147,12 +149,12 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
      *            the component context
      */
     protected synchronized void deactivate(final ComponentContext componentContext) {
-        s_logger.debug(s_message.deactivatingFilter());
+        logger.debug(message.deactivatingFilter());
         if (this.tickHandle != null) {
             this.tickHandle.cancel(true);
         }
         this.executorService.shutdown();
-        s_logger.debug(s_message.deactivatingFilterDone());
+        logger.debug(message.deactivatingFilterDone());
     }
 
     /**
@@ -161,11 +163,11 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
      * @return the filtered records
      */
     synchronized List<WireRecord> filter() {
-        s_logger.debug(s_message.filteringStarted());
+        logger.debug(message.filteringStarted());
         try {
             return this.refreshSQLView();
         } catch (final SQLException e) {
-            s_logger.error(s_message.errorFiltering() + ThrowableUtil.stackTraceAsString(e));
+            logger.error(message.errorFiltering() + ThrowableUtil.stackTraceAsString(e));
         }
         return Collections.emptyList();
     }
@@ -182,8 +184,8 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
      */
     @Override
     public synchronized void onWireReceive(final WireEnvelope wireEnvelope) {
-        requireNonNull(wireEnvelope, s_message.wireEnvelopeNonNull());
-        s_logger.debug(s_message.wireEnvelopeReceived() + wireEnvelope);
+        requireNonNull(wireEnvelope, message.wireEnvelopeNonNull());
+        logger.debug(message.wireEnvelopeReceived() + wireEnvelope);
         this.wireSupport.emit(this.cache.get(this.cache.getLastRefreshedTime().getTimeInMillis()));
     }
 
@@ -203,8 +205,7 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
      * Refreshes the SQL view
      */
     private List<WireRecord> refreshSQLView() throws SQLException {
-        final Date now = new Date();
-        final List<WireRecord> dataRecords = CollectionUtil.newArrayList();
+        final List<WireRecord> wireRecords = CollectionUtil.newArrayList();
         Connection conn = null;
         Statement stmt = null;
         ResultSet rset = null;
@@ -215,66 +216,59 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
             rset = stmt.executeQuery(sqlView);
             if (rset != null) {
                 while (rset.next()) {
-                    final List<WireField> dataFields = CollectionUtil.newArrayList();
+                    final Set<WireField> wireFields = CollectionUtil.newHashSet();
                     final ResultSetMetaData rmet = rset.getMetaData();
                     for (int i = 1; i <= rmet.getColumnCount(); i++) {
                         String fieldName = rmet.getColumnLabel(i);
                         if (fieldName == null) {
                             fieldName = rmet.getColumnName(i);
                         }
-                        WireField dataField = null;
+                        WireField wireField = null;
                         final int jdbcType = rmet.getColumnType(i);
                         final DataType dataType = DbDataTypeMapper.getDataType(jdbcType);
                         switch (dataType) {
                         case BOOLEAN:
                             final boolean boolValue = rset.getBoolean(i);
-                            s_logger.info(s_message.refreshBoolean(boolValue));
-                            dataField = new WireField(fieldName, TypedValues.newBooleanValue(boolValue), INFO);
+                            wireField = new WireField(fieldName, TypedValues.newBooleanValue(boolValue), INFO);
                             break;
                         case BYTE:
                             final byte byteValue = rset.getByte(i);
-                            s_logger.info(s_message.refreshByte(byteValue));
-                            dataField = new WireField(fieldName, TypedValues.newByteValue(byteValue), INFO);
+                            wireField = new WireField(fieldName, TypedValues.newByteValue(byteValue), INFO);
                             break;
                         case DOUBLE:
                             final double doubleValue = rset.getDouble(i);
-                            s_logger.info(s_message.refreshDouble(doubleValue));
-                            dataField = new WireField(fieldName, TypedValues.newDoubleValue(doubleValue), INFO);
+                            wireField = new WireField(fieldName, TypedValues.newDoubleValue(doubleValue), INFO);
                             break;
                         case INTEGER:
                             final int intValue = rset.getInt(i);
-                            s_logger.info(s_message.refreshInteger(intValue));
-                            dataField = new WireField(fieldName, TypedValues.newIntegerValue(intValue), INFO);
+                            wireField = new WireField(fieldName, TypedValues.newIntegerValue(intValue), INFO);
                             break;
                         case LONG:
                             final long longValue = rset.getLong(i);
-                            s_logger.info(s_message.refreshLong(longValue));
-                            dataField = new WireField(fieldName, TypedValues.newLongValue(longValue), INFO);
+                            wireField = new WireField(fieldName, TypedValues.newLongValue(longValue), INFO);
                             break;
                         case BYTE_ARRAY:
                             final byte[] bytesValue = rset.getBytes(i);
-                            s_logger.info(s_message.refreshByteArray(Arrays.toString(bytesValue)));
-                            dataField = new WireField(fieldName, TypedValues.newByteArrayValue(bytesValue), INFO);
+                            wireField = new WireField(fieldName, TypedValues.newByteArrayValue(bytesValue), INFO);
                             break;
                         case SHORT:
                             final short shortValue = rset.getShort(i);
-                            s_logger.info(s_message.refreshShort(shortValue));
-                            dataField = new WireField(fieldName, TypedValues.newShortValue(shortValue), INFO);
+                            wireField = new WireField(fieldName, TypedValues.newShortValue(shortValue), INFO);
                             break;
                         case STRING:
                             final String stringValue = rset.getString(i);
-                            s_logger.info(s_message.refreshString(stringValue));
-                            dataField = new WireField(fieldName, TypedValues.newStringValue(stringValue), INFO);
+                            wireField = new WireField(fieldName, TypedValues.newStringValue(stringValue), INFO);
                             break;
                         default:
                             break;
                         }
-                        dataFields.add(dataField);
+                        wireFields.add(wireField);
                     }
-                    dataRecords.add(new WireRecord(new Timestamp(now.getTime()), dataFields));
+                    final WireRecord wireRecord = new WireRecord.Builder().addFields(wireFields).build();
+                    wireRecords.add(wireRecord);
                 }
             }
-            s_logger.info(s_message.refreshed());
+            logger.info(message.refreshed());
         } catch (final SQLException e) {
             throw e;
         } finally {
@@ -282,7 +276,7 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
             this.dbHelper.close(stmt);
             this.dbHelper.close(conn);
         }
-        return dataRecords;
+        return wireRecords;
     }
 
     /**
@@ -298,14 +292,8 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
         }
         // schedule the new refresh view
         if (refreshRate != 0) {
-            this.tickHandle = this.executorService.schedule(new Runnable() {
-
-                /** {@inheritDoc} */
-                @Override
-                public void run() {
-                    DbWireRecordFilter.this.cache.put(System.currentTimeMillis(), DbWireRecordFilter.this.filter());
-                }
-            }, refreshRate, TimeUnit.SECONDS);
+            this.tickHandle = this.executorService.schedule(() -> DbWireRecordFilter.this.cache
+                    .put(System.currentTimeMillis(), DbWireRecordFilter.this.filter()), refreshRate, TimeUnit.SECONDS);
         }
     }
 
@@ -340,10 +328,10 @@ public final class DbWireRecordFilter implements WireEmitter, WireReceiver, Conf
      *            the updated properties
      */
     public synchronized void updated(final Map<String, Object> properties) {
-        s_logger.debug(s_message.updatingFilter() + properties);
+        logger.debug(message.updatingFilter() + properties);
         this.options = new DbWireRecordFilterOptions(properties);
         this.scheduleRefresh();
-        s_logger.debug(s_message.updatingFilterDone());
+        logger.debug(message.updatingFilterDone());
     }
 
     /** {@inheritDoc} */

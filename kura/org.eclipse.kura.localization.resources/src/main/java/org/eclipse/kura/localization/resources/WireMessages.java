@@ -1,11 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2016 Eurotech and/or its affiliates and others
+ * Copyright (c) 2016, 2017 Eurotech and/or its affiliates and others
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
+ * Contributors:
+ *  Eurotech
+ *  Amit Kumar Mondal
+ *
  *******************************************************************************/
 package org.eclipse.kura.localization.resources;
 
@@ -75,6 +79,9 @@ public interface WireMessages {
     @En("altitude")
     public String altitude();
 
+    @En("Application topic cannot be null")
+    public String appTopicNonNull();
+
     @En("asset_flag")
     public String assetFlag();
 
@@ -86,18 +93,18 @@ public interface WireMessages {
 
     @En("List of Asset Records cannot be null")
     public String assetRecordsNonNull();
-    
+
     @En("Bundle context cannot be null")
     public String bundleContextNonNull();
 
     @En("channel_id")
     public String channelId();
 
-    @En("channel_name")
-    public String channelName();
-    
     @En("List of Channel IDs cannot be null")
     public String channelIdsNonNull();
+
+    @En("channel_name")
+    public String channelName();
 
     @En("Channel cannot be null")
     public String channelNonNull();
@@ -518,6 +525,9 @@ public interface WireMessages {
 
     @En("typed_value")
     public String typedValue();
+
+    @En("Unknown metric type")
+    public String unknownMetricType();
 
     @En("Updating Cloud Publisher Wire Component...")
     public String updatingCloudPublisher();
