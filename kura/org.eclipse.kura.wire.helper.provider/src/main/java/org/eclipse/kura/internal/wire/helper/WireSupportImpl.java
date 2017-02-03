@@ -14,15 +14,14 @@
 package org.eclipse.kura.internal.wire.helper;
 
 import static java.util.Objects.requireNonNull;
-import static org.eclipse.kura.wire.SeverityLevel.CONFIG;
 import static org.eclipse.kura.wire.SeverityLevel.ERROR;
 import static org.eclipse.kura.wire.SeverityLevel.INFO;
-import static org.eclipse.kura.wire.SeverityLevel.SEVERE;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.kura.localization.LocalizationAdapter;
 import org.eclipse.kura.localization.resources.WireMessages;
@@ -120,12 +119,12 @@ final class WireSupportImpl implements WireSupport {
     public List<WireRecord> filter(final List<WireRecord> records) {
         requireNonNull(records, message.wireRecordsNonNull());
         final SeverityLevel level = this.getSeverityLevel();
-        // If the severity level is SEVERE, then all wire fields remain
-        if ((level == null) || (level == SEVERE)) {
+        // If the severity level is not set or it is set to ALL, then all wire fields remain
+        if (level == null) {
             return records;
         }
         final List<WireRecord> newRecords = CollectionUtil.newArrayList();
-        final List<WireField> newFields = CollectionUtil.newArrayList();
+        final Set<WireField> newFields = CollectionUtil.newHashSet();
         for (final WireRecord wireRecord : records) {
             for (final WireField wireField : wireRecord.getFields()) {
                 // If the severity level is INFO, then only info wire fields
@@ -139,15 +138,9 @@ final class WireSupportImpl implements WireSupport {
                 if ((wireFieldLevel == ERROR) && (level == ERROR)) {
                     newFields.add(wireField);
                 }
-                // If the severity level is CONFIG, then info and CONFIG wire
-                // fields remain
-                if (((wireFieldLevel == INFO) || (wireFieldLevel == CONFIG)) && (level == CONFIG)) {
-                    newFields.add(wireField);
-                }
-                final WireRecord newWireRecord = new WireRecord(wireRecord.getTimestamp(), wireRecord.getPosition(),
-                        newFields);
-                newRecords.add(newWireRecord);
             }
+            final WireRecord newWireRecord = new WireRecord.Builder().addFields(newFields).build();
+            newRecords.add(newWireRecord);
         }
         return newRecords;
     }
@@ -180,24 +173,22 @@ final class WireSupportImpl implements WireSupport {
         final ServiceReference<WireComponent>[] refs = ServiceUtil.getServiceReferences(context, WireComponent.class,
                 null);
         String property = null;
-        for (final ServiceReference<WireComponent> ref : refs) {
-            final WireComponent component = context.getService(ref);
-            if (component == this.wireSupporter) {
-                property = ref.getProperty("severity.level").toString();
-                break;
+        final String severityLevel = "severity.level";
+        try {
+            for (final ServiceReference<WireComponent> ref : refs) {
+                final WireComponent component = context.getService(ref);
+                if (component == this.wireSupporter) {
+                    property = ref.getProperty(severityLevel).toString();
+                    break;
+                }
             }
-        }
-        if ("INFO".equalsIgnoreCase(property)) {
-            return INFO;
-        }
-        if ("ERROR".equalsIgnoreCase(property)) {
-            return ERROR;
-        }
-        if ("CONFIG".equalsIgnoreCase(property)) {
-            return CONFIG;
-        }
-        if ("SEVERE".equalsIgnoreCase(property)) {
-            return SEVERE;
+            if ("INFO".equalsIgnoreCase(property)) {
+                return INFO;
+            } else if ("ERROR".equalsIgnoreCase(property)) {
+                return ERROR;
+            }
+        } finally {
+            ServiceUtil.ungetServiceReferences(context, refs);
         }
         return null;
     }
